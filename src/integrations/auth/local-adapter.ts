@@ -73,6 +73,6 @@ export const localAuthAdapter: AuthAdapter = {
 };
 
 export const DEMO_CREDENTIALS = {
-  email: DEMO_USERS[0].email,
-  password: DEMO_USERS[0].password,
+  email: "redacao@pchnews.com.br",
+  password: "pchnews123",
 };
