@@ -11,11 +11,12 @@ import { serveStatic, setupVite } from "./vite";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
-    const server = net.createServer();
-    // Bind explicitly to all interfaces for managed hosting platforms.\n  server.listen(port, "0.0.0.0", () => {
-      server.close(() => resolve(true));
+    const probe = net.createServer();
+    probe.once("error", () => resolve(false));
+    probe.once("listening", () => {
+      probe.close(() => resolve(true));
     });
-    server.on("error", () => resolve(false));
+    probe.listen(port, "0.0.0.0");
   });
 }
 
@@ -58,8 +59,8 @@ async function startServer() {
     console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
   }
 
-  server.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}/`);
+  server.listen(port, "0.0.0.0", () => {
+    console.log(`Server running on http://0.0.0.0:${port}/`);
   });
 }
 
