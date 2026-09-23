@@ -159,7 +159,8 @@ export default function Admin() {
     try {
       const result = await reviewArticleRemote.mutateAsync({ articleId: article.id, agentId: "journalism-master-orchestrator", article });
       setEditorReview(result);
-      const seo = result?.output?.agents?.find((item: any) => item.agentId === "seo-optimization-specialist")?.output;
+      const agents = ((result as any)?.output?.agents || []) as Array<any>;
+      const seo = agents.find((item) => item.agentId === "seo-optimization-specialist")?.output;
       if (seo) setDraft((current) => ({ ...current, slug: current.slug || seo.suggestedSlug || "", metaDescription: current.metaDescription || seo.metaDescription || "" }));
       notify(result.status === "block" ? "Revisão encontrou bloqueios antes da publicação." : result.status === "review" ? "Revisão concluída: há pontos para conferência humana." : "Revisão concluída sem alertas.");
     } catch (error) { notify(error instanceof Error ? error.message : "Não foi possível executar a revisão."); }
