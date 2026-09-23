@@ -1,0 +1,81 @@
+import { createHash, randomBytes } from "node:crypto";
+import { z } from "zod";
+import { COOKIE_NAME } from "@shared/const";
+import { getSessionCookieOptions } from "./_core/cookies";
+import { systemRouter } from "./_core/systemRouter";
+import { adminProcedure, columnistProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import { acceptInvite, createInvite, findInvite, getDb, getEditorialSnapshot, getViewAnalytics, listArticleAudit, listInvites, recordArticleAudit, recordArticleView, renewInvite, revokeInvite, syncEditorial, updateColumnistProfile, recordEditorialAgentRun, listEditorialAgentRuns } from "./db";
+import { storagePut } from "./storage";
+import { sendInviteEmail, smtpConfigured } from "./email";
+import { ENV } from "./_core/env";
+import { articles, users, comments } from "../drizzle/schema";
+import { runEditorialAgent, type EditorialAgentId } from "./editorialAgents";
+import { and, eq } from "drizzle-orm";
+const articleSchema = z.object({ id: z.string(), title: z.string(), category: z.string(), author: z.string(), authorOpenId: z.string().nullable().optional(), summary: z.string(), date: z.string(), updated: z.string(), status: z.enum(["published", "draft", "scheduled", "archived"]), views: z.number().int(), image: z.string(), bodyHtml: z.string(), scheduledAt: z.number().nullable(), tags: z.string(), youtubeUrl: z.string().nullable().optional(), socialLinks: z.string().nullable().optional(), createdAt: z.coerce.date().optional(), updatedAt: z.coerce.date().optional() });
+const commentSchema = z.object({ id: z.string(), articleId: z.string(), name: z.string(), text: z.string(), createdAtMs: z.number().int(), status: z.enum(["pending", "approved", "rejected"]), reply: z.string().nullable().default(null), repliedBy: z.string().nullable().default(null), repliedAtMs: z.number().int().nullable().default(null) });
+const profileSchema = z.object({ slug: z.string(), name: z.string(), beat: z.string(), bio: z.string(), photo: z.string(), instagram: z.string(), facebook: z.string(), x: z.string(), linkedin: z.string(), updatedAt: z.coerce.date().optional() });
+const adSchema = z.object({ id: z.string(), business: z.string(), contact: z.string(), packageName: z.string(), message: z.string(), status: z.enum(["received", "reviewing", "approved"]), createdAtMs: z.number().int() });
+const profileUpdateSchema = z.object({ slug: z.string(), name: z.string().min(1), beat: z.string(), bio: z.string(), photo: z.string(), instagram: z.string(), facebook: z.string(), x: z.string(), linkedin: z.string() });
+const uploadSchema = z.object({ slug: z.string(), fileName: z.string().regex(/\.(png|jpe?g|webp|gif)$/i), contentType: z.enum(["image/png", "image/jpeg", "image/webp", "image/gif"]), base64: z.string().min(20).max(8_000_000) });
+const slugify = (value: string) => value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+const hashToken = (token: string) => createHash("sha256").update(token).digest("hex");
+const articleInput = z.object({ id: z.string(), title: z.string(), category: z.string(), author: z.string(), authorOpenId: z.string().nullable().optional(), summary: z.string(), date: z.string(), updated: z.string(), status: z.enum(["published", "draft", "scheduled", "archived"]), views: z.number().int(), image: z.string(), bodyHtml: z.string(), scheduledAt: z.number().nullable(), tags: z.string(), youtubeUrl: z.string().nullable().optional(), socialLinks: z.string().nullable().optional(), slug: z.string().nullable().optional(), seoTitle: z.string().nullable().optional(), metaDescription: z.string().nullable().optional(), canonicalUrl: z.string().nullable().optional(), focusKeyword: z.string().nullable().optional(), ogTitle: z.string().nullable().optional(), ogDescription: z.string().nullable().optional(), imageAlt: z.string().nullable().optional(), noindex: z.boolean().optional() });
+export const appRouter = router({
+  system: systemRouter,
+  auth: router({ me: publicProcedure.query((opts) => opts.ctx.user), logout: publicProcedure.mutation(({ ctx }) => { const cookieOptions = getSessionCookieOptions(ctx.req); ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 }); return { success: true } as const; }) }),
+  editorialAgents: router({
+    run: columnistProcedure.input(z.object({
+      articleId: z.string().min(1),
+      agentId: z.enum(["story-editor","fact-checker","seo-optimization-specialist","publication-readiness","ethics-advisor","multi-platform-distributor","journalism-master-orchestrator"]),
+      article: z.object({
+        id: z.string(), title: z.string(), category: z.string(), author: z.string(), summary: z.string(),
+        bodyHtml: z.string(), image: z.string(), tags: z.string(), status: z.string(), scheduledAt: z.number().nullable().optional()
+      })
+    })).mutation(async ({ input, ctx }) => {
+      const result = runEditorialAgent(input.agentId as EditorialAgentId, input.article);
+      const db = await getDb();
+      if (db) {
+        await recordEditorialAgentRun({
+          id: `agent-${Date.now()}-${randomBytes(4).toString("hex")}`,
+          articleId: input.articleId,
+          agentId: result.agentId,
+          agentName: result.agentName,
+          status: result.status,
+          findingsJson: JSON.stringify(result.findings),
+          outputJson: JSON.stringify(result.output),
+          actorOpenId: ctx.user.openId,
+          createdAtMs: Date.now()
+        });
+      }
+      return result;
+    }),
+    history: columnistProcedure.input(z.object({ articleId: z.string().min(1) })).query(({ input }) => listEditorialAgentRuns(input.articleId)),
+  }),
+  editorial: router({
+    bootstrap: publicProcedure.query(() => getEditorialSnapshot()),
+    sync: protectedProcedure.input(z.object({ articles: z.array(articleSchema), comments: z.array(commentSchema), profiles: z.array(profileSchema), adRequests: z.array(adSchema) })).mutation(async ({ input, ctx }) => { const db = await getDb(); if (!db) throw new Error("Database unavailable"); if (ctx.user.role !== "admin") { const existing = await db.select({ id: articles.id, authorOpenId: articles.authorOpenId }).from(articles); const byId = new Map(existing.map((row) => [row.id, row.authorOpenId])); for (const item of input.articles) { const owner = byId.get(item.id); const claimed = item.authorOpenId ?? (item.author === ctx.user.name ? ctx.user.openId : null); if (claimed !== ctx.user.openId || (owner !== undefined && owner !== ctx.user.openId)) throw new Error("Sincronização recusada: a publicação não pertence ao seu openId."); } } return syncEditorial({ ...input, articles: input.articles.map((item) => ({ ...item, authorOpenId: item.authorOpenId ?? (item.author === ctx.user.name ? ctx.user.openId : null), youtubeUrl: item.youtubeUrl ?? null, socialLinks: item.socialLinks ?? null, createdAt: item.createdAt ?? new Date(), updatedAt: item.updatedAt ?? new Date() })), profiles: input.profiles.map((item) => ({ ...item, updatedAt: item.updatedAt ?? new Date() })) }); }),
+    saveArticle: columnistProcedure.input(articleInput).mutation(async ({ input, ctx }) => { const db = await getDb(); if (!db) throw new Error("Database unavailable"); const current = await db.select().from(articles).where(eq(articles.id, input.id)).limit(1); const existing = current[0]; const owner = existing?.authorOpenId ?? (existing?.author === ctx.user.name ? ctx.user.openId : null); const nextOwner = input.authorOpenId ?? owner ?? (ctx.user.role === "columnist" ? ctx.user.openId : null); if (ctx.user.role !== "admin" && owner !== ctx.user.openId && !(owner === null && !existing)) throw new Error("Você só pode editar publicações vinculadas ao seu openId."); const before = existing ? { ...existing } : null; await db.insert(articles).values({ ...input, authorOpenId: nextOwner, createdAt: new Date(), updatedAt: new Date() }).onDuplicateKeyUpdate({ set: { title: input.title, category: input.category, author: input.author, authorOpenId: nextOwner, summary: input.summary, date: input.date, updated: input.updated, status: input.status, image: input.image, bodyHtml: input.bodyHtml, scheduledAt: input.scheduledAt, tags: input.tags, youtubeUrl: input.youtubeUrl ?? null, socialLinks: input.socialLinks ?? null, slug: input.slug ?? null, seoTitle: input.seoTitle ?? null, metaDescription: input.metaDescription ?? null, canonicalUrl: input.canonicalUrl ?? null, focusKeyword: input.focusKeyword ?? null, ogTitle: input.ogTitle ?? null, ogDescription: input.ogDescription ?? null, imageAlt: input.imageAlt ?? null, noindex: Boolean(input.noindex) } }); await recordArticleAudit({ id: `audit-${Date.now()}-${randomBytes(4).toString("hex")}`, articleId: input.id, actorOpenId: ctx.user.openId, actorName: ctx.user.name || ctx.user.email || "Usuário", action: before ? "updated" : "created", beforeJson: before ? JSON.stringify(before) : null, afterJson: JSON.stringify(input) }); return { success: true }; }),
+    recordView: publicProcedure.input(z.object({ articleId: z.string().min(1), visitorId: z.string().min(8).max(128) })).mutation(({ input }) => recordArticleView(input.articleId, input.visitorId)),
+    analytics: protectedProcedure.input(z.object({ author: z.string().optional(), authorOpenId: z.string().optional(), fromMs: z.number().optional(), toMs: z.number().optional() })).query(({ input, ctx }) => getViewAnalytics(ctx.user.role === "admin" ? input.author : ctx.user.name ?? undefined, ctx.user.role === "admin" ? input.authorOpenId : ctx.user.openId, input.fromMs, input.toMs)),
+    audit: adminProcedure.input(z.object({ articleId: z.string().optional() })).query(({ input }) => listArticleAudit(input.articleId)),
+  }),
+  profiles: router({ save: columnistProcedure.input(profileUpdateSchema).mutation(({ input, ctx }) => { if (ctx.user.role !== "admin" && slugify(ctx.user.name || "") !== input.slug) throw new Error("Você só pode editar o próprio perfil."); return updateColumnistProfile(input.slug, input); }), uploadPhoto: columnistProcedure.input(uploadSchema).mutation(async ({ input, ctx }) => { if (ctx.user.role !== "admin" && slugify(ctx.user.name || "") !== input.slug) throw new Error("Você só pode editar o próprio perfil."); const safeName = input.fileName.replace(/[^a-zA-Z0-9._-]/g, "-"); const bytes = Buffer.from(input.base64.replace(/^data:[^;]+;base64,/, ""), "base64"); if (bytes.length > 5 * 1024 * 1024) throw new Error("A imagem deve ter no máximo 5 MB."); return storagePut(`columnists/${input.slug}/${safeName}`, bytes, input.contentType); }) }),
+  comments: router({
+    create: publicProcedure.input(z.object({ articleId: z.string().min(1), name: z.string().min(2).max(120), text: z.string().min(2).max(4000) })).mutation(async ({ input }) => {
+      const db = await getDb(); if (!db) throw new Error("Database unavailable");
+      const row = { id: `comment-${Date.now()}-${randomBytes(4).toString("hex")}`, articleId: input.articleId, name: input.name.trim(), text: input.text.trim(), createdAtMs: Date.now(), status: "pending" as const, reply: null, repliedBy: null, repliedAtMs: null };
+      await db.insert(comments).values(row);
+      return row;
+    }),
+  }),
+  access: router({ list: adminProcedure.query(async () => { const db = await getDb(); if (!db) return []; return db.select({ id: users.id, openId: users.openId, name: users.name, email: users.email, role: users.role, lastSignedIn: users.lastSignedIn }).from(users); }), setRole: adminProcedure.input(z.object({ openId: z.string(), role: z.enum(["user", "admin", "columnist"]) })).mutation(async ({ input }) => { const db = await getDb(); if (!db) throw new Error("Database unavailable"); await db.update(users).set({ role: input.role }).where(eq(users.openId, input.openId)); return { success: true }; }) }),
+  invites: router({
+    list: adminProcedure.query(() => listInvites()),
+    revoke: adminProcedure.input(z.object({ id: z.string() })).mutation(({ input }) => revokeInvite(input.id)),
+    resend: adminProcedure.input(z.object({ id: z.string() })).mutation(async ({ input, ctx }) => { const token = randomBytes(32).toString("hex"); const invite = await renewInvite(input.id, hashToken(token), Date.now() + 7 * 24 * 60 * 60 * 1000); if (!invite) throw new Error("Somente convites pendentes podem ser reenviados."); const origin = ENV.publicAppUrl || `${ctx.req.protocol}://${ctx.req.get("host")}`; const inviteUrl = `${origin}/convite/${token}`; let emailSent = false; try { emailSent = (await sendInviteEmail(invite.email, invite.name, inviteUrl)).sent; } catch (error) { console.error("[SMTP] Invite resend failed:", error); } return { inviteUrl: `/convite/${token}`, emailSent, smtpConfigured: smtpConfigured(), expiresAtMs: invite.expiresAtMs }; }),
+    create: adminProcedure.input(z.object({ email: z.string().email(), name: z.string().min(2) })).mutation(async ({ input, ctx }) => { const token = randomBytes(32).toString("hex"); const invite = { id: `invite-${Date.now()}-${randomBytes(4).toString("hex")}`, email: input.email.toLowerCase(), name: input.name.trim(), tokenHash: hashToken(token), expiresAtMs: Date.now() + 7 * 24 * 60 * 60 * 1000, createdAtMs: Date.now(), acceptedAtMs: null, revokedAtMs: null }; await createInvite(invite); const origin = ENV.publicAppUrl || `${ctx.req.protocol}://${ctx.req.get("host")}`; const inviteUrl = `${origin}/convite/${token}`; let emailSent = false; try { emailSent = (await sendInviteEmail(invite.email, invite.name, inviteUrl)).sent; } catch (error) { console.error("[SMTP] Invite delivery failed:", error); } return { ...invite, token, inviteUrl: `/convite/${token}`, emailSent, smtpConfigured: smtpConfigured() }; }),
+    preview: publicProcedure.input(z.object({ token: z.string().min(20) })).query(async ({ input }) => { const invite = await findInvite(hashToken(input.token)); if (!invite || invite.expiresAtMs < Date.now() || invite.revokedAtMs) return { valid: false }; return { valid: true, email: invite.email, name: invite.name, expiresAtMs: invite.expiresAtMs }; }),
+    accept: protectedProcedure.input(z.object({ token: z.string().min(20) })).mutation(async ({ input, ctx }) => { const invite = await findInvite(hashToken(input.token)); if (!invite || invite.expiresAtMs < Date.now()) throw new Error("Convite inválido ou expirado."); if ((ctx.user.email || "").toLowerCase() !== invite.email.toLowerCase()) throw new Error("Entre com o mesmo e-mail que recebeu o convite."); const db = await getDb(); if (!db) throw new Error("Database unavailable"); await db.update(users).set({ role: "columnist", name: ctx.user.name || invite.name }).where(eq(users.openId, ctx.user.openId)); await acceptInvite(invite.id); return { success: true }; }),
+  }),
+});
+export type AppRouter = typeof appRouter;

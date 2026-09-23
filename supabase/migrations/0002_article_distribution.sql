@@ -1,0 +1,1 @@
+alter table public.articles add column if not exists "youtubeUrl" text;\nalter table public.articles add column if not exists "socialLinks" jsonb not null default '{}'::jsonb;\n

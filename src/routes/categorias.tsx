@@ -1,3 +1,0 @@
-import { createFileRoute,Link } from "@tanstack/react-router"; import {categories} from "@/data/content"; import {SiteShell} from "@/components/site/SiteShell";
-export const Route=createFileRoute("/categorias")({component:Categories});
-function Categories(){return <SiteShell><div className="mx-auto max-w-6xl px-4 py-10"><p className="kicker">PCH News</p><h1 className="mt-2 font-display text-5xl font-black">Editorias</h1><div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">{categories.map(c=><Link key={c.slug} to="/categoria/$slug" params={{slug:c.slug}} className="border bg-card p-6 hover:shadow-card"><p className="kicker">{c.name}</p><p className="mt-3 text-sm leading-6 text-muted-foreground">{c.description}</p></Link>)}</div></div></SiteShell>}
