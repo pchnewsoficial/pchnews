@@ -1,0 +1,11 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowLeft, CalendarDays, UserRound } from "lucide-react";
+import { getCategory, getColumnistName } from "@/data/content";
+import { useArticle } from "@/lib/newsroom/store";
+import { formatDate } from "@/lib/format";
+export const Route=createFileRoute("/noticia/$slug")({component:ArticlePage});
+function ArticlePage(){
+  const {slug}=Route.useParams(); const article=useArticle(slug);
+  if(!article)return <main className="min-h-screen p-10"><Link to="/" className="text-primary">← Voltar</Link><h1 className="mt-8 font-display text-4xl font-bold">Matéria não encontrada</h1></main>;
+  return <main className="min-h-screen bg-background"><header className="border-b bg-card"><div className="mx-auto flex max-w-5xl justify-between px-5 py-5"><Link to="/" className="font-display text-2xl font-black">PCH <span className="text-primary text-sm tracking-[.25em]">NEWS</span></Link><Link to="/admin" className="text-xs font-semibold">Painel editorial →</Link></div></header><article className="mx-auto max-w-4xl px-5 py-10"><Link to="/" className="inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground"><ArrowLeft size={14}/> Início</Link><div className="mt-8"><span className="kicker">{getCategory(article.category)?.name??article.category}</span><h1 className="mt-3 font-display text-4xl font-black leading-tight md:text-6xl">{article.title}</h1><p className="mt-5 text-xl leading-8 text-muted-foreground">{article.subtitle}</p><div className="mt-5 flex flex-wrap gap-4 text-xs text-muted-foreground"><span className="inline-flex items-center gap-1"><UserRound size={13}/>{getColumnistName(article.authorSlug)}</span><span className="inline-flex items-center gap-1"><CalendarDays size={13}/>{formatDate(article.publishedAt)}</span></div></div><div className="mt-8 overflow-hidden rounded-xl border"><img src={article.image} alt={article.imageAlt||article.title} className="max-h-[520px] w-full object-cover"/></div><div className="article-prose mt-9 max-w-3xl">{article.body.split(/\n\n+/).map((p,i)=>p.startsWith("## ")?<h2 key={i}>{p.slice(3)}</h2>:<p key={i}>{p}</p>)}</div><div className="mt-10 border-t pt-5 text-xs text-muted-foreground">PCH News · informação para que o leitor possa pensar por si mesmo.</div></article></main>;
+}

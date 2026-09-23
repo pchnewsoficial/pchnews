@@ -1,24 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
-
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
-export const Route = createFileRoute("/")({
-  component: Index,
-});
-
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Eye, FilePenLine, SearchCheck, ArrowRight } from "lucide-react";
+import { getCategory, getColumnistName } from "@/data/content";
+import { useArticles } from "@/lib/newsroom/store";
+import { formatDate } from "@/lib/format";
+export const Route = createFileRoute("/")({ component: HomePage });
+function HomePage() {
+  const articles = useArticles().filter((a) => a.status === "publicado").sort((a,b)=>+new Date(b.publishedAt)-+new Date(a.publishedAt));
+  const lead = articles[0]; const latest = articles.slice(1,7);
+  return <main className="min-h-screen bg-background"><header className="border-b-2 border-foreground/80 bg-card"><div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5"><Link to="/" className="flex items-baseline gap-2"><span className="font-display text-3xl font-black">PCH</span><span className="text-sm font-bold tracking-[.28em] text-primary">NEWS</span></Link><div className="flex items-center gap-3"><span className="hidden text-xs font-mono text-muted-foreground md:inline">INFORMAR PARA PENSAR POR SI MESMO</span><Link to="/admin" className="inline-flex items-center gap-2 rounded-md bg-foreground px-3 py-2 text-xs font-semibold text-background"><FilePenLine size={15}/> Painel editorial</Link></div></div></header>
+  <section className="mx-auto max-w-7xl px-5 py-8"><div className="mb-6 flex items-end justify-between border-b pb-3"><div><span className="kicker">EDIÇÃO DIGITAL · TOLERAJORNAL</span><h1 className="mt-2 text-4xl font-black md:text-5xl">Notícias para libertar a mente.</h1></div><span className="meta hidden md:block">{articles.length} matérias publicadas</span></div>
+  {lead&&<Link to="/noticia/$slug" params={{slug:lead.slug}} className="group grid overflow-hidden rounded-xl border bg-card shadow-card md:grid-cols-[1.4fr_1fr]"><div className="min-h-[300px] overflow-hidden bg-muted"><img src={lead.image} alt={lead.imageAlt||lead.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"/></div><div className="flex flex-col justify-center p-7 md:p-10"><span className="kicker">{getCategory(lead.category)?.name??lead.category}</span><h2 className="mt-3 font-display text-4xl font-black leading-tight md:text-5xl">{lead.title}</h2><p className="mt-4 text-lg leading-7 text-muted-foreground">{lead.subtitle}</p><div className="mt-6 flex flex-wrap gap-4 text-xs text-muted-foreground"><span>{getColumnistName(lead.authorSlug)}</span><span>{formatDate(lead.publishedAt)}</span><span className="inline-flex items-center gap-1"><Eye size={13}/> leitura editorial</span></div><span className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-primary">Ler matéria <ArrowRight size={16}/></span></div></Link>}
+  <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">{latest.map(a=><Link key={a.id} to="/noticia/$slug" params={{slug:a.slug}} className="group overflow-hidden rounded-lg border bg-card"><div className="aspect-[16/9] overflow-hidden bg-muted"><img src={a.image} alt={a.imageAlt||a.title} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"/></div><div className="p-5"><span className="kicker">{getCategory(a.category)?.name??a.category}</span><h2 className="mt-2 font-display text-2xl font-bold leading-tight">{a.title}</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">{a.excerpt}</p><div className="mt-4 text-xs text-muted-foreground">{getColumnistName(a.authorSlug)} · {formatDate(a.publishedAt)}</div></div></Link>)}</div>
+  <div className="mt-10 rounded-xl border-2 border-foreground/10 bg-card p-6"><div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div><span className="kicker">LIBERDADE EDITORIAL</span><h2 className="mt-1 font-display text-2xl font-bold">O leitor não recebe uma conclusão pronta.</h2><p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">O newsroom verifica consistência, linguagem, contexto e SEO por regras explícitas e auditáveis. A decisão final continua humana.</p></div><Link to="/admin" className="inline-flex shrink-0 items-center gap-2 rounded-md border-2 border-foreground px-4 py-3 text-sm font-semibold"><SearchCheck size={17}/> Abrir revisão</Link></div></div></section></main>;
 }
