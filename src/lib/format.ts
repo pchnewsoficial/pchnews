@@ -2,12 +2,14 @@ const dateFormatter = new Intl.DateTimeFormat("pt-BR", {
   day: "2-digit",
   month: "short",
   year: "numeric",
+  timeZone: "America/Sao_Paulo",
 });
 
 const dateTimeFormatter = new Intl.DateTimeFormat("pt-BR", {
   day: "2-digit",
   month: "long",
   year: "numeric",
+  timeZone: "America/Sao_Paulo",
   hour: "2-digit",
   minute: "2-digit",
 });
@@ -17,6 +19,7 @@ const longDateFormatter = new Intl.DateTimeFormat("pt-BR", {
   day: "2-digit",
   month: "long",
   year: "numeric",
+  timeZone: "America/Sao_Paulo",
 });
 
 export function formatDate(iso: string): string {
