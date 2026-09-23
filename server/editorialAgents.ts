@@ -36,19 +36,19 @@ export type AgentResult = {
 };
 
 const stripHtml = (html: string) =>
-  html.replace(/<script[\\s\\S]*?<\\/script>/gi, " ")
-    .replace(/<style[\\s\\S]*?<\\/style>/gi, " ")
+  html.replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
     .replace(/<[^>]+>/g, " ")
     .replace(/&nbsp;/gi, " ")
     .replace(/&amp;/gi, "&")
-    .replace(/\\s+/g, " ")
+    .replace(/\s+/g, " ")
     .trim();
 
 const sentences = (text: string) =>
-  text.split(/(?<=[.!?])\\s+/).map((item) => item.trim()).filter(Boolean);
+  text.split(/(?<=[.!?])\s+/).map((item) => item.trim()).filter(Boolean);
 
 const slugify = (value: string) =>
-  value.toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g, "")
+  value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
 const parseTags = (value: string) => {
@@ -62,7 +62,7 @@ const parseTags = (value: string) => {
 
 function base(article: EditorialArticleInput) {
   const body = stripHtml(article.bodyHtml || "");
-  return { body, words: body ? body.split(/\\s+/).length : 0, sentences: sentences(body) };
+  return { body, words: body ? body.split(/\s+/).length : 0, sentences: sentences(body) };
 }
 
 function storyEditor(article: EditorialArticleInput): AgentResult {
@@ -74,7 +74,7 @@ function storyEditor(article: EditorialArticleInput): AgentResult {
   if (article.summary.trim().length > 220) findings.push({ severity: "warning", code: "long-summary", message: "O resumo está extenso.", suggestion: "Condense o contexto inicial e preserve o fato principal." });
   if (body.length < 180) findings.push({ severity: "warning", code: "short-body", message: "O corpo da matéria está muito curto para uma publicação jornalística.", suggestion: "Inclua contexto, evidências, fontes e fechamento." });
   if (/ {2,}/.test(body)) findings.push({ severity: "warning", code: "double-spaces", message: "Há espaços duplicados no texto." });
-  if (/!!+|\\?\\?+/.test(body)) findings.push({ severity: "warning", code: "punctuation", message: "Há pontuação repetida que pode comprometer o tom editorial." });
+  if (/!!+|\?\?+/.test(body)) findings.push({ severity: "warning", code: "punctuation", message: "Há pontuação repetida que pode comprometer o tom editorial." });
   const allCaps = lines.filter((line) => line.length > 24 && line === line.toUpperCase() && /[A-ZÁÉÍÓÚÃÕÇ]/.test(line));
   if (allCaps.length) findings.push({ severity: "warning", code: "all-caps", message: "Há trechos longos em caixa alta.", suggestion: "Use caixa normal, salvo siglas e nomes próprios." });
   const status = findings.some((f) => f.severity === "block") ? "block" : findings.length ? "review" : "pass";
@@ -85,9 +85,9 @@ function factChecker(article: EditorialArticleInput): AgentResult {
   const { body } = base(article);
   const findings: AgentFinding[] = [];
   const evidenceSentences = sentences(body).filter((line) =>
-    /\\b(19|20)\\d{2}\\b|\\b\\d{1,3}(?:[.,]\\d{3})*(?:%| milhões?| bilhões?| mil)?\\b|["“”]/.test(line)
+    /\b(19|20)\d{2}\b|\b\d{1,3}(?:[.,]\d{3})*(?:%| milhões?| bilhões?| mil)?\b|["“”]/.test(line)
   );
-  const links = (article.bodyHtml || "").match(/https?:\\/\\/[^"'\\s<]+/gi) || [];
+  const links = (article.bodyHtml || "").match(/https?:\/\/[^"'\s<]+/gi) || [];
   if (evidenceSentences.length) {
     findings.push({
       severity: "info",
@@ -155,10 +155,10 @@ function distributor(article: EditorialArticleInput): AgentResult {
     status: "pass",
     findings: [],
     output: {
-      instagram: `${title}\\n\\n${summary}`,
+      instagram: `${title}\n\n${summary}`,
       facebook: `${title} — ${summary}`,
       x: `${title} — ${summary.slice(0, 180)}`,
-      whatsapp: `PCH News: ${title}\\n${summary}`,
+      whatsapp: `PCH News: ${title}\n${summary}`,
       youtube: `${title} | PCH News`
     }
   };
