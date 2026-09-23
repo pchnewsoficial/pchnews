@@ -100,7 +100,14 @@ export default function Admin() {
   const draftCount = articles.filter((article) => article.status === "draft").length;
   const scheduledCount = articles.filter((article) => article.status === "scheduled").length;
   const reviewCount = articles.filter((article) => article.status === "review").length;
-  useEffect(() => { if (!analytics?.totals?.length) return; setArticles((current) => current.map((article) => { const remote = (analytics.totals as Array<{ articleId: string; views: number }>).find((item) => item.articleId === article.id); return remote ? { ...article, views: remote.views } : article; })); }, [analytics]);
+  useEffect(() => {
+    const totals = ((analytics as any)?.totals || []) as Array<{ articleId: string; views: number }>;
+    if (!totals.length) return;
+    setArticles((current) => current.map((article) => {
+      const remote = totals.find((item) => item.articleId === article.id);
+      return remote ? { ...article, views: remote.views } : article;
+    }));
+  }, [analytics]);
   useEffect(() => {
     if (!editorialRemote) return;
     const mapArticle = (article: any): NewsArticle => ({
