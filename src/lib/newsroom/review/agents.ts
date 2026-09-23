@@ -165,10 +165,10 @@ const grammar: AgentDefinition = {
       { re: wordRe("impecilho"), severity: "alta", message: "Grafia correta: “empecilho”.", replace: fix("empecilho") },
       { re: wordRe("previlégio"), severity: "alta", message: "Grafia correta: “privilégio”.", replace: fix("privilégio") },
       { re: wordRe("enquanto que"), severity: "baixa", message: "“Que” é dispensável.", replace: fix("enquanto") },
-      { re: wordRe("mais (maior|melhor|pior)"), severity: "media", message: "Comparativo duplicado.", replace: (m, g) => matchCase(m, g[0]) },
+      { re: wordRe("mais (maior|melhor|pior)"), severity: "media", message: "Comparativo duplicado.", replace: (m, g) => matchCase(m, g[0] ?? "") },
       { re: / {2,}/g, severity: "baixa", message: "Espaço duplicado.", replace: () => " " },
-      { re: / +([,.;:!?])/g, severity: "baixa", message: "Espaço antes de pontuação.", replace: (_m, g) => g[0] },
-      { re: /(?<![\p{L}])(\p{L}{2,})\s+\1(?![\p{L}])/giu, severity: "media", message: "Palavra repetida.", replace: (_m, g) => g[0] },
+      { re: / +([,.;:!?])/g, severity: "baixa", message: "Espaço antes de pontuação.", replace: (_m, g) => g[0] ?? "" },
+      { re: /(?<![\p{L}])(\p{L}{2,})\s+\1(?![\p{L}])/giu, severity: "media", message: "Palavra repetida.", replace: (_m, g) => g[0] ?? "" },
     ]);
     return list;
   },
@@ -185,7 +185,7 @@ const style: AgentDefinition = {
         re: /(vale ressaltar que|vale lembrar que|é importante (?:destacar|ressaltar|lembrar) que)\s+(\p{L})/giu,
         severity: "baixa",
         message: "Muleta de texto. Vá direto à informação.",
-        replace: (m, g) => (m.charAt(0) === m.charAt(0).toUpperCase() ? g[1].toUpperCase() : g[1]),
+        replace: (m, g) => (m.charAt(0) === m.charAt(0).toUpperCase() ? (g[1] ?? "").toUpperCase() : (g[1] ?? "")),
       },
       { re: wordRe("no sentido de"), severity: "baixa", message: "Locução prolixa.", replace: fix("para") },
       { re: wordRe("via de regra"), severity: "baixa", message: "Clichê.", replace: fix("em geral") },

@@ -30,7 +30,7 @@ export interface Suggestion {
   target: string;
   excerpt: string;
   message: string;
-  fix?: SuggestionFix;
+  fix?: SuggestionFix | undefined;
 }
 
 export interface AgentDefinition {
