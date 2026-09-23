@@ -50,15 +50,19 @@ if (exists("client/index.html")) {
 if (exists("package.json")) {
   const pkg = JSON.parse(read("package.json"));
   if (!pkg.scripts?.build?.includes("vite build")) fail("build script does not run vite build");
-  if (!pkg.scripts?.start?.includes("dist/server/index.js")) fail("start script does not run dist/server/index.js");
+  const startScript = String(pkg.scripts?.start || "");
+  const startHelper = exists("scripts/start-production.mjs") ? read("scripts/start-production.mjs") : "";
+  if (!startScript.includes("dist/server/index.js") && !startHelper.includes("dist/server/index.js")) {
+    fail("production start path does not execute dist/server/index.js");
+  }
 }
 
 if (exists("vite.config.ts")) {
   const vite = read("vite.config.ts");
-  if (!vite.includes('outDir: path.resolve(process.cwd(), "dist")')) {
+  if (!vite.includes('outDir: path.resolve(ROOT, "dist")') && !vite.includes('outDir: path.resolve(import.meta.dirname, "dist")')) {
     fail("Vite output is not the standard dist directory");
   }
-  if (!vite.includes('publicDir: path.resolve(process.cwd(), "client/public")')) {
+  if (!vite.includes('publicDir: path.resolve(ROOT, "client", "public")') && !vite.includes('publicDir: path.resolve(import.meta.dirname, "client", "public")')) {
     fail("Vite publicDir is not client/public");
   }
 }
