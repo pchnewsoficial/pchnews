@@ -1,0 +1,46 @@
+name: Sync pchnews.oficial source
+
+on:
+  push:
+    branches:
+      - integrate/pchnews-oficial
+
+permissions:
+  contents: write
+
+jobs:
+  sync-source:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout target branch
+        uses: actions/checkout@v4
+        with:
+          ref: integrate/pchnews-oficial
+          fetch-depth: 0
+
+      - name: Replace project contents with pchnews.oficial
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp .github/workflows/sync-pchnews-oficial.yml /tmp/sync-workflow.yml
+          rm -rf /tmp/pchnews-oficial
+          git clone --depth 1 --branch main https://github.com/pchnewsoficial/pchnews.oficial.git /tmp/pchnews-oficial
+          rsync -a --delete --exclude='.git/' --exclude='.github/workflows/sync-pchnews-oficial.yml' /tmp/pchnews-oficial/ ./
+          mkdir -p .github/workflows
+          cp /tmp/sync-workflow.yml .github/workflows/sync-pchnews-oficial.yml
+          rm -rf legacy
+
+      - name: Commit source migration
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes."
+            exit 0
+          fi
+          git commit -m "chore: replace target with complete pchnews.oficial source"
+          git push origin HEAD:integrate/pchnews-oficial
