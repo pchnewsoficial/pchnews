@@ -23,7 +23,7 @@ function slugify(value: string) {
 }
 
 export default function Home() {
-  const [articles, setArticles] = useState<NewsArticle[]>([]);
+  // Keep the editorial seed available when the published runtime has no API/DB yet.\n  // The server snapshot, when available, replaces this local fallback below.\n  const [articles, setArticles] = useState<NewsArticle[]>(() => readStoredArticles());
   const { data: remoteEditorial } = trpc.editorial.bootstrap.useQuery(undefined, { retry: false });
   const [activeCategory, setActiveCategory] = useState("Todas");
   const [menuOpen, setMenuOpen] = useState(false);
