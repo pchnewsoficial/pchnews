@@ -12,6 +12,8 @@ export interface ArticleSeo {
   index: boolean;
   ogTitle: string;
   ogDescription: string;
+  /** Social image defaults to the main article image when empty. */
+  ogImage?: string;
 }
 
 /** Matéria no formato editável da redação. */
@@ -26,20 +28,47 @@ export interface EditorArticle {
   image: string;
   imageAlt: string;
   imageCredit: string;
-  /** Parágrafos separados por linha em branco; "## " inicia intertítulo. */
   body: string;
+  /** Editorial metadata preserved from the original PCH News editor. */
+  scope?: "local" | "regional" | "state" | "national" | "international";
+  region?: string;
+  state?: string;
+  country?: string;
+  language?: string;
+  tags?: string[];
+  youtubeUrl?: string;
+  featured?: boolean;
   status: ArticleStatus;
+  scheduledAt?: string;
   publishedAt: string;
   updatedAt: string;
   seo: ArticleSeo;
+  /** Legacy PCH fields retained during migration. */
+  socialLinks?: {
+    instagram?: string;
+    facebook?: string;
+    x?: string;
+    linkedin?: string;
+    tiktok?: string;
+    website?: string;
+  };
   lastReview?: ReviewRun;
   reviewHistory: ReviewSummary[];
 }
 
+export interface HostingPressDistribution {
+  enabled: boolean;
+  feedUrl?: string;
+  tokenConfigured: boolean;
+  sourceCredit: string;
+  lastImportedAt?: string;
+  lastPublishedAt?: string;
+  status: "not-configured" | "ready" | "active" | "error";
+}
+
 /**
- * Contrato de persistência. Hoje: `localArticleRepository` (navegador).
- * Para Supabase/MySQL, implemente este contrato (ex.: via createServerFn ou tRPC)
- * e troque a exportação em `src/lib/newsroom/store.ts`.
+ * Contract de persistência. Hoje: localArticleRepository (navegador).
+ * Para Supabase/MySQL, implemente este contrato via server function/API.
  */
 export interface ArticleRepository {
   list(): EditorArticle[];
