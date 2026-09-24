@@ -120,8 +120,8 @@ export default function Home() {
       </header>
 
       <main>
-        <section className="container ad-banner">
-          <div className="ad-copy"><span className="eyebrow gold">PCH NEWS • MÍDIA ESTRATÉGICA</span><h1>Sua marca pode ser<br /><em>a próxima notícia.</em></h1><p>Apresente sua empresa, produto ou serviço para uma audiência que busca informação.</p><button className="gold-button">ANUNCIE NO PCH NEWS <ArrowRight size={16} /></button></div>
+        <section className="container ad-banner" id="anuncie">
+          <div className="ad-copy"><span className="ad-tag">PUBLICIDADE</span><span className="eyebrow gold">PCH NEWS • MÍDIA ESTRATÉGICA</span><h1>Sua marca pode ser<br /><em>a próxima notícia.</em></h1><p>Apresente sua empresa, produto ou serviço para uma audiência que busca informação.</p><a className="gold-button" href="#anuncie">ANUNCIE NO PCH NEWS <ArrowRight size={16} /></a></div>
           <div className="ad-device"><div className="device-top"><span /><span /><span /></div><div className="device-content"><div className="device-logo">PCH<br /><small>NEWS</small></div><div className="device-lines"><i /><i /><i /><i /></div><div className="device-cards"><b /><b /><b /></div></div></div>
           <div className="ad-side">Sua marca não precisa interromper a notícia.<strong>Ela pode ser<br />a notícia.</strong><span>◉</span></div>
         </section>
@@ -151,6 +151,12 @@ export default function Home() {
             </div>
           </div>
           <aside className="recent-panel">
+            <div className="side-ad-slot" aria-label="Publicidade">
+              <span className="ad-tag">PUBLICIDADE</span>
+              <strong>Sua marca em destaque</strong>
+              <p>Espaço lateral reservado para campanhas, parceiros e divulgação.</p>
+              <a href="#anuncie">Conheça os formatos <ArrowRight size={14} /></a>
+            </div>
             <div className="section-heading"><div><span className="eyebrow">AGORA</span><h2>Mais lidas</h2></div><span className="heading-line" /></div>
             {sideStories.map((article, index) => <Link href={`/materia/${article.id}`} className="recent-item" key={article.id}><div className={`recent-thumb thumb-${index + 1}`} style={{ backgroundImage: `url(${imageUrl(article)})` }}><span>{String(index + 1).padStart(2, "0")}</span></div><div><span className="item-category">{article.category}</span><h3>{article.title}</h3><p><Eye size={12} /> {article.views.toLocaleString("pt-BR")} visualizações</p></div></Link>)}
           </aside>
