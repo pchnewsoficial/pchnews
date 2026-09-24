@@ -23,8 +23,6 @@ function slugify(value: string) {
 }
 
 export default function Home() {
-  // Keep the editorial seed available when the published runtime has no API/DB yet.
-  // The server snapshot, when available, replaces this local fallback below.
   const [articles, setArticles] = useState<NewsArticle[]>(() => readStoredArticles());
   const { data: remoteEditorial } = trpc.editorial.bootstrap.useQuery(undefined, { retry: false });
   const [activeCategory, setActiveCategory] = useState("Todas");
@@ -90,7 +88,7 @@ export default function Home() {
         <div className="container breaking-inner">
           <span className="breaking-label"><span className="breaking-dot" /> PCH NEWS · BRASIL</span>
           <div className="ticker-track"><span>Jornalismo para o Brasil</span><span>•</span><span>Informação, contexto e opinião</span><span>•</span><span>PCH News</span></div>
-          <span className="breaking-date">22 SET 2026</span>
+          <span className="breaking-date">{new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", year: "numeric", timeZone: "America/Sao_Paulo" }).format(new Date()).replace(".", "").toUpperCase()}</span>
         </div>
       </div>
 
