@@ -344,3 +344,36 @@ main { padding-top:18px !important; }
   .ad-device { display:none !important; }
   .lead-layout { padding:0 20px !important; }
 }
+
+
+/* Production mobile hardening */
+@media (max-width: 640px) {
+  html, body, #root { width:100%; max-width:100%; overflow-x:hidden !important; }
+  .site-shell, main { width:100%; max-width:100%; overflow-x:hidden !important; }
+  .header-main { width:100% !important; box-sizing:border-box !important; min-width:0 !important; }
+  .brand-lockup { flex:1 1 auto !important; min-width:0 !important; overflow:hidden !important; }
+  .official-logo { display:block !important; width:148px !important; height:58px !important; max-width:100% !important; object-fit:contain !important; object-position:left center !important; }
+  .header-actions { flex:0 0 auto !important; }
+  .nav-wrap { width:100% !important; overflow:hidden !important; }
+  .primary-nav { width:100% !important; box-sizing:border-box !important; flex-wrap:nowrap !important; white-space:nowrap !important; scrollbar-width:none !important; }
+  .primary-nav::-webkit-scrollbar { display:none !important; }
+  .lead-layout { width:100% !important; box-sizing:border-box !important; padding:0 12px !important; min-width:0 !important; }
+  .lead-column, .lead-carousel, .lead-story { width:100% !important; min-width:0 !important; max-width:100% !important; }
+  .lead-carousel, .lead-story { height:360px !important; min-height:360px !important; border-radius:8px !important; }
+  .lead-story img { width:100% !important; height:100% !important; object-fit:cover !important; object-position:center !important; }
+  .story-overlay { padding:20px 18px 52px !important; background:linear-gradient(180deg,rgba(2,12,18,.02) 15%,rgba(2,12,18,.48) 42%,rgba(2,12,18,.96) 100%) !important; }
+  .story-overlay .category-tag { font-size:11px !important; }
+  .story-overlay h2 { max-width:100% !important; margin:8px 0 8px !important; font-size:27px !important; line-height:1.08 !important; letter-spacing:-.02em !important; }
+  .story-overlay .lead-summary { max-width:100% !important; margin:0 0 8px !important; font-size:13px !important; line-height:1.35 !important; display:-webkit-box !important; -webkit-line-clamp:2 !important; -webkit-box-orient:vertical !important; overflow:hidden !important; }
+  .story-overlay .story-meta { font-size:11px !important; }
+  .carousel-controls { right:12px !important; bottom:10px !important; gap:5px !important; }
+  .carousel-controls button { width:30px !important; height:30px !important; }
+  .carousel-controls span { font-size:10px !important; }
+  .carousel-dots { left:18px !important; right:auto !important; transform:none !important; bottom:18px !important; }
+  .carousel-dots button { width:7px !important; height:7px !important; margin:0 3px !important; }
+  .recent-panel { width:100% !important; box-sizing:border-box !important; min-width:0 !important; }
+  .recent-item { min-width:0 !important; grid-template-columns:88px minmax(0,1fr) !important; }
+  .recent-item > div:last-child { min-width:0 !important; }
+  .recent-item h3 { overflow-wrap:anywhere !important; }
+  .ad-banner { width:calc(100% - 24px) !important; box-sizing:border-box !important; margin-left:12px !important; margin-right:12px !important; padding:18px !important; min-width:0 !important; }
+}
