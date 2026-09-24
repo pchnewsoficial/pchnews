@@ -3,7 +3,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Copy, Facebook, Linkedin, MessageCircle, MessageSquare, Send, Eye } from "lucide-react";
 import { Link, useRoute } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { NewsArticle } from "@/lib/news";
+import { NewsArticle, readStoredArticles } from "@/lib/news";
 import { ReaderComment } from "@/lib/editorial";
 const LOGO_URL = "/brand/logo.svg";
 const EyeIcon = () => <Eye size={14} />;
@@ -14,13 +14,18 @@ function visitorId() { const key = "pch-news-visitor-id"; const current = window
 function mapServerArticle(article: any): NewsArticle { return { ...article, tags: typeof article.tags === "string" ? JSON.parse(article.tags || "[]") : article.tags || [], socialLinks: typeof article.socialLinks === "string" ? JSON.parse(article.socialLinks || "{}") : article.socialLinks || {}, scheduledAt: article.scheduledAt ? new Date(Number(article.scheduledAt)).toISOString().slice(0, 16) : undefined }; }
 export default function ArticlePage() {
   const [, params] = useRoute("/materia/:slug");
-  const { data } = trpc.editorial.bootstrap.useQuery(undefined, { retry: false });
+  const { data, isError: bootstrapError } = trpc.editorial.bootstrap.useQuery(undefined, { retry: 1, staleTime: 15_000 });
   const recordView = trpc.editorial.recordView.useMutation();
   const createComment = trpc.comments.create.useMutation();
   const [comments, setComments] = useState<ReaderComment[]>([]);
   const [viewCount, setViewCount] = useState(0);
   const [commentForm, setCommentForm] = useState({ name: "", text: "" });
-  const article = useMemo(() => data?.articles?.map(mapServerArticle).find((item) => item.id === params?.slug || slugify(item.title) === params?.slug), [data, params?.slug]);
+  const article = useMemo(() => {
+    const remote = data?.articles?.map(mapServerArticle).find((item) => item.id === params?.slug || slugify(item.title) === params?.slug);
+    if (remote) return remote;
+    if (!bootstrapError) return undefined;
+    return readStoredArticles().find((item) => item.id === params?.slug || slugify(item.title) === params?.slug);
+  }, [data, params?.slug, bootstrapError]);
   useEffect(() => {
     if (!article) return;
     const remoteComments = (data?.comments || []).filter((comment: any) => comment.articleId === article.id && comment.status === "approved");
@@ -33,9 +38,14 @@ export default function ArticlePage() {
   useEffect(() => {
     if (!article || article.status !== "published") return;
     setViewCount(article.views || 0);
-    recordView.mutate({ articleId: article.id, visitorId: visitorId() }, {
-      onSuccess: (result) => setViewCount(result.views ?? article.views ?? 0),
-    });
+    recordView.mutate(
+      { articleId: article.id, visitorId: visitorId() },
+      {
+        onSuccess: (result) => {
+          if (result && typeof result.views === "number") setViewCount(result.views);
+        },
+      },
+    );
   }, [article?.id]);
   useEffect(() => {
     if (!article) return;
