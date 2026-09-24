@@ -55,27 +55,37 @@ jobs:
           pnpm dlx wrangler@4.38.0 whoami
 
       - name: Deploy Worker
+        id: deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           set -euo pipefail
-          pnpm dlx wrangler@4.38.0 deploy
+          pnpm dlx wrangler@4.38.0 deploy 2>&1 | tee /tmp/wrangler-deploy.log
+          WORKER_URL="$(grep -Eo 'https://[A-Za-z0-9.-]+\.workers\.dev' /tmp/wrangler-deploy.log | tail -n 1 || true)"
+          if [ -z "$WORKER_URL" ]; then
+            echo "Could not determine the deployed workers.dev URL from Wrangler output."
+            exit 1
+          fi
+          echo "worker_url=$WORKER_URL" >> "$GITHUB_OUTPUT"
 
       - name: Public production smoke test
+        env:
+          WORKER_URL: ${{ steps.deploy.outputs.worker_url }}
         run: |
           set -euo pipefail
-          echo "Checking Worker health endpoint..."
-          curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 --max-time 20 \
-            https://pch-news.pchnews-oficial.workers.dev/healthz
+          echo "Checking Worker health endpoint: $WORKER_URL/healthz"
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 --max-time 20             "$WORKER_URL/healthz"
           echo
-          echo "Checking public SPA..."
-          curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 --max-time 20 \
-            https://pch-news.pchnews-oficial.workers.dev/ -o /tmp/pch-news-index.html
+          echo "Checking public SPA: $WORKER_URL/"
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 --max-time 20             "$WORKER_URL/" -o /tmp/pch-news-index.html
           test -s /tmp/pch-news-index.html
 
       - name: Deployment summary
+        env:
+          WORKER_URL: ${{ steps.deploy.outputs.worker_url }}
         run: |
           echo "PCH News production deployment completed."
           echo "Worker: pch-news"
+          echo "Public URL: $WORKER_URL"
           echo "Source commit: ${GITHUB_SHA}"
