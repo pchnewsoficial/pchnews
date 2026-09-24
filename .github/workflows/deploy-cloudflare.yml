@@ -61,16 +61,13 @@ jobs:
         env:
           SUPABASE_URL: https://dlfipxqtbzmmbuksppvk.supabase.co
           SUPABASE_ANON_KEY: sb_publishable_LQbform0fOesGsuiNWzd8Q_18RYf86V
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           OWNER_OPEN_ID: ${{ secrets.OWNER_OPEN_ID }}
         run: |
           set -euo pipefail
-          test -n "$SUPABASE_URL" || { echo "Missing Supabase URL secret."; exit 1; }
-          test -n "$SUPABASE_ANON_KEY" || { echo "Missing Supabase anon/publishable key secret."; exit 1; }
-          test -n "$SUPABASE_SERVICE_ROLE_KEY" || { echo "Missing Supabase service-role secret."; exit 1; }
+          test -n "$SUPABASE_URL" || { echo "Missing Supabase URL."; exit 1; }
+          test -n "$SUPABASE_ANON_KEY" || { echo "Missing Supabase publishable key."; exit 1; }
           printf '%s' "$SUPABASE_URL" | pnpm dlx wrangler@4.38.0 secret put SUPABASE_URL
           printf '%s' "$SUPABASE_ANON_KEY" | pnpm dlx wrangler@4.38.0 secret put SUPABASE_ANON_KEY
-          printf '%s' "$SUPABASE_SERVICE_ROLE_KEY" | pnpm dlx wrangler@4.38.0 secret put SUPABASE_SERVICE_ROLE_KEY
           if [ -n "${OWNER_OPEN_ID:-}" ]; then
             printf '%s' "$OWNER_OPEN_ID" | pnpm dlx wrangler@4.38.0 secret put OWNER_OPEN_ID
           fi
