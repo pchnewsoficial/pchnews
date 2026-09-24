@@ -116,7 +116,7 @@ if (exists("dist/index.html")) {
   for (const asset of assetMatches) {
     if (!asset.startsWith("/") || asset.startsWith("//")) continue;
     const assetPath = asset.split("?")[0].split("#")[0];
-    const target = path.join(root, "dist", assetPath.replace(/^\\/+/, ""));
+    const target = path.join(root, "dist", assetPath.replace(/^\//, ""));
     if (!fs.existsSync(target) && !asset.startsWith("/http")) {
       fail(`built asset missing: ${asset}`);
     }
