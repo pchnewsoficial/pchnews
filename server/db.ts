@@ -78,3 +78,21 @@ export async function recordFreedomReview(entry:any,accessToken?:string|null){co
 export async function listUsers(accessToken?:string|null){const db=await getDb(accessToken);if(!db)return [];const {data,error}=await db.from("users").select("id,openId,name,email,role,lastSignedIn").order("lastSignedIn",{ascending:false});if(error)throw error;return data??[];}
 export async function setUserRole(openId:string,role:string,accessToken?:string|null){const db=await getDb(accessToken);if(!db)throw new Error("Database unavailable");const {error}=await db.from("users").update({role}).eq("openId",openId);if(error)throw error;return {success:true};}
 export async function createComment(row:Comment,accessToken?:string|null){const db=await getDb(accessToken);if(!db)throw new Error("Database unavailable");const {error}=await db.from("comments").insert(row);if(error)throw error;return row;}
+
+export async function listPautas(accessToken?: string | null) {
+  const supabase = await getDb(accessToken); if (!supabase) return [];
+  const { data, error } = await supabase.from("editorialPautas").select("*").order("updatedAtMs", { ascending: false });
+  if (error) throw error; return data ?? [];
+}
+export async function getPauta(id: string, accessToken?: string | null) {
+  const supabase = await getDb(accessToken); if (!supabase) return undefined;
+  const { data, error } = await supabase.from("editorialPautas").select("*").eq("id", id).maybeSingle();
+  if (error) throw error; return data ?? undefined;
+}
+export async function savePauta(pauta: any, accessToken?: string | null) {
+  const supabase = await getDb(accessToken); if (!supabase) throw new Error("Database unavailable");
+  const nowMs = Date.now();
+  const payload = { ...pauta, tags: pauta.tags ?? "", sourcesJson: pauta.sourcesJson ?? [], checklistJson: pauta.checklistJson ?? [], updatedAtMs: nowMs, createdAtMs: pauta.createdAtMs ?? nowMs };
+  const { data, error } = await supabase.from("editorialPautas").upsert(payload, { onConflict: "id" }).select().single();
+  if (error) throw error; return data;
+}

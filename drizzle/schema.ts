@@ -36,3 +36,12 @@ export interface ColumnistInvite { id:string; email:string; name:string; tokenHa
 export interface ArticleAudit { id:string; articleId:string; actorOpenId:string; actorName:string; action:string; beforeJson:string|null; afterJson:string|null; createdAtMs:number; }
 export interface EditorialAgentRun { id:string; articleId:string; agentId:string; agentName:string; status:ReviewStatus; findingsJson:string; outputJson:string; actorOpenId:string; createdAtMs:number; }
 export interface EditorialFreedomReview { id:string; articleId:string; rulesetVersion:string; status:ReviewStatus; score:number; contentType:string; autonomyAnswer:string; checksJson:string; actorOpenId:string; createdAtMs:number; }
+
+export type PautaPriority = "low" | "normal" | "high" | "urgent";
+export type PautaStatus = "idea" | "planned" | "assigned" | "reporting" | "review" | "ready" | "published" | "archived";
+export interface EditorialPauta {
+  id: string; title: string; angle: string; briefing: string; category: string; priority: PautaPriority; status: PautaStatus;
+  assignedToOpenId: string | null; assignedToName: string | null; deadlineAtMs: number | null; plannedPublishAtMs: number | null;
+  tags: string; sourcesJson: unknown[]; checklistJson: unknown[]; articleId: string | null;
+  createdByOpenId: string; createdByName: string | null; createdAtMs: number; updatedAtMs: number;
+}

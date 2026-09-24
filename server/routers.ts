@@ -4,7 +4,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, columnistProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { acceptInvite, createComment, createInvite, findInvite, getArticle, getDb, getEditorialSnapshot, getViewAnalytics, listArticleAudit, listInvites, listUsers, recordArticleAudit, recordArticleView, renewInvite, revokeInvite, saveArticle, setUserRole, syncEditorial, updateColumnistProfile, recordEditorialAgentRun, listEditorialAgentRuns } from "./db";
+import { acceptInvite, createComment, createInvite, findInvite, getArticle, getDb, getEditorialSnapshot, getViewAnalytics, listArticleAudit, listInvites, listUsers, recordArticleAudit, recordArticleView, renewInvite, revokeInvite, saveArticle, setUserRole, syncEditorial, updateColumnistProfile, recordEditorialAgentRun, listEditorialAgentRuns, listPautas, getPauta, savePauta } from "./db";
 import { storagePut } from "./storage";
 import { sendInviteEmail, smtpConfigured } from "./email";
 import { ENV } from "./_core/env";
@@ -21,6 +21,30 @@ const hashToken = (token: string) => createHash("sha256").update(token).digest("
 const articleInput = z.object({ id: z.string(), title: z.string(), category: z.string(), author: z.string(), authorOpenId: z.string().nullable().optional(), summary: z.string(), date: z.string(), updated: z.string(), status: z.enum(["published", "draft", "scheduled", "archived"]), views: z.number().int(), image: z.string(), bodyHtml: z.string(), scheduledAt: z.number().nullable(), tags: z.string(), youtubeUrl: z.string().nullable().optional(), socialLinks: z.string().nullable().optional(), scope: z.string().optional(), region: z.string().nullable().optional(), state: z.string().nullable().optional(), country: z.string().nullable().optional(), language: z.string().optional(), featured: z.boolean().optional(), sourceUrl: z.string().nullable().optional(), sourceName: z.string().nullable().optional(), slug: z.string().nullable().optional(), seoTitle: z.string().nullable().optional(), metaDescription: z.string().nullable().optional(), canonicalUrl: z.string().nullable().optional(), focusKeyword: z.string().nullable().optional(), ogTitle: z.string().nullable().optional(), ogDescription: z.string().nullable().optional(), imageAlt: z.string().nullable().optional(), noindex: z.boolean().optional() });
 export const appRouter = router({
   system: systemRouter,
+  pauta: router({
+    list: columnistProcedure.query(({ ctx }) => listPautas(ctx.accessToken)),
+    create: columnistProcedure.input(z.object({
+      id: z.string().min(1), title: z.string().min(1), angle: z.string().min(1), briefing: z.string().default(""), category: z.string().min(1),
+      priority: z.enum(["low","normal","high","urgent"]), status: z.enum(["idea","planned","assigned","reporting","review","ready","published","archived"]),
+      assignedToOpenId: z.string().nullable().optional(), assignedToName: z.string().nullable().optional(), deadlineAtMs: z.number().nullable().optional(), plannedPublishAtMs: z.number().nullable().optional(),
+      tags: z.string().default(""), sourcesJson: z.array(z.any()).default([]), checklistJson: z.array(z.any()).default([]), articleId: z.string().nullable().optional()
+    })).mutation(async ({ input, ctx }) => {
+      const row = { ...input, assignedToOpenId: input.assignedToOpenId ?? null, assignedToName: input.assignedToName ?? null, deadlineAtMs: input.deadlineAtMs ?? null, plannedPublishAtMs: input.plannedPublishAtMs ?? null, articleId: input.articleId ?? null, createdByOpenId: ctx.user.openId, createdByName: ctx.user.name || ctx.user.email || "Redação PCH News" };
+      return savePauta(row, ctx.accessToken);
+    }),
+    update: columnistProcedure.input(z.object({
+      id: z.string().min(1), title: z.string().min(1), angle: z.string().min(1), briefing: z.string().default(""), category: z.string().min(1),
+      priority: z.enum(["low","normal","high","urgent"]), status: z.enum(["idea","planned","assigned","reporting","review","ready","published","archived"]),
+      assignedToOpenId: z.string().nullable().optional(), assignedToName: z.string().nullable().optional(), deadlineAtMs: z.number().nullable().optional(), plannedPublishAtMs: z.number().nullable().optional(),
+      tags: z.string().default(""), sourcesJson: z.array(z.any()).default([]), checklistJson: z.array(z.any()).default([]), articleId: z.string().nullable().optional()
+    })).mutation(async ({ input, ctx }) => {
+      const existing = await getPauta(input.id, ctx.accessToken);
+      if (!existing) throw new Error("Pauta não encontrada.");
+      if (ctx.user.role !== "admin" && existing.createdByOpenId !== ctx.user.openId && existing.assignedToOpenId !== ctx.user.openId) throw new Error("Você não tem permissão para alterar esta pauta.");
+      if (ctx.user.role !== "admin" && input.assignedToOpenId && input.assignedToOpenId !== ctx.user.openId && existing.assignedToOpenId !== ctx.user.openId) throw new Error("Somente o administrador pode atribuir a pauta a outra pessoa.");
+      return savePauta({ ...existing, ...input, assignedToOpenId: input.assignedToOpenId ?? null, assignedToName: input.assignedToName ?? null, deadlineAtMs: input.deadlineAtMs ?? null, plannedPublishAtMs: input.plannedPublishAtMs ?? null, articleId: input.articleId ?? null }, ctx.accessToken);
+    })
+  }),
   auth: router({ me: publicProcedure.query((opts) => opts.ctx.user), logout: publicProcedure.mutation(({ ctx }) => { const cookieOptions = getSessionCookieOptions(ctx.req); ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 }); return { success: true } as const; }) }),
   editorialAgents: router({
     run: columnistProcedure.input(z.object({
