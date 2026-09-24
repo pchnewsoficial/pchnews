@@ -23,7 +23,7 @@ export async function getUserByOpenId(openId:string, accessToken?: string | null
   const {data,error}=await db.from("users").select("*").eq("openId",openId).maybeSingle();
   if(error) throw error; return data ?? undefined;
 }
-export async function getEditorialSnapshot(includePrivate=false) {
+export async function getEditorialSnapshot(includePrivate=false, accessToken?: string | null) {
   const db=await getDb(accessToken); if(!db) return {articles:[],comments:[],profiles:[],adRequests:[]};
   const articlesQ=includePrivate?db.from("articles").select("*"):db.from("articles").select("*").eq("status","published");
   const commentsQ=includePrivate?db.from("comments").select("*"):db.from("comments").select("*").eq("status","approved");
