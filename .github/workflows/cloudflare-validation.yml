@@ -1,6 +1,17 @@
 name: PCH News Cloudflare Validation
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "worker/**"
+      - "wrangler.jsonc"
+      - "client/**"
+      - "server/**"
+      - "shared/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "vite.config.ts"
   pull_request:
     branches: [main]
     paths:
@@ -41,5 +52,11 @@ jobs:
       - name: Build PCH News
         run: pnpm run build
 
+      - name: Typecheck
+        run: pnpm run check
+
+      - name: Tests
+        run: pnpm test
+
       - name: Validate Cloudflare Worker bundle
-        run: pnpm dlx wrangler@latest deploy --dry-run
+        run: pnpm dlx --allow-build=esbuild --allow-build=workerd wrangler@latest deploy --dry-run
