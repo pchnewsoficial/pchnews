@@ -27,7 +27,7 @@ const defaultChecklist: ChecklistItem[] = [
   { label: "Conferir nomes, datas e números", done: false }, { label: "Contextualizar e buscar contraponto", done: false },
   { label: "Rodar revisão dos agentes editoriais", done: false },
 ];
-const blank = { title: "", angle: "", briefing: "", category: "Brasil", priority: "normal" as Priority, status: "idea" as PautaStatus, assignedToOpenId: "", assignedToName: "", deadline: "", plannedPublish: "", tags: "", sourceUrl: "", sourceName: "", sourceNote: "" };
+const blank = { title: "", angle: "", briefing: "", category: "Brasil", priority: "normal" as Priority, status: "idea" as PautaStatus, assignedToOpenId: "", assignedToName: "", deadline: "", plannedPublish: "", tags: "", sourceUrl: "", sourceName: "", sourceNote: "", checklist: defaultChecklist };
 
 function fmt(ms: number | null) {
   if (!ms) return "Sem prazo";
@@ -80,7 +80,7 @@ export default function Pauta({ isAdmin, currentAuthor, accessUsers, notify }: {
       title: draft.title.trim(), angle: draft.angle.trim(), briefing: draft.briefing.trim(), category: draft.category, priority: draft.priority, status: draft.status,
       assignedToOpenId: draft.assignedToOpenId || null, assignedToName: draft.assignedToName || null,
       deadlineAtMs: draft.deadline ? new Date(draft.deadline).getTime() : null, plannedPublishAtMs: draft.plannedPublish ? new Date(draft.plannedPublish).getTime() : null,
-      tags: draft.tags.trim(), sourcesJson: source, checklistJson: editing?.checklistJson?.length ? editing.checklistJson : defaultChecklist,
+      tags: draft.tags.trim(), sourcesJson: source, checklistJson: draft.checklist?.length ? draft.checklist : defaultChecklist,
       articleId: editing?.articleId || null,
     };
     if (editing) update.mutate(payload as any); else create.mutate(payload as any);
@@ -159,7 +159,7 @@ export default function Pauta({ isAdmin, currentAuthor, accessUsers, notify }: {
       <div className="editor-section-label">DOSSIÊ DE APURAÇÃO</div>
       <div className="form-grid"><label>URL da fonte principal<input type="url" value={draft.sourceUrl} onChange={e=>setDraft({...draft,sourceUrl:e.target.value})} placeholder="https://..."/></label><label>Nome da fonte<input value={draft.sourceName} onChange={e=>setDraft({...draft,sourceName:e.target.value})} placeholder="Ex.: Prefeitura"/></label></div>
       <label>Observação da fonte<textarea rows={2} value={draft.sourceNote} onChange={e=>setDraft({...draft,sourceNote:e.target.value})} placeholder="O que esta fonte confirma ou ainda precisa ser verificado?"/></label>
-      <div className="pauta-checklist-preview"><strong>Checklist editorial inicial</strong>{(editing?.checklistJson?.length ? editing.checklistJson : defaultChecklist).map((item,i)=><span key={i}><Check size={13}/> {item.label}</span>)}</div>
+      <div className="pauta-checklist-preview"><strong>Checklist editorial</strong>{(draft.checklist || defaultChecklist).map((item,i)=><button type="button" key={i} onClick={()=>setDraft({...draft,checklist:(draft.checklist || defaultChecklist).map((x,j)=>j===i?{...x,done:!x.done}:x)})}><span className={item.done ? "check-done" : "check-empty"}>{item.done && <Check size={11}/>}</span>{item.label}</button>)}</div>
       <div className="editor-actions"><button type="button" className="secondary-cta" onClick={()=>setModal(false)}>Cancelar</button><button className="primary-cta" type="submit"><Check size={16}/> {editing ? "Salvar pauta" : "Criar pauta"}</button></div>
     </form></div>}
   </div>;
