@@ -86,7 +86,7 @@ export default function Home() {
   };
 
   const gridStories = [...visible].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime() || b.views - a.views).filter((article) => article.id !== lead?.id).slice(0, 6);
-  const categorySections = EDITORIAL_CATEGORIES.filter((category) => category !== "Todas").map((category) => ({
+  const categorySections = EDITORIAL_CATEGORIES.map((category) => ({
     category,
     stories: published.filter((article) => article.category === category).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime() || b.views - a.views).slice(0, 4),
   })).filter((section) => section.stories.length > 0).slice(0, 6);
