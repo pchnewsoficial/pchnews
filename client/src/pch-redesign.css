@@ -1,12 +1,12 @@
 /* PCH News — editorial homepage refresh */
 :root {
-  --pch-ink: #0a1118;
-  --pch-navy: #071b29;
-  --pch-navy-2: #0d2636;
-  --pch-gold: #f2b90b;
-  --pch-paper: #f6f6f3;
-  --pch-muted: #69737c;
-  --pch-line: #dfe3e5;
+  --pch-ink: #0b1320;
+  --pch-navy: #071a2d;
+  --pch-navy-2: #0c2940;
+  --pch-gold: #f4b72d;
+  --pch-paper: #f7f8fa;
+  --pch-muted: #667085;
+  --pch-line: #d9e0e7;
 }
 body { background: var(--pch-paper) !important; color: var(--pch-ink) !important; }
 .site-shell { background: var(--pch-paper) !important; }
@@ -14,7 +14,7 @@ body { background: var(--pch-paper) !important; color: var(--pch-ink) !important
 .site-header {
   position: relative !important;
   top:auto !important;
-  background: linear-gradient(180deg,#061824 0%,#081c2a 100%) !important;
+  background: linear-gradient(180deg,#071a2d 0%,#0b2740 100%) !important;
   box-shadow: none !important;
   color:#fff !important;
 }
@@ -47,7 +47,7 @@ body { background: var(--pch-paper) !important; color: var(--pch-ink) !important
 .nav-wrap {
   border-top:1px solid rgba(255,255,255,.08) !important;
   border-bottom:1px solid rgba(255,255,255,.1) !important;
-  background:#071b29 !important;
+  background:#071a2d !important;
 }
 .primary-nav {
   max-width:1440px !important;
