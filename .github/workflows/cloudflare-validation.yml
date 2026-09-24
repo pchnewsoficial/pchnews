@@ -59,4 +59,4 @@ jobs:
         run: pnpm test
 
       - name: Validate Cloudflare Worker bundle
-        run: pnpm dlx --allow-build=esbuild --allow-build=workerd wrangler@latest deploy --dry-run
+        run: npx --yes wrangler@latest deploy --dry-run
