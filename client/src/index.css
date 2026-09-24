@@ -364,3 +364,24 @@ button { border: 0; }
 @media (max-width:900px){.agent-grid{grid-template-columns:1fr 1fr}}@media (max-width:620px){.agent-grid{grid-template-columns:1fr}.agent-gate{margin-top:8px}}
 
 .editor-ai-actions{display:flex;justify-content:flex-start;margin:10px 0 14px}.editor-review-result{padding:14px;border:1px solid var(--line);border-radius:10px;margin-bottom:16px;background:#f7f9fc}.editor-review-result.review{background:#fffaf0}.editor-review-result.block{background:#fff4f4}.editor-review-result.pass{background:#f2faf6}.editor-review-item{display:grid;grid-template-columns:auto 1fr;gap:7px;margin-top:9px;font-size:12px}.editor-review-item b{font-size:9px;letter-spacing:.06em}.editor-review-item small{grid-column:2;color:var(--muted)}.seo-editor-panel{padding:16px;border:1px solid var(--line);border-radius:12px;background:#fafbfc;margin:16px 0}.seo-helper{font-size:12px;color:var(--muted);margin:0 0 14px}.seo-noindex{display:flex!important;align-items:center;gap:8px!important;flex-direction:row!important}.seo-noindex input{width:auto!important}
+
+/* Liberdade Editorial — Tolerajornal */
+.tj-mark{display:inline-flex;gap:6px;align-items:baseline;font-size:12px;color:#5b6570;border-left:3px solid #f2b90b;padding-left:8px;margin-top:6px}
+.tj-mark strong{font-family:Georgia,serif;color:#071b29;letter-spacing:.02em}
+.tj-mark.compact{font-size:11px}
+.tj-panel{border:1px solid #071b29;border-top:5px solid #f2b90b;background:#fbfaf6;border-radius:10px;padding:18px;margin:14px 0}
+.tj-kicker{font-size:11px;font-weight:800;letter-spacing:.12em;color:#071b29}
+.tj-mission{font-family:Georgia,serif;font-size:19px;margin:6px 0 10px;color:#0a1118}
+.tj-meta{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:#5b6570;align-items:center}
+.tj-type{font-size:10px;font-weight:800;letter-spacing:.1em;padding:3px 8px;border-radius:4px}
+.tj-type.fact{background:#e5eef8;color:#1e468c}.tj-type.opinion{background:#fbeede;color:#9a4b00}
+.tj-list{list-style:none;padding:0;margin:14px 0;display:grid;gap:8px}
+.tj-item{display:flex;gap:10px;padding:10px 12px;border-radius:8px;background:#fff;border:1px solid #dfe3e5}
+.tj-item.ok .tj-icon{color:#1f7a4d}.tj-item.warning .tj-icon,.tj-item.block .tj-icon{color:#b54708}.tj-item.info .tj-icon{color:#1e468c}
+.tj-item.warning,.tj-item.block{border-color:#f3c98b;background:#fffaf2}
+.tj-item p{margin:2px 0;font-size:13px}.tj-item code{font-size:10px;color:#69737c}
+.tj-item details{font-size:12px;color:#44505a}.tj-item details li{margin:3px 0;font-style:italic}
+.tj-action{display:block;font-size:12px;color:#071b29;font-weight:600;margin-top:4px}
+.tj-autonomy{display:grid;gap:4px;padding:12px;border-radius:8px;background:#071b29;color:#fff;font-size:13px}
+.tj-autonomy small{opacity:.75}
+.tj-article-strip{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:18px}

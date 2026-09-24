@@ -1,3 +1,5 @@
+import { runFreedomReview } from "./editorialFreedom";
+
 export type EditorialAgentId =
   | "story-editor"
   | "fact-checker"
@@ -5,6 +7,7 @@ export type EditorialAgentId =
   | "publication-readiness"
   | "ethics-advisor"
   | "multi-platform-distributor"
+  | "liberdade-editorial"
   | "journalism-master-orchestrator";
 
 export type EditorialArticleInput = {
@@ -25,6 +28,8 @@ export type AgentFinding = {
   code: string;
   message: string;
   suggestion?: string;
+  ruleId?: string;
+  evidence?: string[];
 };
 
 export type AgentResult = {
@@ -164,6 +169,16 @@ function distributor(article: EditorialArticleInput): AgentResult {
   };
 }
 
+function liberdadeEditorial(article: EditorialArticleInput): AgentResult {
+  const report = runFreedomReview(article);
+  const findings: AgentFinding[] = report.checks.filter((c) => c.severity !== "ok").map((c) => ({
+    severity: c.severity === "block" ? "block" : c.severity === "warning" ? "warning" : "info",
+    code: "freedom-" + c.ruleId.toLowerCase(), ruleId: c.ruleId, evidence: c.evidence,
+    message: `[${c.ruleId}] ${c.message}`, suggestion: c.action
+  }));
+  return { agentId: "liberdade-editorial", agentName: "Liberdade Editorial — Tolerajornal", status: findings.some((f) => f.severity === "warning") ? "review" : "pass", findings, output: report as unknown as Record<string, unknown> };
+}
+
 export function runEditorialAgent(agentId: EditorialAgentId, article: EditorialArticleInput): AgentResult {
   switch (agentId) {
     case "story-editor": return storyEditor(article);
@@ -172,12 +187,14 @@ export function runEditorialAgent(agentId: EditorialAgentId, article: EditorialA
     case "publication-readiness": return publicationReadiness(article);
     case "ethics-advisor": return ethics(article);
     case "multi-platform-distributor": return distributor(article);
+    case "liberdade-editorial": return liberdadeEditorial(article);
     case "journalism-master-orchestrator": {
       const results = [
         storyEditor(article),
         factChecker(article),
         seo(article),
         ethics(article),
+        liberdadeEditorial(article),
         publicationReadiness(article),
         distributor(article)
       ];
