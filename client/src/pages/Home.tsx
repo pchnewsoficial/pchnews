@@ -88,7 +88,7 @@ export default function Home() {
         <div className="container breaking-inner">
           <span className="breaking-label"><span className="breaking-dot" /> PCH NEWS · BRASIL</span>
           <div className="ticker-track"><span>Jornalismo para o Brasil</span><span>•</span><span>Informação, contexto e opinião</span><span>•</span><span>PCH News</span></div>
-          <span className="breaking-date">{new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", year: "numeric", timeZone: "America/Sao_Paulo" }).format(new Date()).replace(".", "").toUpperCase()}</span>
+          <span className="breaking-date">{(() => { const p = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "America/Sao_Paulo" }).formatToParts(new Date()); const day = p.find((x) => x.type === "day")?.value ?? ""; const month = p.find((x) => x.type === "month")?.value ?? ""; const year = p.find((x) => x.type === "year")?.value ?? ""; const labels = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"]; return `${day} ${labels[Math.max(0, Math.min(11, Number(month) - 1))]} ${year}`; })()}</span>
         </div>
       </div>
 
