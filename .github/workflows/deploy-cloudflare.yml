@@ -53,6 +53,18 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
 
+      - name: Public production smoke test
+        run: |
+          set -euo pipefail
+          echo "Checking Worker health endpoint..."
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 --max-time 20 \
+            https://pch-news.pchnews-oficial.workers.dev/healthz
+          echo
+          echo "Checking public SPA..."
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 --max-time 20 \
+            https://pch-news.pchnews-oficial.workers.dev/ -o /tmp/pch-news-index.html
+          test -s /tmp/pch-news-index.html
+
       - name: Deployment summary
         run: |
           echo "PCH News production deployment completed."
