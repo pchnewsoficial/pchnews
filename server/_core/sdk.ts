@@ -39,7 +39,7 @@ export async function authenticateSupabaseRequest(req: Request): Promise<Authent
     email: authUser.email ?? null,
     loginMethod: authUser.app_metadata?.provider ?? "supabase",
     lastSignedIn: new Date(),
-  });
+  }, token);
 
   const user = await db.getUserByOpenId(openId);
   if (!user) throw new Error("User not found after Supabase sync");
