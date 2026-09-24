@@ -38,6 +38,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build PCH News
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: pnpm run build
 
       - name: Typecheck
@@ -53,6 +56,27 @@ jobs:
         run: |
           set -euo pipefail
           pnpm dlx wrangler@4.38.0 whoami
+
+      - name: Configure Supabase runtime secrets
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY || secrets.VITE_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          OWNER_OPEN_ID: ${{ secrets.OWNER_OPEN_ID }}
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_URL" || { echo "Missing Supabase URL secret."; exit 1; }
+          test -n "$SUPABASE_ANON_KEY" || { echo "Missing Supabase anon/publishable key secret."; exit 1; }
+          test -n "$SUPABASE_SERVICE_ROLE_KEY" || { echo "Missing Supabase service-role secret."; exit 1; }
+          test -n "$DATABASE_URL" || { echo "Missing DATABASE_URL secret."; exit 1; }
+          printf '%s' "$SUPABASE_URL" | pnpm dlx wrangler@4.38.0 secret put SUPABASE_URL
+          printf '%s' "$SUPABASE_ANON_KEY" | pnpm dlx wrangler@4.38.0 secret put SUPABASE_ANON_KEY
+          printf '%s' "$SUPABASE_SERVICE_ROLE_KEY" | pnpm dlx wrangler@4.38.0 secret put SUPABASE_SERVICE_ROLE_KEY
+          printf '%s' "$DATABASE_URL" | pnpm dlx wrangler@4.38.0 secret put DATABASE_URL
+          if [ -n "${OWNER_OPEN_ID:-}" ]; then
+            printf '%s' "$OWNER_OPEN_ID" | pnpm dlx wrangler@4.38.0 secret put OWNER_OPEN_ID
+          fi
 
       - name: Deploy Worker
         id: deploy
