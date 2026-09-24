@@ -182,6 +182,24 @@ export default function Home() {
         </section>
       </main>
 
+        <section className="container partners-section" id="parceiros">
+          <div className="section-heading large-heading">
+            <div><span className="eyebrow">REDE PCH NEWS</span><h2>Parceiros</h2></div>
+            <div className="heading-rule"><span>Distribuição e conexão editorial</span></div>
+          </div>
+          <div className="partners-grid">
+            <a className="partner-card" href="https://pchnews.hostingpress.com.br" target="_blank" rel="noreferrer">
+              <span className="partner-mark">HP</span>
+              <div><strong>HostingPRESS</strong><p>Portal de origem e infraestrutura parceira do PCH News.</p></div>
+              <ArrowRight size={18} />
+            </a>
+            <div className="partner-card partner-card-next">
+              <span className="partner-mark">+</span>
+              <div><strong>Novos parceiros</strong><p>Este espaço já está preparado para receber os próximos portais parceiros.</p></div>
+            </div>
+          </div>
+        </section>
+
       <footer className="site-footer">
         <div className="container footer-inner">
           <div className="footer-brand-block">
@@ -189,7 +207,7 @@ export default function Home() {
             <div><strong>PCH News</strong><p>Jornalismo nacional, pensamento amplo.</p><small>Notícias, colunas e perspectivas para libertar a mente.</small></div>
           </div>
           <div className="footer-column"><span>EDITORIAS</span><Link href="/">Brasil</Link><Link href="/">Política</Link><Link href="/">Economia</Link><Link href="/">Cultura</Link><Link href="/">Mundo</Link></div>
-          <div className="footer-column"><span>PCH NEWS</span><Link href="/#ultimas">Últimas notícias</Link><Link href="/colunista/evaldo-poeta">Coluna do Evaldo</Link><Link href="/admin">Painel editorial</Link><Link href="/">Anuncie</Link></div>
+          <div className="footer-column"><span>PCH NEWS</span><Link href="/#ultimas">Últimas notícias</Link><Link href="/#parceiros">Parceiros</Link><Link href="/colunista/evaldo-poeta">Coluna do Evaldo</Link><Link href="/admin">Painel editorial</Link><Link href="/">Anuncie</Link></div>
           <div className="footer-column"><span>INSTITUCIONAL</span><Link href="/">Expediente</Link><Link href="/">Política editorial</Link><Link href="/">Privacidade</Link><Link href="/">Contato</Link></div>
           <div className="footer-signature">
             <span>INFORMAÇÃO PARA</span><strong>LIBERTAR A MENTE.</strong>
