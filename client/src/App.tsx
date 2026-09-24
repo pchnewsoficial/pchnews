@@ -10,8 +10,10 @@ import Home from "./pages/Home";
 import ArticlePage from "./pages/ArticlePage";
 import ColumnistProfile from "./pages/ColumnistProfile";
 import InviteAccept from "./pages/InviteAccept";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import EditorialDataBridge from "./components/EditorialDataBridge";
 function ProtectedAdmin() { const { user, loading } = useAuth(); if (loading) return <div className="app-loading">Carregando acesso seguro…</div>; if (!user) return <Redirect to="/login" />; if (!("admin" === user.role || "columnist" === user.role)) return <div className="article-placeholder"><span className="admin-kicker">ACESSO RESTRITO</span><h1>Seu acesso ainda não foi liberado.</h1><p>Peça ao administrador do PCH News para transformar sua conta em colunista.</p><button className="primary-cta" onClick={() => startLogin()}>Atualizar sessão</button></div>; return <Admin />; }
-function Router() { return <Switch><Route path="/" component={Home} /><Route path="/login" component={Login} /><Route path="/admin" component={ProtectedAdmin} /><Route path="/materia/:slug" component={ArticlePage} /><Route path="/colunista/:slug" component={ColumnistProfile} /><Route path="/convite/:token" component={InviteAccept} /><Route path="/404" component={NotFound} /><Route component={NotFound} /></Switch>; }
+function Router() { return <Switch><Route path="/" component={Home} /><Route path="/login" component={Login} />
+    <Route path="/perfil" component={Profile} /><Route path="/admin" component={ProtectedAdmin} /><Route path="/materia/:slug" component={ArticlePage} /><Route path="/colunista/:slug" component={ColumnistProfile} /><Route path="/convite/:token" component={InviteAccept} /><Route path="/404" component={NotFound} /><Route component={NotFound} /></Switch>; }
 export default function App() { return <ErrorBoundary><EditorialDataBridge /><TooltipProvider><Toaster /><Router /></TooltipProvider></ErrorBoundary>; }
