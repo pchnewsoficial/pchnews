@@ -86,13 +86,17 @@ export default function Home() {
   };
 
   const gridStories = [...visible].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime() || b.views - a.views).filter((article) => article.id !== lead?.id).slice(0, 6);
+  const categorySections = EDITORIAL_CATEGORIES.filter((category) => category !== "Todas").map((category) => ({
+    category,
+    stories: published.filter((article) => article.category === category).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime() || b.views - a.views).slice(0, 4),
+  })).filter((section) => section.stories.length > 0).slice(0, 6);
 
   return (
     <div className="site-shell">
       <div className="breaking-bar">
         <div className="container breaking-inner">
-          <span className="breaking-label"><span className="breaking-dot" /> PCH NEWS · BRASIL</span>
-          <div className="ticker-track"><span>Jornalismo para o Brasil</span><span>•</span><span>Informação, contexto e opinião</span><span>•</span><span>PCH News</span></div>
+          <span className="breaking-label"><span className="breaking-dot" /> URGENTE</span>
+          <div className="ticker-track"><span>PCH NEWS</span><span>•</span><span>Informação, contexto e opinião</span><span>•</span><span>Jornalismo nacional</span></div>
           <span className="breaking-date">{(() => { const p = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "America/Sao_Paulo" }).formatToParts(new Date()); const day = p.find((x) => x.type === "day")?.value ?? ""; const month = p.find((x) => x.type === "month")?.value ?? ""; const year = p.find((x) => x.type === "year")?.value ?? ""; const labels = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"]; return `${day} ${labels[Math.max(0, Math.min(11, Number(month) - 1))]} ${year}`; })()}</span>
         </div>
       </div>
@@ -101,7 +105,8 @@ export default function Home() {
         <div className="container header-main">
           <button className="icon-button mobile-only" aria-label="Abrir menu" onClick={() => setMenuOpen((open) => !open)}>{menuOpen ? <X size={20} /> : <Menu size={20} />}</button>
           <Link className="brand-lockup" href="/">
-            <img className="official-logo" src={LOGO_URL} alt="PCH News" />
+            <img className="official-logo" src={LOGO_URL} alt="PCH News" onError={(event) => { event.currentTarget.src = "/brand/favicon.svg"; }} />
+            <span className="brand-wordmark" aria-hidden="true"><strong>PCH</strong> NEWS</span>
             <span className="brand-caption">Informação para<br /><strong>libertar a mente.</strong></span>
           </Link>
           <div className="header-motto">Jornalismo nacional, pensamento amplo <span>●</span></div>
@@ -116,6 +121,13 @@ export default function Home() {
             {categories.map((category) => <button key={category} className={activeCategory === category ? "active" : ""} onClick={() => { setActiveCategory(category); setMenuOpen(false); }}>{category.toUpperCase()}</button>)}
             <button className="more-trigger">+ MAIS <ChevronDown size={14} /></button>
           </nav>
+        </div>
+        <div className="network-strip">
+          <div className="container network-strip-inner">
+            <span>REDE PCH NEWS</span>
+            {EDITORIAL_CATEGORIES.slice(0, 8).map((category) => <button key={category} onClick={() => { setActiveCategory(category); setMenuOpen(false); }}>{category}</button>)}
+            <button className="network-more" onClick={() => setActiveCategory("Colunas")}>Colunas</button>
+          </div>
         </div>
         {searchOpen && <div className="search-row container"><Search size={17} /><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar no PCH News..." aria-label="Buscar no PCH News" />{query && <button onClick={() => setQuery("")} aria-label="Limpar busca"><X size={16} /></button>}<span>{visible.length} resultados</span></div>}
       </header>
@@ -187,6 +199,21 @@ export default function Home() {
           <div className="section-heading large-heading"><div><span className="eyebrow">AUDIÊNCIA</span><h2>Mais lidas</h2></div><div className="heading-rule"><span>Por visualizações</span></div></div>
           <div className="most-read-list">{mostRead.map((article, index) => <Link href={`/materia/${article.id}`} className="most-read-item" key={article.id}><span className="most-read-rank">{String(index + 1).padStart(2, "0")}</span><div><span className="item-category">{article.category}</span><h3>{article.title}</h3><Meta article={article} /></div><strong><Eye size={13} /> {article.views.toLocaleString("pt-BR")}</strong></Link>)}</div>
         </section>
+
+        {categorySections.length > 0 && <section className="container editorial-sections">
+          <div className="section-heading large-heading"><div><span className="eyebrow">EDITORIAS PCH NEWS</span><h2>Notícias por tema</h2></div><div className="heading-rule"><span>Curadoria editorial</span></div></div>
+          <div className="editorial-section-list">
+            {categorySections.map(({ category, stories }) => <section className="editorial-category-block" key={category}>
+              <div className="editorial-category-heading"><h3>{category}</h3><button onClick={() => setActiveCategory(category)}>Ver tudo <ArrowRight size={14} /></button></div>
+              <div className="editorial-category-grid">
+                {stories.map((article) => <Link href={`/materia/${article.id}`} className="editorial-category-card" key={article.id}>
+                  <div className="editorial-category-image"><img src={imageUrl(article)} alt="" onError={(event) => { event.currentTarget.src = article.image || "/brand/favicon.svg"; }} /></div>
+                  <div><span>{article.category}</span><h4>{article.title}</h4><Meta article={article} /></div>
+                </Link>)}
+              </div>
+            </section>)}
+          </div>
+        </section>}
       </main>
 
         <section className="container partners-section" id="parceiros">
