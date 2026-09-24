@@ -73,7 +73,7 @@ O workflow usa estes **GitHub Actions Secrets**:
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
 
-O token deve ter permissão suficiente para fazer deploy do Worker. O valor do token nunca deve ser colocado no repositório. A documentação atual do Cloudflare recomenda exatamente essas duas credenciais para CI/CD com GitHub Actions. citeturn0search0turn0search8
+O token deve ter permissão suficiente para fazer deploy do Worker. O valor do token nunca deve ser colocado no repositório. A documentação atual do Cloudflare recomenda essas duas credenciais para CI/CD com GitHub Actions.
 
 Depois que os dois secrets forem configurados, qualquer push aprovado em `main` dispara o deploy automaticamente. Também é possível executar manualmente pelo GitHub Actions usando `workflow_dispatch`.
 
