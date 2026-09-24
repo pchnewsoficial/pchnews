@@ -5,7 +5,7 @@ import { trpc } from "@/lib/trpc";
 import type { NewsArticle } from "@/lib/news";
 
 type Agent = {
-  id: "journalism-master-orchestrator" | "story-editor" | "fact-checker" | "seo-optimization-specialist" | "ethics-advisor" | "publication-readiness" | "multi-platform-distributor";
+  id: "journalism-master-orchestrator" | "story-editor" | "fact-checker" | "seo-optimization-specialist" | "ethics-advisor" | "liberdade-editorial" | "publication-readiness" | "multi-platform-distributor";
   name: string;
   description: string;
   icon: typeof Sparkles;
