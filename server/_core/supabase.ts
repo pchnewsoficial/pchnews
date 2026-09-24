@@ -14,6 +14,16 @@ export function getSupabaseAdmin() {
   });
 }
 
+export function getSupabaseServer(accessToken?: string) {
+  if (!ENV.supabaseUrl || !ENV.supabaseAnonKey) {
+    throw new Error("Supabase public config missing: set SUPABASE_URL and SUPABASE_ANON_KEY.");
+  }
+  return createClient(ENV.supabaseUrl, ENV.supabaseAnonKey, {
+    auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false },
+    global: accessToken ? { headers: { Authorization: `Bearer ${accessToken}` } } : undefined,
+  });
+}
+
 export function getSupabasePublic() {
   if (!ENV.supabaseUrl || !ENV.supabaseAnonKey) {
     throw new Error("Supabase public config missing: set SUPABASE_URL and SUPABASE_ANON_KEY.");
