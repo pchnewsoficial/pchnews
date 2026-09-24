@@ -4,8 +4,7 @@ import { useLocation } from "wouter";
 import { startLogin } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
-import officialLogo from "@/assets/pch-news-official-logo.svg";
-const LOGO_URL = officialLogo;
+const LOGO_URL = "/brand/logo.svg?v=3";
 const OWNER_EMAIL = "pchnews.oficial@gmail.com";
 export default function Login() {
   const [, navigate] = useLocation(); const { user, loading } = useAuth(); const [email, setEmail] = useState(""); const [message, setMessage] = useState(""); const [sending, setSending] = useState(false);
