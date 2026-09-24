@@ -67,7 +67,7 @@ export default function Pauta({ isAdmin, currentAuthor, accessUsers, notify }: {
       title: p.title, angle: p.angle, briefing: p.briefing, category: p.category, priority: p.priority, status: p.status,
       assignedToOpenId: p.assignedToOpenId || "", assignedToName: p.assignedToName || "", deadline: p.deadlineAtMs ? new Date(p.deadlineAtMs).toISOString().slice(0,16) : "",
       plannedPublish: p.plannedPublishAtMs ? new Date(p.plannedPublishAtMs).toISOString().slice(0,16) : "",
-      tags: p.tags || "", sourceUrl: first?.url || "", sourceName: first?.name || "", sourceNote: first?.note || "",
+      tags: p.tags || "", sourceUrl: first?.url || "", sourceName: first?.name || "", sourceNote: first?.note || "", checklist: p.checklistJson?.length ? p.checklistJson : defaultChecklist,
     });
     setModal(true);
   };
