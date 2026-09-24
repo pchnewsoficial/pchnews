@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { CalendarDays, Check, ChevronDown, CircleAlert, ExternalLink, FilePlus2, Filter, ListChecks, Plus, Search, Target, UserRound } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { makeArticleId } from "@/lib/news";
 
 type PautaStatus = "idea" | "planned" | "assigned" | "reporting" | "review" | "ready" | "published" | "archived";
@@ -35,7 +36,7 @@ function fmt(ms: number | null) {
 function isLate(p: Pauta) { return Boolean(p.deadlineAtMs && p.deadlineAtMs < Date.now() && !["published", "archived"].includes(p.status)); }
 
 export default function Pauta({ isAdmin, currentAuthor, accessUsers, notify }: { isAdmin: boolean; currentAuthor: string; accessUsers: AccessUser[]; notify: (message: string) => void }) {
-  const { user } = require("@/_core/hooks/useAuth").useAuth();
+  const { user } = useAuth();
   const { data: remote = [], refetch } = trpc.pauta.list.useQuery(undefined, { enabled: Boolean(user), retry: false });
   const create = trpc.pauta.create.useMutation({ onSuccess: () => { refetch(); setModal(false); notify("Pauta criada e salva no banco."); } });
   const update = trpc.pauta.update.useMutation({ onSuccess: () => { refetch(); notify("Pauta atualizada."); } });
