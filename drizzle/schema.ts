@@ -20,6 +20,7 @@ export interface Article {
   id: string; title: string; category: string; author: string; authorOpenId: string | null;
   summary: string; date: string; updated: string; status: ArticleStatus; views: number;
   image: string; bodyHtml: string; scheduledAt: number | null; tags: string;
+  scope: string; region: string | null; state: string | null; country: string | null; language: string; featured: boolean; sourceUrl: string | null; sourceName: string | null;
   youtubeUrl: string | null; socialLinks: string | null; slug: string | null;
   seoTitle: string | null; metaDescription: string | null; canonicalUrl: string | null;
   focusKeyword: string | null; ogTitle: string | null; ogDescription: string | null;
