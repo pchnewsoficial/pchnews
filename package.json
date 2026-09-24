@@ -12,7 +12,8 @@
     "test": "vitest run",
     "db:push": "drizzle-kit generate && drizzle-kit migrate",
     "recovery:audit": "node scripts/pch-production-recovery-agent.mjs",
-    "recovery:build": "node scripts/pch-production-recovery-agent.mjs --build"
+    "recovery:build": "node scripts/pch-production-recovery-agent.mjs --build",
+    "postinstall": "node scripts/patch-cloudflare-iconv-lite.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.693.0",
