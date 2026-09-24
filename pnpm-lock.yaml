@@ -5,6 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
+  iconv-lite: 0.6.3
   tailwindcss>nanoid: 3.3.7
 
 patchedDependencies:
@@ -6197,7 +6198,7 @@ snapshots:
       depd: 2.0.0
       destroy: 1.2.0
       http-errors: 2.0.0
-      iconv-lite: 0.4.24
+      iconv-lite: 0.6.3
       on-finished: 2.4.1
       qs: 6.13.0
       raw-body: 2.5.2
