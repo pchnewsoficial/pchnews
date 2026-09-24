@@ -32,9 +32,12 @@ export default function Home() {
   const [activeSlide, setActiveSlide] = useState(0);
 
   useEffect(() => {
-    if (!remoteEditorial) return;
-    const remoteArticles: NewsArticle[] = (remoteEditorial.articles || []).map((article: any) => ({ ...article, tags: typeof article.tags === "string" ? (() => { try { return JSON.parse(article.tags || "[]"); } catch { return []; } })() : article.tags || [], socialLinks: typeof article.socialLinks === "string" ? (() => { try { return JSON.parse(article.socialLinks || "{}"); } catch { return {}; } })() : article.socialLinks || {}, scheduledAt: article.scheduledAt ? new Date(Number(article.scheduledAt)).toISOString().slice(0, 16) : undefined }));
-    setArticles(remoteArticles);
+    const remoteArticles = Array.isArray(remoteEditorial?.articles) ? remoteEditorial.articles : [];
+    // Do not blank the public homepage while the production database is empty.
+    // Once migrated articles exist, the database becomes the source of truth.
+    if (remoteArticles.length === 0) return;
+    const normalized: NewsArticle[] = remoteArticles.map((article: any) => ({ ...article, tags: typeof article.tags === "string" ? (() => { try { return JSON.parse(article.tags || "[]"); } catch { return []; } })() : article.tags || [], socialLinks: typeof article.socialLinks === "string" ? (() => { try { return JSON.parse(article.socialLinks || "{}"); } catch { return {}; } })() : article.socialLinks || {}, scheduledAt: article.scheduledAt ? new Date(Number(article.scheduledAt)).toISOString().slice(0, 16) : undefined }));
+    setArticles(normalized);
   }, [remoteEditorial]);
 
   const published = useMemo(() => articles.filter((article) => {
