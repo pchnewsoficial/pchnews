@@ -11,10 +11,11 @@ const now = () => new Date();
 export async function upsertUser(user: InsertUser, accessToken?: string | null): Promise<void> {
   if (!user.openId) throw new Error("User openId is required for upsert");
   const supabase = await getDb(accessToken); if (!supabase) return;
-  const payload: any = { openId:user.openId, name:user.name ?? null, email:user.email ?? null, loginMethod:user.loginMethod ?? null, lastSignedIn:user.lastSignedIn ?? now() };
-  if (user.role) payload.role = user.role;
-  if (!user.role && ENV.ownerOpenId && user.openId === ENV.ownerOpenId) payload.role = "admin";
-  const { error } = await supabase.from("users").upsert(payload, { onConflict:"openId" });
+  const { error } = await supabase.rpc("sync_authenticated_user", {
+    p_name: user.name ?? null,
+    p_email: user.email ?? null,
+    p_login_method: user.loginMethod ?? "supabase",
+  });
   if (error) throw error;
 }
 export async function getUserByOpenId(openId:string, accessToken?: string | null):Promise<User|undefined> {
