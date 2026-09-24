@@ -32,7 +32,7 @@ export const appRouter = router({
       })
     })).mutation(async ({ input, ctx }) => {
       const result = runEditorialAgent(input.agentId as EditorialAgentId, input.article);
-      const db = await getDb();
+      const db = await getDb(ctx.accessToken);
       if (db) {
         await recordEditorialAgentRun({
           id: `agent-${Date.now()}-${randomBytes(4).toString("hex")}`,
@@ -50,25 +50,25 @@ export const appRouter = router({
       }
       return result;
     }),
-    history: columnistProcedure.input(z.object({ articleId: z.string().min(1) })).query(({ input }) => listEditorialAgentRuns(input.articleId, ctx.accessToken)),
+    history: columnistProcedure.input(z.object({ articleId: z.string().min(1) })).query(({ input, ctx }) => listEditorialAgentRuns(input.articleId, ctx.accessToken)),
   }),
   editorial: router({
     bootstrap: publicProcedure.query(({ ctx }) => getEditorialSnapshot(Boolean(ctx.user), ctx.accessToken)),
-    sync: protectedProcedure.input(z.object({ articles: z.array(articleSchema), comments: z.array(commentSchema), profiles: z.array(profileSchema), adRequests: z.array(adSchema) })).mutation(async ({ input, ctx }) => { const db = await getDb(); if (!db) throw new Error("Database unavailable"); if (ctx.user.role !== "admin") { const snapshot = await getEditorialSnapshot(true); const byId = new Map(snapshot.articles.map((row:any) => [row.id, row.authorOpenId])); for (const item of input.articles) { const owner = byId.get(item.id); const claimed = item.authorOpenId ?? (item.author === ctx.user.name ? ctx.user.openId : null); if (claimed !== ctx.user.openId || (owner !== undefined && owner !== ctx.user.openId)) throw new Error("Sincronização recusada: a publicação não pertence ao seu openId."); } } return syncEditorial({ ...input, articles: input.articles.map((item) => ({ ...item, authorOpenId: item.authorOpenId ?? (item.author === ctx.user.name ? ctx.user.openId : null), youtubeUrl: item.youtubeUrl ?? null, socialLinks: item.socialLinks ?? null, createdAt: item.createdAt ?? new Date(), updatedAt: item.updatedAt ?? new Date() })), profiles: input.profiles.map((item) => ({ ...item, updatedAt: item.updatedAt ?? new Date() })) }); }),
+    sync: protectedProcedure.input(z.object({ articles: z.array(articleSchema), comments: z.array(commentSchema), profiles: z.array(profileSchema), adRequests: z.array(adSchema) })).mutation(async ({ input, ctx }) => { const db = await getDb(); if (!db) throw new Error("Database unavailable"); if (ctx.user.role !== "admin") { const snapshot = await getEditorialSnapshot(true, ctx.accessToken); const byId = new Map(snapshot.articles.map((row:any) => [row.id, row.authorOpenId])); for (const item of input.articles) { const owner = byId.get(item.id); const claimed = item.authorOpenId ?? (item.author === ctx.user.name ? ctx.user.openId : null); if (claimed !== ctx.user.openId || (owner !== undefined && owner !== ctx.user.openId)) throw new Error("Sincronização recusada: a publicação não pertence ao seu openId."); } } return syncEditorial({ ...input, articles: input.articles.map((item) => ({ ...item, authorOpenId: item.authorOpenId ?? (item.author === ctx.user.name ? ctx.user.openId : null), youtubeUrl: item.youtubeUrl ?? null, socialLinks: item.socialLinks ?? null, createdAt: item.createdAt ?? new Date(), updatedAt: item.updatedAt ?? new Date() })), profiles: input.profiles.map((item) => ({ ...item, updatedAt: item.updatedAt ?? new Date() })) }, ctx.accessToken); }),
     saveArticle: columnistProcedure.input(articleInput).mutation(async ({ input, ctx }) => { const existing = await getArticle(input.id, ctx.accessToken); const owner = existing?.authorOpenId ?? (existing?.author === ctx.user.name ? ctx.user.openId : null); const nextOwner = input.authorOpenId ?? owner ?? (ctx.user.role === "columnist" ? ctx.user.openId : null); if (ctx.user.role !== "admin" && owner !== ctx.user.openId && !(owner === null && !existing)) throw new Error("Você só pode editar publicações vinculadas ao seu openId."); const before = existing ? { ...existing } : null; await saveArticle({ ...input, authorOpenId: nextOwner, createdAt: existing?.createdAt ?? new Date() }, ctx.accessToken); await recordArticleAudit({ id: `audit-${Date.now()}-${randomBytes(4).toString("hex")}`, articleId: input.id, actorOpenId: ctx.user.openId, actorName: ctx.user.name || ctx.user.email || "Usuário", action: before ? "updated" : "created", beforeJson: before ? JSON.stringify(before) : null, afterJson: JSON.stringify(input) }, ctx.accessToken); return { success: true }; }),
     recordView: publicProcedure.input(z.object({ articleId: z.string().min(1), visitorId: z.string().min(8).max(128) })).mutation(({ input }) => recordArticleView(input.articleId, input.visitorId)),
     analytics: protectedProcedure.input(z.object({ author: z.string().optional(), authorOpenId: z.string().optional(), fromMs: z.number().optional(), toMs: z.number().optional() })).query(({ input, ctx }) => getViewAnalytics(ctx.user.role === "admin" ? input.author : ctx.user.name ?? undefined, ctx.user.role === "admin" ? input.authorOpenId : ctx.user.openId, input.fromMs, input.toMs, ctx.accessToken)),
-    audit: adminProcedure.input(z.object({ articleId: z.string().optional() })).query(({ input }) => listArticleAudit(input.articleId, ctx.accessToken)),
+    audit: adminProcedure.input(z.object({ articleId: z.string().optional() })).query(({ input, ctx }) => listArticleAudit(input.articleId, ctx.accessToken)),
   }),
   profiles: router({ save: columnistProcedure.input(profileUpdateSchema).mutation(({ input, ctx }) => { if (ctx.user.role !== "admin" && slugify(ctx.user.name || "") !== input.slug) throw new Error("Você só pode editar o próprio perfil."); return updateColumnistProfile(input.slug, input, ctx.accessToken); }), uploadPhoto: columnistProcedure.input(uploadSchema).mutation(async ({ input, ctx }) => { if (ctx.user.role !== "admin" && slugify(ctx.user.name || "") !== input.slug) throw new Error("Você só pode editar o próprio perfil."); const safeName = input.fileName.replace(/[^a-zA-Z0-9._-]/g, "-"); const bytes = Buffer.from(input.base64.replace(/^data:[^;]+;base64,/, ""), "base64"); if (bytes.length > 5 * 1024 * 1024) throw new Error("A imagem deve ter no máximo 5 MB."); return storagePut(`columnists/${input.slug}/${safeName}`, bytes, input.contentType); }) }),
   comments: router({
-    create: publicProcedure.input(z.object({ articleId: z.string().min(1), name: z.string().min(2).max(120), text: z.string().min(2).max(4000) })).mutation(async ({ input }) => {
+    create: publicProcedure.input(z.object({ articleId: z.string().min(1), name: z.string().min(2).max(120), text: z.string().min(2).max(4000) })).mutation(async ({ input, ctx }) => {
       const row = { id: `comment-${Date.now()}-${randomBytes(4).toString("hex")}`, articleId: input.articleId, name: input.name.trim(), text: input.text.trim(), createdAtMs: Date.now(), status: "pending" as const, reply: null, repliedBy: null, repliedAtMs: null };
       await createComment(row, ctx.accessToken);
       return row;
     }),
   }),
-  access: router({ list: adminProcedure.query(async () => { return listUsers(ctx.accessToken); }), setRole: adminProcedure.input(z.object({ openId: z.string(), role: z.enum(["user", "admin", "columnist"]) })).mutation(async ({ input }) => { return setUserRole(input.openId,input.role,ctx.accessToken); }) }),
+  access: router({ list: adminProcedure.query(async ({ ctx }) => { return listUsers(ctx.accessToken); }), setRole: adminProcedure.input(z.object({ openId: z.string(), role: z.enum(["user", "admin", "columnist"]) })).mutation(async ({ input, ctx }) => { return setUserRole(input.openId,input.role,ctx.accessToken); }) }),
   invites: router({
     list: adminProcedure.query(({ ctx }) => listInvites(ctx.accessToken)),
     revoke: adminProcedure.input(z.object({ id: z.string() })).mutation(({ input, ctx }) => revokeInvite(input.id, ctx.accessToken)),
