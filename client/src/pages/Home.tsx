@@ -3,10 +3,9 @@ import { ArrowLeft, ArrowRight, Bookmark, ChevronDown, Clock3, Eye, Menu, Search
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { EDITORIAL_CATEGORIES, NewsArticle, readStoredArticles } from "@/lib/news";
-import officialLogo from "@/assets/pch-news-official-logo.svg";
 import "@/pch-redesign.css";
 
-const LOGO_URL = officialLogo;
+const LOGO_URL = "/brand/logo.svg?v=3";
 const imageUrl = (article: NewsArticle) => article.sourceUrl ? `/legacy-image/${encodeURIComponent(article.sourceUrl)}` : article.image || LOGO_URL;
 const categories = ["Todas", ...EDITORIAL_CATEGORIES];
 
