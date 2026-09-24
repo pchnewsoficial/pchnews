@@ -56,15 +56,26 @@ Configure no ambiente de produção, nunca no Git:
 
 Nem todas são necessárias para cada fluxo, mas as funcionalidades correspondentes devem ser testadas antes de considerar produção concluída.
 
-## Deploy
+## Deploy automático GitHub → Cloudflare Worker
 
-Para o Worker:
-1. Cloudflare → Workers & Pages → **Workers**.
-2. Conectar pchnewsoficial/pch-news.
-3. Branch de produção: main.
-4. Usar o wrangler.jsonc do repositório.
-5. Build: pnpm install --frozen-lockfile && pnpm run build.
-6. Deploy: npx wrangler deploy.
+O deploy de produção agora é feito pelo GitHub Actions no workflow:
+`.github/workflows/deploy-cloudflare.yml`.
+
+Fluxo:
+1. Push em `main`.
+2. GitHub instala as dependências com pnpm.
+3. GitHub executa `pnpm run build`.
+4. GitHub executa typecheck e testes.
+5. GitHub executa `cloudflare/wrangler-action@v4`.
+6. Wrangler publica o Worker `pch-news` usando o `wrangler.jsonc`.
+
+O workflow usa estes **GitHub Actions Secrets**:
+- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_ACCOUNT_ID`
+
+O token deve ter permissão suficiente para fazer deploy do Worker. O valor do token nunca deve ser colocado no repositório. A documentação atual do Cloudflare recomenda exatamente essas duas credenciais para CI/CD com GitHub Actions. citeturn0search0turn0search8
+
+Depois que os dois secrets forem configurados, qualquer push aprovado em `main` dispara o deploy automaticamente. Também é possível executar manualmente pelo GitHub Actions usando `workflow_dispatch`.
 
 **Não criar um projeto Pages para este aplicativo.**
 
