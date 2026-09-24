@@ -1,5 +1,5 @@
 import { ENV } from "./_core/env";
-import { getSupabaseAdmin } from "./_core/supabase";
+import { getSupabaseAdmin, getSupabaseServer } from "./_core/supabase";
 
 function normalizeKey(relKey: string) {
   return relKey.replace(/^\/+/, "").replace(/\\/g, "/");
@@ -16,10 +16,11 @@ export async function storagePut(
   relKey: string,
   data: Buffer | Uint8Array | string,
   contentType = "application/octet-stream",
+  accessToken?: string | null,
 ): Promise<{ key: string; url: string }> {
   const key = appendHashSuffix(normalizeKey(relKey));
   const bytes = typeof data === "string" ? Buffer.from(data) : Buffer.from(data);
-  const supabase = getSupabaseAdmin();
+  const supabase = accessToken ? getSupabaseServer(accessToken) : getSupabaseAdmin();
   const { error } = await supabase.storage
     .from(ENV.supabaseStorageBucket)
     .upload(key, bytes, { contentType, upsert: false });
