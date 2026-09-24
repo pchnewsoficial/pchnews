@@ -41,7 +41,7 @@ export async function authenticateSupabaseRequest(req: Request): Promise<Authent
     lastSignedIn: new Date(),
   }, token);
 
-  const user = await db.getUserByOpenId(openId);
+  const user = await db.getUserByOpenId(openId, token);
   if (!user) throw new Error("User not found after Supabase sync");
   return user;
 }
