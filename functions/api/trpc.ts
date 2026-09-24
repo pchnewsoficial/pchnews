@@ -124,6 +124,13 @@ async function handleProcedure(path: string, request: Request, env: Env, input: 
       actorOpenId: user.openId,
       createdAtMs: Date.now()
     });
+    const freedom: any = result.agentId === "liberdade-editorial" ? result : (result.output as any)?.agents?.find((a: any) => a.agentId === "liberdade-editorial");
+    if (freedom) {
+      const r = freedom.output;
+      const articleId = String(input.articleId || article.id || "");
+      await db.from("editorialFreedomReviews").insert({ id: "freedom-" + Date.now() + "-" + crypto.randomUUID(), articleId, rulesetVersion: r.rulesetVersion, status: freedom.status, score: r.score, contentType: r.contentType, autonomyAnswer: r.autonomy.answer, checks: r.checks, actorOpenId: user.openId, createdAtMs: Date.now() });
+      await db.from("articles").update({ freedomStatus: freedom.status, freedomScore: r.score, freedomReviewedAtMs: Date.now(), contentType: r.contentType }).eq("id", articleId);
+    }
     return result;
   }
 

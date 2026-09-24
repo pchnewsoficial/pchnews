@@ -43,3 +43,11 @@ export async function listEditorialAgentRuns(articleId: string) {
   if (!db) return [];
   return db.select().from(editorialAgentRuns).where(eq(editorialAgentRuns.articleId, articleId)).orderBy(desc(editorialAgentRuns.createdAtMs)).limit(100);
 }
+
+export async function recordFreedomReview(entry: { id: string; articleId: string; rulesetVersion: string; status: "pass" | "review" | "block"; score: number; contentType: string; autonomyAnswer: string; checksJson: string; actorOpenId: string; createdAtMs: number }) {
+  const db = await getDb();
+  if (!db) return { success: false };
+  const { editorialFreedomReviews } = await import("../drizzle/schema");
+  await db.insert(editorialFreedomReviews).values(entry);
+  return { success: true };
+}

@@ -9,6 +9,7 @@ import { storagePut } from "./storage";
 import { sendInviteEmail, smtpConfigured } from "./email";
 import { ENV } from "./_core/env";
 import { articles, users, comments } from "../drizzle/schema";
+import { recordFreedomReview } from "./db";
 import { runEditorialAgent, type EditorialAgentId } from "./editorialAgents";
 import { and, eq } from "drizzle-orm";
 const articleSchema = z.object({ id: z.string(), title: z.string(), category: z.string(), author: z.string(), authorOpenId: z.string().nullable().optional(), summary: z.string(), date: z.string(), updated: z.string(), status: z.enum(["published", "draft", "scheduled", "archived"]), views: z.number().int(), image: z.string(), bodyHtml: z.string(), scheduledAt: z.number().nullable(), tags: z.string(), youtubeUrl: z.string().nullable().optional(), socialLinks: z.string().nullable().optional(), createdAt: z.coerce.date().optional(), updatedAt: z.coerce.date().optional() });
@@ -46,6 +47,8 @@ export const appRouter = router({
           actorOpenId: ctx.user.openId,
           createdAtMs: Date.now()
         });
+        const freedom = result.agentId === "liberdade-editorial" ? result : (result.output as any)?.agents?.find((a: any) => a.agentId === "liberdade-editorial");
+        if (freedom) { const r = freedom.output as any; await recordFreedomReview({ id: `freedom-${Date.now()}-${randomBytes(4).toString("hex")}`, articleId: input.articleId, rulesetVersion: r.rulesetVersion, status: freedom.status, score: r.score, contentType: r.contentType, autonomyAnswer: r.autonomy.answer, checksJson: JSON.stringify(r.checks), actorOpenId: ctx.user.openId, createdAtMs: Date.now() }); }
       }
       return result;
     }),
