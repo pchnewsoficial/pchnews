@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { CheckCircle2, CircleAlert, ShieldCheck, SearchCheck, Sparkles, Wand2, Share2, FileCheck2 } from "lucide-react";
+import { FreedomReviewPanel } from "@/components/FreedomReviewPanel";
 import { trpc } from "@/lib/trpc";
 import type { NewsArticle } from "@/lib/news";
 
@@ -16,6 +17,7 @@ const AGENTS: Agent[] = [
   { id: "fact-checker", name: "Fact Checker", description: "Localiza datas, números, citações e pontos que pedem fonte.", icon: SearchCheck },
   { id: "seo-optimization-specialist", name: "SEO", description: "Analisa título, resumo, tags e sugere slug/meta.", icon: Sparkles },
   { id: "ethics-advisor", name: "Ethics Advisor", description: "Sinaliza linguagem acusatória, absoluta ou sensacionalista.", icon: ShieldCheck },
+  { id: "liberdade-editorial", name: "Liberdade Editorial", description: "Tolerajornal: fato x opinião, contexto, fontes, contraponto e lide completo.", icon: ShieldCheck },
   { id: "publication-readiness", name: "Publication Readiness", description: "Confere se a matéria está completa para ir ao ar.", icon: FileCheck2 },
   { id: "multi-platform-distributor", name: "Distribuição", description: "Prepara versões para Instagram, Facebook, X, WhatsApp e YouTube.", icon: Share2 },
 ];
@@ -70,7 +72,7 @@ export default function EditorialAgents({ articles, isAdmin, currentAuthor, noti
     {result && <section className="panel agent-result-panel">
       <div className="panel-heading"><div><span className="admin-kicker">{result.agentName}</span><h2>Resultado da análise</h2></div><AgentStatus status={result.status} /></div>
       <div className="agent-findings">{(result.findings || []).length === 0 ? <div className="agent-empty"><CheckCircle2 size={20} /><span>Nenhum alerta encontrado nesta execução.</span></div> : result.findings.map((finding: any, index: number) => <div className={"agent-finding " + finding.severity} key={finding.code + index}><span>{finding.severity === "block" ? <CircleAlert size={17} /> : finding.severity === "warning" ? <CircleAlert size={17} /> : <CheckCircle2 size={17} />}</span><div><strong>{finding.message}</strong>{finding.suggestion && <small>{finding.suggestion}</small>}</div></div>)}</div>
-      <pre className="agent-output">{JSON.stringify(result.output, null, 2)}</pre>
+      {(() => { const fr = result.agentId === "liberdade-editorial" ? result : (result.output?.agents || []).find((a: any) => a.agentId === "liberdade-editorial"); return fr ? <FreedomReviewPanel report={fr.output} /> : null; })()}<pre className="agent-output">{JSON.stringify(result.output, null, 2)}</pre>
     </section>}
   </div>;
 }
