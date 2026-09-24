@@ -39,7 +39,7 @@ create policy "pautas admin or participant"
   to authenticated
   using (
     is_admin()
-    or "createdByOpenId" = auth.uid()::text
+    or "createdByOpenId" = (select auth.uid())::text
     or "assignedToOpenId" = auth.uid()::text
   )
   with check (
