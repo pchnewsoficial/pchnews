@@ -6,6 +6,7 @@ import { EDITORIAL_CATEGORIES, NewsArticle, readStoredArticles } from "@/lib/new
 import "@/pch-redesign.css";
 
 const LOGO_URL = "/brand/logo.svg";
+const imageUrl = (article: NewsArticle) => article.sourceUrl ? `/legacy-image/${encodeURIComponent(article.sourceUrl)}` : article.image || LOGO_URL;
 const categories = ["Todas", ...EDITORIAL_CATEGORIES];
 
 function Meta({ article }: { article: NewsArticle }) {
@@ -130,7 +131,7 @@ export default function Home() {
           <div className="lead-column">
             <div className="lead-carousel" aria-roledescription="carousel" aria-label="Notícias em destaque">
               <Link className="lead-story" href={`/materia/${lead.id}`} key={lead.id}>
-                <img src={lead.image} alt="" />
+                <img src={imageUrl(lead)} alt="" onError={(event) => { event.currentTarget.src = lead.image || LOGO_URL; }} />
                 <div className="story-overlay">
                   <span className="category-tag">{lead.category}</span>
                   <span className="featured-kicker"><Eye size={12} /> {lead.views.toLocaleString("pt-BR")} visualizações</span>
@@ -151,7 +152,7 @@ export default function Home() {
           </div>
           <aside className="recent-panel">
             <div className="section-heading"><div><span className="eyebrow">AGORA</span><h2>Mais lidas</h2></div><span className="heading-line" /></div>
-            {sideStories.map((article, index) => <Link href={`/materia/${article.id}`} className="recent-item" key={article.id}><div className={`recent-thumb thumb-${index + 1}`} style={{ backgroundImage: `url(${article.image})` }}><span>{String(index + 1).padStart(2, "0")}</span></div><div><span className="item-category">{article.category}</span><h3>{article.title}</h3><p><Eye size={12} /> {article.views.toLocaleString("pt-BR")} visualizações</p></div></Link>)}
+            {sideStories.map((article, index) => <Link href={`/materia/${article.id}`} className="recent-item" key={article.id}><div className={`recent-thumb thumb-${index + 1}`} style={{ backgroundImage: `url(${imageUrl(article)})` }}><span>{String(index + 1).padStart(2, "0")}</span></div><div><span className="item-category">{article.category}</span><h3>{article.title}</h3><p><Eye size={12} /> {article.views.toLocaleString("pt-BR")} visualizações</p></div></Link>)}
           </aside>
         </section>
         ) : (
@@ -164,7 +165,7 @@ export default function Home() {
           <div className="section-heading large-heading"><div><span className="eyebrow">VOZES PCH NEWS · BRASIL</span><h2>Colunistas em destaque</h2></div><div className="heading-rule"><span>Autores e perspectivas</span></div></div>
           <div className="columnist-rail">
             {columnists.map((article) => <Link href={`/colunista/${slugify(article.author)}`} className="columnist-card" key={article.author}>
-              <div className="columnist-card-image"><img src={article.image} alt="" /><span><UserRound size={13} /> Colunista</span></div>
+              <div className="columnist-card-image"><img src={imageUrl(article)} alt="" onError={(event) => { event.currentTarget.src = article.image || LOGO_URL; }} /><span><UserRound size={13} /> Colunista</span></div>
               <div className="columnist-card-copy"><strong>{article.author}</strong><small>{article.category} · {article.views.toLocaleString("pt-BR")} views na publicação em destaque</small><h3>{article.title}</h3></div>
             </Link>)}
           </div>
