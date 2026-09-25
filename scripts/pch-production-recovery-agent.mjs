@@ -50,7 +50,7 @@ if (exists("client/index.html")) {
 if (exists("package.json")) {
   const pkg = JSON.parse(read("package.json"));
   if (!pkg.scripts?.build?.includes("vite build")) fail("build script does not run vite build");
-  const startScript = String(pkg.scripts?.start || "");
+  const startScript = String(pkg.scripts?.["start:production"] || pkg.scripts?.start || "");
   const startHelper = exists("scripts/start-production.mjs") ? read("scripts/start-production.mjs") : "";
   if (!startScript.includes("dist/server/index.js") && !startHelper.includes("dist/server/index.js")) {
     fail("production start path does not execute dist/server/index.js");
