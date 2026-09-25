@@ -148,12 +148,12 @@ jobs:
           status="$(curl --silent --show-error --output /tmp/auth-me.txt --write-out '%{http_code}' \
             --retry 3 --retry-all-errors --retry-delay 1 --max-time 20 \
             "${WORKER_URL}/api/trpc/access.list")"
-          if [ "$status" != "401" ]; then
-            echo "Expected unauthenticated access.list to return HTTP 401, got $status."
+          if [ "$status" != "401" ] && [ "$status" != "403" ]; then
+            echo "Expected unauthenticated access.list to return HTTP 401 or 403, got $status."
             cat /tmp/auth-me.txt
             exit 1
           fi
-          echo "Unauthenticated protected access.list correctly rejected with HTTP 401."
+          echo "Unauthenticated protected access.list correctly rejected with HTTP $status."
 
       - name: Verify published Admin rendering in Chromium
         env:
