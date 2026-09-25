@@ -114,3 +114,6 @@ O PCH News só é considerado **publicado e operacional** quando houver:
 10. nenhuma dependência crítica de Pages, VitePress, Lovable static hosting ou dados apenas em localStorage.
 
 Um dashboard dizendo “Deployment successful” sozinho **não é prova de produção funcional**.
+
+
+<!-- Production trigger verification: 2026-09-25 -->
