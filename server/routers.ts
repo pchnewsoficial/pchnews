@@ -10,7 +10,7 @@ import { sendInviteEmail, smtpConfigured } from "./email";
 import { ENV } from "./_core/env";
 import { recordFreedomReview } from "./db";
 import { runEditorialAgent, type EditorialAgentId } from "./editorialAgents";
-import { getApiHealth, getBcbSeries, getNewsRadar, getWeather, geocodeBrazil } from "./apiHub";
+import { getApiHealth, getBcbSeries, getNewsRadar, getWeather, geocodeBrazil, getIbgeMunicipalities } from "./apiHub";
 import { collectEditorialResearchContext } from "./apiHub/editorialContext";
 const articleSchema = z.object({ id: z.string(), title: z.string(), category: z.string(), author: z.string(), authorOpenId: z.string().nullable().optional(), summary: z.string(), date: z.string(), updated: z.string(), status: z.enum(["published", "draft", "scheduled", "archived"]), views: z.number().int(), image: z.string(), bodyHtml: z.string(), scheduledAt: z.number().nullable(), tags: z.string(), youtubeUrl: z.string().nullable().optional(), socialLinks: z.string().nullable().optional(), createdAt: z.coerce.date().optional(), updatedAt: z.coerce.date().optional() });
 const commentSchema = z.object({ id: z.string(), articleId: z.string(), name: z.string(), text: z.string(), createdAtMs: z.number().int(), status: z.enum(["pending", "approved", "rejected"]), reply: z.string().nullable().default(null), repliedBy: z.string().nullable().default(null), repliedAtMs: z.number().int().nullable().default(null) });
@@ -28,6 +28,7 @@ export const appRouter = router({
     weather: columnistProcedure.input(z.object({ latitude: z.number().min(-90).max(90), longitude: z.number().min(-180).max(180) })).query(({ input }) => getWeather(input.latitude, input.longitude)),
     bcbSeries: columnistProcedure.input(z.object({ seriesId: z.number().int().positive(), startDate: z.string().optional(), endDate: z.string().optional() })).query(({ input }) => getBcbSeries(input.seriesId, input.startDate, input.endDate)),
     geocodeBrazil: columnistProcedure.input(z.object({ query: z.string().min(2).max(160) })).query(({ input }) => geocodeBrazil(input.query)),
+    ibgeMunicipalities: columnistProcedure.input(z.object({ query: z.string().min(2).max(100) })).query(({ input }) => getIbgeMunicipalities(input.query)),
     newsRadar: columnistProcedure.input(z.object({ provider: z.enum(["mediastack", "currents"]), query: z.string().max(120).optional() })).query(({ input }) => getNewsRadar(input.provider, input.query)),
   }),
   pauta: router({

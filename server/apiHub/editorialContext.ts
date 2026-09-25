@@ -1,4 +1,4 @@
-import { getApiHealth, getBcbSeries, getNewsRadar, getWeather, geocodeBrazil, getChamberPropositions } from "./index";
+import { getApiHealth, getBcbSeries, getNewsRadar, getWeather, geocodeBrazil, getChamberPropositions, getIbgeMunicipalities } from "./index";
 import type { NormalizedNewsItem } from "./types";
 
 export type EditorialResearchSource = {
@@ -28,6 +28,7 @@ export type EditorialResearchContext = {
     precipitationMm?: number;
   };
   chamber?: Array<{ id: number; title: string; summary?: string; status?: string; presentationDate?: string; url: string }>;
+  ibgeMunicipalities?: Array<{ id: number; name: string; stateAbbreviation?: string; stateName?: string; region?: string; url: string }>;
   economic?: Array<{
     seriesId: number;
     label: string;
@@ -71,6 +72,7 @@ export async function collectEditorialResearchContext(input: CollectInput): Prom
   let weather: EditorialResearchContext["weather"];
   const economic: NonNullable<EditorialResearchContext["economic"]> = [];
   const chamber: NonNullable<EditorialResearchContext["chamber"]> = [];
+  const ibgeMunicipalities: NonNullable<EditorialResearchContext["ibgeMunicipalities"]> = [];
 
   const newsProvider = health.find((item) => item.id === "currents" && item.configured)
     ? "currents"
@@ -113,6 +115,21 @@ export async function collectEditorialResearchContext(input: CollectInput): Prom
       providers.openstreetmap = { status: "error", message: error instanceof Error ? error.message : "Falha no geocodificador." };
       limitations.push("Geocodificação indisponível nesta execução.");
     }
+  }
+
+  if (locationQuery) {
+    try {
+      const cityQuery = locationQuery.split(",")[0]?.trim() || locationQuery;
+      const items = await getIbgeMunicipalities(cityQuery);
+      ibgeMunicipalities.push(...items);
+      providers.ibge = { status: "ok", count: ibgeMunicipalities.length };
+      for (const item of ibgeMunicipalities) sources.push({ provider: "ibge", title: `IBGE — ${item.name}${item.stateAbbreviation ? `/${item.stateAbbreviation}` : ""}`, url: item.url, source: "IBGE — Serviço de Dados" });
+    } catch (error) {
+      providers.ibge = { status: "error", message: error instanceof Error ? error.message : "Falha na API do IBGE." };
+      limitations.push("Dados territoriais do IBGE não puderam ser consultados nesta execução.");
+    }
+  } else {
+    providers.ibge = { status: "skipped", message: "Sem localização editorial informada." };
   }
 
   if (location) {
@@ -172,5 +189,5 @@ export async function collectEditorialResearchContext(input: CollectInput): Prom
     providers.bcb = { status: "skipped", message: "Tema não identificado como econômico." };
   }
 
-  return { fetchedAtMs, query, locationQuery, sources, news, location, weather, chamber, economic, providers, limitations };
+  return { fetchedAtMs, query, locationQuery, sources, news, location, weather, chamber, ibgeMunicipalities, economic, providers, limitations };
 }
