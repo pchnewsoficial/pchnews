@@ -8,6 +8,8 @@ on:
   pull_request:
     types:
       - closed
+  schedule:
+    - cron: "*/5 * * * *"
 
 permissions:
   contents: read
@@ -18,7 +20,7 @@ concurrency:
 
 jobs:
   deploy:
-    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event.pull_request.merged == true }}
     name: Build and deploy production Worker
     runs-on: ubuntu-latest
     timeout-minutes: 30
