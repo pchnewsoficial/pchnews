@@ -113,7 +113,7 @@ export default {
       url.pathname.startsWith("/colunista/") ||
       url.pathname.startsWith("/convite/");
     const spaPath = isSpaRoute ? "/index.html" : url.pathname;
-    if (spaPath !== url.pathname) return env.ASSETS.fetch(new Request(new URL("/index.html", request.url), request));
+    if (spaPath !== url.pathname) return env.ASSETS.fetch(new Request(new URL("/", request.url), request));
     return env.ASSETS.fetch(request);
   },
 };
