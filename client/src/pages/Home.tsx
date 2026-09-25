@@ -42,7 +42,7 @@ export default function Home() {
   }, [remoteEditorial]);
 
   const published = useMemo(() => articles.filter((article) => {
-    if (article.status !== "published") return false;
+    if (!["published", "updated"].includes(article.status)) return false;
     if (!article.scheduledAt) return true;
     return new Date(article.scheduledAt).getTime() <= Date.now();
   }), [articles]);
