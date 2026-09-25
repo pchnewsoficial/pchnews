@@ -5,9 +5,6 @@ on:
     branches:
       - main
   workflow_dispatch:
-  pull_request:
-    types:
-      - closed
 
 permissions:
   contents: read
@@ -18,7 +15,7 @@ concurrency:
 
 jobs:
   deploy:
-    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     name: Build and deploy production Worker
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -133,8 +130,6 @@ jobs:
             exit 1
           fi
           echo "Browser-rendered PCH News DOM verified."
-
-
 
       - name: Deployment summary
         env:
