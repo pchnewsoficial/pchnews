@@ -5,7 +5,7 @@ import { trpc } from "@/lib/trpc";
 import { EDITORIAL_CATEGORIES, NewsArticle, readStoredArticles } from "@/lib/news";
 import "@/pch-redesign.css";
 
-const LOGO_URL = "/brand/logo.svg?v=3";
+const LOGO_URL = "/brand/logo.jpg?v=4";
 const imageUrl = (article: NewsArticle) => article.sourceUrl ? `https://pch-news.pchnews-oficial.workers.dev/legacy-image/${encodeURIComponent(article.sourceUrl)}` : article.image || LOGO_URL;
 const categories = ["Todas", ...EDITORIAL_CATEGORIES];
 
