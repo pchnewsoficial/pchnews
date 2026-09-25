@@ -72,6 +72,17 @@ export async function revokeInvite(id:string,accessToken?:string|null){const db=
 export async function renewInvite(id:string,tokenHash:string,expiresAtMs:number,accessToken?:string|null){const db=await getDb(accessToken);if(!db)throw new Error("Database unavailable");const {data,error}=await db.from("columnistInvites").select("*").eq("id",id).maybeSingle();if(error)throw error;if(!data||data.acceptedAtMs||data.revokedAtMs)return undefined;const next={...data,tokenHash,expiresAtMs,createdAtMs:Date.now()};const {error:ue}=await db.from("columnistInvites").update({tokenHash,expiresAtMs,createdAtMs:next.createdAtMs}).eq("id",id);if(ue)throw ue;return next;}
 export async function recordArticleAudit(entry:Omit<ArticleAudit,"createdAtMs">,accessToken?:string|null){const db=await getDb(accessToken);if(!db)throw new Error("Database unavailable");const {error}=await db.from("articleAudit").insert({...entry,createdAtMs:Date.now()});if(error)throw error;return {success:true};}
 export async function listArticleAudit(articleId?:string,accessToken?:string|null){const db=await getDb(accessToken);if(!db)return [];let q=db.from("articleAudit").select("*, articles(title)").order("createdAtMs",{ascending:false});if(articleId)q=q.eq("articleId",articleId);const {data,error}=await q;if(error)throw error;return (data??[]).map((x:any)=>({...x,articleTitle:x.articles?.title??null,articles:undefined}));}
+export async function recordEditorialResearchContext(entry:any,accessToken?:string|null){
+  const db=await getDb(accessToken);if(!db)return {success:false};
+  const {error}=await db.from("editorialResearchContexts").insert(entry);
+  if(error)throw error;return {success:true};
+}
+export async function listEditorialResearchContexts(articleId:string,accessToken?:string|null){
+  const db=await getDb(accessToken);if(!db)return [];
+  const {data,error}=await db.from("editorialResearchContexts").select("*").eq("articleId",articleId).order("createdAtMs",{ascending:false}).limit(20);
+  if(error)throw error;return data??[];
+}
+
 export async function recordEditorialAgentRun(entry:any,accessToken?:string|null){const db=await getDb(accessToken);if(!db)return {success:false};const {error}=await db.from("editorialAgentRuns").insert(entry);if(error)throw error;return {success:true};}
 export async function listEditorialAgentRuns(articleId:string,accessToken?:string|null){const db=await getDb(accessToken);if(!db)return [];const {data,error}=await db.from("editorialAgentRuns").select("*").eq("articleId",articleId).order("createdAtMs",{ascending:false}).limit(100);if(error)throw error;return data??[];}
 export async function recordFreedomReview(entry:any,accessToken?:string|null){const db=await getDb(accessToken);if(!db)return {success:false};const {error}=await db.from("editorialFreedomReviews").insert(entry);if(error)throw error;return {success:true};}
