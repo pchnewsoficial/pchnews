@@ -120,6 +120,7 @@ export const appRouter = router({
     recordView: publicProcedure.input(z.object({ articleId: z.string().min(1), visitorId: z.string().min(8).max(128) })).mutation(({ input }) => recordArticleView(input.articleId, input.visitorId)),
     analytics: protectedProcedure.input(z.object({ author: z.string().optional(), authorOpenId: z.string().optional(), fromMs: z.number().optional(), toMs: z.number().optional() })).query(({ input, ctx }) => getViewAnalytics(ctx.user.role === "admin" ? input.author : ctx.user.name ?? undefined, ctx.user.role === "admin" ? input.authorOpenId : ctx.user.openId, input.fromMs, input.toMs, ctx.accessToken)),
     audit: adminProcedure.input(z.object({ articleId: z.string().optional() })).query(({ input, ctx }) => listArticleAudit(input.articleId, ctx.accessToken)),
+    history: columnistProcedure.input(z.object({ articleId: z.string().min(1) })).query(async ({ input, ctx }) => { const article = await getArticle(input.articleId, ctx.accessToken); if (!article) return []; if (ctx.user.role !== "admin" && article.authorOpenId !== ctx.user.openId) throw new Error("Você não tem acesso ao histórico desta publicação."); return listArticleAudit(input.articleId, ctx.accessToken); }),
   }),
   media: router({
     list: columnistProcedure.query(({ ctx }) => storageList(`editorial/${ctx.user.openId}`)),
