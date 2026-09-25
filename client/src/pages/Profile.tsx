@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 
-const LOGO_URL = "/brand/logo.svg?v=20260924";
+const LOGO_URL = "/brand/logo.svg?v=20260925-2";
 
 export default function Profile() {
   const [, navigate] = useLocation();
@@ -47,7 +47,7 @@ export default function Profile() {
         <div className="profile-role"><ShieldCheck size={16} /> {roleLabel}</div>
         <div className="profile-actions">
           {(user.role === "admin" || user.role === "columnist") && (
-            <Link className="primary-cta" href="/admin">Painel editorial <ArrowRight size={16} /></Link>
+            <a className="primary-cta" href="/?admin=1">Painel editorial <ArrowRight size={16} /></a>
           )}
           <button className="secondary-cta" type="button" onClick={handleLogout}><LogOut size={16} /> Sair</button>
         </div>
