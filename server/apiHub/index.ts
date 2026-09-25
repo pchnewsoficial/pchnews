@@ -106,3 +106,32 @@ export async function getChamberPropositions(query: string): Promise<NormalizedC
     url: String(item.uri || `https://dadosabertos.camara.leg.br/api/v2/proposicoes/${item.id}`),
   }));
 }
+
+export type NormalizedIbgeMunicipality = {
+  id: number;
+  name: string;
+  stateId?: number;
+  stateAbbreviation?: string;
+  stateName?: string;
+  region?: string;
+  url: string;
+};
+
+export async function getIbgeMunicipalities(query: string): Promise<NormalizedIbgeMunicipality[]> {
+  const term = query.trim().slice(0, 100);
+  if (!term) return [];
+  const params = new URLSearchParams({ nome: term });
+  const raw = await fetchJson<any[]>(
+    "https://servicodados.ibge.gov.br/api/v1/localidades/municipios?" + params.toString(),
+    { timeoutMs: 8000, retries: 1 },
+  );
+  return (Array.isArray(raw) ? raw : []).slice(0, 10).map((item: any) => ({
+    id: Number(item?.id),
+    name: String(item?.nome || ""),
+    stateId: Number.isFinite(Number(item?.microrregiao?.mesorregiao?.UF?.id)) ? Number(item.microrregiao.mesorregiao.UF.id) : undefined,
+    stateAbbreviation: item?.microrregiao?.mesorregiao?.UF?.sigla ? String(item.microrregiao.mesorregiao.UF.sigla) : undefined,
+    stateName: item?.microrregiao?.mesorregiao?.UF?.nome ? String(item.microrregiao.mesorregiao.UF.nome) : undefined,
+    region: item?."regiao-imediata"?."regiao-intermediaria"?.UF?.regiao?.nome ? String(item["regiao-imediata"]["regiao-intermediaria"].UF.regiao.nome) : undefined,
+    url: `https://servicodados.ibge.gov.br/api/v1/localidades/municipios/${item?.id}`,
+  })).filter((item) => item.id && item.name);
+}
