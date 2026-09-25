@@ -10,6 +10,7 @@ import { sendInviteEmail, smtpConfigured } from "./email";
 import { ENV } from "./_core/env";
 import { recordFreedomReview } from "./db";
 import { runEditorialAgent, type EditorialAgentId } from "./editorialAgents";
+import { getApiHealth, getBcbSeries, getNewsRadar, getWeather, geocodeBrazil } from "./apiHub";
 const articleSchema = z.object({ id: z.string(), title: z.string(), category: z.string(), author: z.string(), authorOpenId: z.string().nullable().optional(), summary: z.string(), date: z.string(), updated: z.string(), status: z.enum(["published", "draft", "scheduled", "archived"]), views: z.number().int(), image: z.string(), bodyHtml: z.string(), scheduledAt: z.number().nullable(), tags: z.string(), youtubeUrl: z.string().nullable().optional(), socialLinks: z.string().nullable().optional(), createdAt: z.coerce.date().optional(), updatedAt: z.coerce.date().optional() });
 const commentSchema = z.object({ id: z.string(), articleId: z.string(), name: z.string(), text: z.string(), createdAtMs: z.number().int(), status: z.enum(["pending", "approved", "rejected"]), reply: z.string().nullable().default(null), repliedBy: z.string().nullable().default(null), repliedAtMs: z.number().int().nullable().default(null) });
 const profileSchema = z.object({ slug: z.string(), name: z.string(), beat: z.string(), bio: z.string(), photo: z.string(), instagram: z.string(), facebook: z.string(), x: z.string(), linkedin: z.string(), updatedAt: z.coerce.date().optional() });
@@ -21,6 +22,13 @@ const hashToken = (token: string) => createHash("sha256").update(token).digest("
 const articleInput = z.object({ id: z.string(), title: z.string(), category: z.string(), author: z.string(), authorOpenId: z.string().nullable().optional(), summary: z.string(), date: z.string(), updated: z.string(), status: z.enum(["published", "draft", "scheduled", "archived"]), views: z.number().int(), image: z.string(), bodyHtml: z.string(), scheduledAt: z.number().nullable(), tags: z.string(), youtubeUrl: z.string().nullable().optional(), socialLinks: z.string().nullable().optional(), scope: z.string().optional(), region: z.string().nullable().optional(), state: z.string().nullable().optional(), country: z.string().nullable().optional(), language: z.string().optional(), featured: z.boolean().optional(), sourceUrl: z.string().nullable().optional(), sourceName: z.string().nullable().optional(), slug: z.string().nullable().optional(), seoTitle: z.string().nullable().optional(), metaDescription: z.string().nullable().optional(), canonicalUrl: z.string().nullable().optional(), focusKeyword: z.string().nullable().optional(), ogTitle: z.string().nullable().optional(), ogDescription: z.string().nullable().optional(), imageAlt: z.string().nullable().optional(), noindex: z.boolean().optional() });
 export const appRouter = router({
   system: systemRouter,
+  apiHub: router({
+    health: adminProcedure.query(() => ({ providers: getApiHealth() })),
+    weather: columnistProcedure.input(z.object({ latitude: z.number().min(-90).max(90), longitude: z.number().min(-180).max(180) })).query(({ input }) => getWeather(input.latitude, input.longitude)),
+    bcbSeries: columnistProcedure.input(z.object({ seriesId: z.number().int().positive(), startDate: z.string().optional(), endDate: z.string().optional() })).query(({ input }) => getBcbSeries(input.seriesId, input.startDate, input.endDate)),
+    geocodeBrazil: columnistProcedure.input(z.object({ query: z.string().min(2).max(160) })).query(({ input }) => geocodeBrazil(input.query)),
+    newsRadar: columnistProcedure.input(z.object({ provider: z.enum(["mediastack", "currents"]), query: z.string().max(120).optional() })).query(({ input }) => getNewsRadar(input.provider, input.query)),
+  }),
   pauta: router({
     list: columnistProcedure.query(({ ctx }) => listPautas(ctx.accessToken)),
     create: columnistProcedure.input(z.object({
