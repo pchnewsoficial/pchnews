@@ -66,20 +66,43 @@ type RankedChamberProposition = {
 };
 
 export async function getChamberPropositions(query: string): Promise<NormalizedChamberProposition[]> {
-  const terms = query.toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").split(/\\W+/).filter((term) => term.length >= 4);\n  if (!terms.length) return [];\n  const params = new URLSearchParams({ ordem: "DESC", ordenarPor: "id", itens: "50", keywords: terms.join(",") });\n  const raw = await fetchJson<{ dados?: ChamberApiProposition[] }>("https://dadosabertos.camara.leg.br/api/v2/proposicoes?" + params.toString());
+  const terms = query
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\\u0300-\\u036f]/g, "")
+    .split(/\\W+/)
+    .filter((term) => term.length >= 4);
+  if (!terms.length) return [];
+
+  const params = new URLSearchParams({
+    ordem: "DESC",
+    ordenarPor: "id",
+    itens: "50",
+    keywords: terms.join(","),
+  });
+  const raw = await fetchJson<{ dados?: ChamberApiProposition[] }>(
+    "https://dadosabertos.camara.leg.br/api/v2/proposicoes?" + params.toString(),
+  );
   const items = Array.isArray(raw?.dados) ? raw.dados : [];
-  const terms = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(/\W+/).filter((term) => term.length >= 4);
-  const ranked: RankedChamberProposition[] = items.map((item) => {
-    const haystack = `${item.ementa || ""} ${item.keywords || ""} ${item.siglaTipo || ""}`.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    const score = terms.reduce((total, term) => total + (haystack.includes(term) ? 1 : 0), 0);
-    return { item, score };
-  }).filter(({ score }) => score > 0).sort((a, b) => b.score - a.score).slice(0, 8);
+  const ranked: RankedChamberProposition[] = items
+    .map((item) => {
+      const haystack = `${item.ementa || ""} ${item.keywords || ""} ${item.siglaTipo || ""}`
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\\u0300-\\u036f]/g, "");
+      const score = terms.reduce((total, term) => total + (haystack.includes(term) ? 1 : 0), 0);
+      return { item, score };
+    })
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 8);
+
   return ranked.map(({ item }) => ({
     id: Number(item.id),
     title: [item.siglaTipo, item.numero, item.ano].filter(Boolean).join(" "),
     summary: item.ementa ? String(item.ementa) : undefined,
     status: item.statusProposicao?.descricao || item.ultimoStatus?.descricao || undefined,
     presentationDate: item.dataApresentacao || undefined,
-    url: String(item.uri || `https://dadosabertos.camara.leg.br/api/v2/proposicoes/${item.id}`)
+    url: String(item.uri || `https://dadosabertos.camara.leg.br/api/v2/proposicoes/${item.id}`),
   }));
 }
