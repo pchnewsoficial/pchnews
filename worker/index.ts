@@ -5,7 +5,7 @@ import { registerOAuthRoutes } from "../server/_core/oauth";
 import { registerStorageProxy } from "../server/_core/storageProxy";
 import { appRouter } from "../server/routers";
 import { createContext } from "../server/_core/context";
-import { getApiHealth } from "../apiHub";
+import { getApiHealth } from "../server/apiHub";
 
 const app = express();
 
