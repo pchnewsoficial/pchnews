@@ -102,8 +102,16 @@ jobs:
           curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 --max-time 20             "$WORKER_URL/healthz"
           echo
           echo "Checking public SPA: $WORKER_URL/"
-          curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 --max-time 20             "$WORKER_URL/" -o /tmp/pch-news-index.html
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 --max-time 20             "$WORKER_URL/" -D /tmp/pch-news-headers.txt -o /tmp/pch-news-index.html
           test -s /tmp/pch-news-index.html
+          grep -qi '^content-type: text/html' /tmp/pch-news-headers.txt
+          grep -q '<div id="root"></div>' /tmp/pch-news-index.html
+          grep -q '<script type="module"' /tmp/pch-news-index.html
+          if grep -q '"service":"pch-news"' /tmp/pch-news-index.html; then
+            echo "Root URL returned the Worker health JSON instead of the React SPA."
+            exit 1
+          fi
+          echo "Public SPA HTML verified."
 
 
       - name: Deployment summary
