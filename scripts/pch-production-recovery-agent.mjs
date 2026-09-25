@@ -131,7 +131,7 @@ const report = {
   status: failures.length ? "FAIL" : "PASS",
   failures,
   warnings,
-  sourceOfTruth: "pchnews.oficial -> pch-news main",
+  sourceOfTruth: "pch-news main",
 };
 
 console.log(JSON.stringify(report, null, 2));
