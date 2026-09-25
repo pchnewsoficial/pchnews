@@ -9,7 +9,7 @@ RUN corepack enable && corepack prepare pnpm@10.4.1 --activate
 
 COPY . .
 RUN pnpm install --frozen-lockfile
-RUN pnpm run build
+RUN pnpm run build:full
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s \
   CMD node -e "fetch('http://127.0.0.1:' + (process.env.PORT || '3000') + '/healthz').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
