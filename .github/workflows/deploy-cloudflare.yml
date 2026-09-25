@@ -131,6 +131,49 @@ jobs:
           fi
           echo "Browser-rendered PCH News DOM verified."
 
+      - name: Verify protected Admin route and unauthenticated API behavior
+        env:
+          WORKER_URL: ${{ steps.deploy.outputs.worker_url }}
+        run: |
+          set -euo pipefail
+          echo "Checking published Admin route: $WORKER_URL/admin"
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 --max-time 20 \
+            "$WORKER_URL/admin" -D /tmp/admin-headers.txt -o /tmp/admin.html
+          test -s /tmp/admin.html
+          grep -qi '^content-type: text/html' /tmp/admin-headers.txt
+          grep -q '<div id="root"></div>' /tmp/admin.html
+          echo "Published /admin returns the real SPA entrypoint."
+
+          echo "Checking unauthenticated tRPC session endpoint."
+          status="$(curl --silent --show-error --output /tmp/auth-me.txt --write-out '%{http_code}' \
+            --retry 3 --retry-all-errors --retry-delay 1 --max-time 20 \
+            "$WORKER_URL/api/trpc/auth.me")"
+          if [ "$status" != "401" ]; then
+            echo "Expected unauthenticated auth.me to return HTTP 401, got $status."
+            cat /tmp/auth-me.txt
+            exit 1
+          fi
+          echo "Unauthenticated auth.me correctly rejected with HTTP 401."
+
+      - name: Verify published Admin rendering in Chromium
+        env:
+          WORKER_URL: ${{ steps.deploy.outputs.worker_url }}
+        run: |
+          google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=10000 \
+            --dump-dom "$WORKER_URL/admin" > /tmp/pch-news-admin-dom.html
+          if grep -q "An unexpected error occurred." /tmp/pch-news-admin-dom.html; then
+            echo "React ErrorBoundary rendered an application error on /admin."
+            cat /tmp/pch-news-admin-dom.html
+            exit 1
+          fi
+          if grep -q "FALHA DE AUTENTICAÇÃO" /tmp/pch-news-admin-dom.html; then
+            echo "Admin route rendered an authentication failure instead of the login/protected-access UI."
+            cat /tmp/pch-news-admin-dom.html
+            exit 1
+          fi
+          grep -q "PCH News" /tmp/pch-news-admin-dom.html
+          grep -q "ACESSO OFICIAL\|Entre na sua\|redação" /tmp/pch-news-admin-dom.html
+          echo "Published /admin rendered the protected login/access UI without a blank page."
       - name: Deployment summary
         env:
           WORKER_URL: ${{ steps.deploy.outputs.worker_url }}
