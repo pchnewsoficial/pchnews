@@ -53,6 +53,9 @@ export default function Admin() {
   const [editing, setEditing] = useState<NewsArticle | null>(null);
   const [draft, setDraft] = useState<Draft>(blankDraft);
   const [toast, setToast] = useState("");
+  const [autosaveState, setAutosaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const editorOpenedAt = useRef(0);
+  const autosaveTimer = useRef<number | null>(null);
   const [previewArticle, setPreviewArticle] = useState<NewsArticle | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [media, setMedia] = useState<MediaAsset[]>(readStoredMedia);
@@ -148,6 +151,8 @@ export default function Admin() {
 
   const openCreate = () => {
     setEditing(null);
+    setAutosaveState("idle");
+    editorOpenedAt.current = Date.now();
     setDraft({ ...blankDraft, author: currentAuthor });
     setEditorOpen(true);
   };
@@ -155,10 +160,44 @@ export default function Admin() {
   const openEdit = (article: NewsArticle) => {
     if (!canManageArticle(article)) { notify("Colunistas só podem editar as próprias publicações."); return; }
     setEditing(article);
+    setAutosaveState("saved");
+    editorOpenedAt.current = Date.now();
     setDraft({ title: article.title, category: article.category, author: article.author, summary: article.summary, slug: article.slug || slugify(article.title), seoTitle: article.seoTitle || article.title, metaDescription: article.metaDescription || article.summary, canonicalUrl: article.canonicalUrl || "", focusKeyword: article.focusKeyword || "", ogTitle: article.ogTitle || article.title, ogDescription: article.ogDescription || article.summary, imageAlt: article.imageAlt || article.title, noindex: Boolean(article.noindex), image: article.image, status: article.status, bodyHtml: article.bodyHtml || `<p>${article.summary}</p>`, scheduledAt: article.scheduledAt || "", youtubeUrl: article.youtubeUrl || "", socialLinks: { instagram: article.socialLinks?.instagram || "", facebook: article.socialLinks?.facebook || "", x: article.socialLinks?.x || "", linkedin: article.socialLinks?.linkedin || "", tiktok: article.socialLinks?.tiktok || "", website: article.socialLinks?.website || "" }, tagsInput: (article.tags || []).join(", "), scope: article.scope || "national", region: article.region || "", state: article.state || "", country: article.country || (article.scope === "international" ? "" : "Brasil"), language: article.language || "pt-BR", featured: Boolean(article.featured) });
     setEditorOpen(true);
   };
 
+  useEffect(() => {
+    if (!editorOpen || !editing || !user || Date.now() - editorOpenedAt.current < 1200) return;
+    if (!draft.title.trim() || !draft.summary.trim()) return;
+    if (autosaveTimer.current) window.clearTimeout(autosaveTimer.current);
+    autosaveTimer.current = window.setTimeout(async () => {
+      setAutosaveState("saving");
+      try {
+        await saveArticleRemote.mutateAsync({
+          id: editing.id, title: draft.title.trim(), category: draft.category, author: draft.author,
+          authorOpenId: editing.authorOpenId ?? user.openId, summary: draft.summary.trim(), date: editing.date,
+          updated: "salvo automaticamente", status: draft.status, views: editing.views, image: draft.image,
+          bodyHtml: draft.bodyHtml, scheduledAt: draft.scheduledAt ? new Date(draft.scheduledAt).getTime() : null,
+          tags: JSON.stringify(draft.tagsInput.split(",").map((tag) => tag.trim()).filter(Boolean)),
+          slug: draft.slug || slugify(draft.title), seoTitle: draft.seoTitle || draft.title,
+          metaDescription: draft.metaDescription || draft.summary, canonicalUrl: draft.canonicalUrl || null,
+          focusKeyword: draft.focusKeyword || null, ogTitle: draft.ogTitle || draft.title,
+          ogDescription: draft.ogDescription || draft.summary, imageAlt: draft.imageAlt || draft.title,
+          noindex: Boolean(draft.noindex), youtubeUrl: draft.youtubeUrl || null,
+          socialLinks: JSON.stringify(draft.socialLinks || {}), scope: draft.scope || "national",
+          region: draft.region || null, state: draft.state || null, country: draft.country || "Brasil",
+          language: draft.language || "pt-BR", featured: Boolean(draft.featured), sourceUrl: editing.sourceUrl || null,
+          sourceName: editing.sourceName || null,
+        });
+        setAutosaveState("saved");
+      } catch (error) {
+        console.error(error);
+        setAutosaveState("error");
+      }
+    }, 1400);
+    return () => { if (autosaveTimer.current) window.clearTimeout(autosaveTimer.current); };
+  }, [draft, editorOpen, editing, user]);
+  
   const runFullEditorialReview = async () => {
     const article = { id: editing?.id || "draft-preview", title: draft.title, category: draft.category, author: draft.author, summary: draft.summary, bodyHtml: draft.bodyHtml, image: draft.image, tags: JSON.stringify(draft.tagsInput.split(",").map((tag) => tag.trim()).filter(Boolean)), status: draft.status, scheduledAt: draft.scheduledAt ? new Date(draft.scheduledAt).getTime() : null, region: draft.region || null, state: draft.state || null, country: draft.country || null };
     try {
