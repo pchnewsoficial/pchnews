@@ -141,7 +141,7 @@ jobs:
           set -euo pipefail
           echo "Checking published Admin route: $WORKER_URL/admin"
           status="$(curl --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 --max-time 20 \
-            "$WORKER_URL/admin" -D /tmp/admin-headers.txt -o /tmp/admin.html -w '%{http_code}')"
+            "$WORKER_URL/admin"             -H "Sec-Fetch-Mode: navigate"             -H "Sec-Fetch-Dest: document"             -D /tmp/admin-headers.txt -o /tmp/admin.html -w '%{http_code}')"
           echo "Published /admin HTTP status: $status"
           echo "Published /admin response headers:"
           cat /tmp/admin-headers.txt
