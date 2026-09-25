@@ -150,7 +150,8 @@ export const appRouter = router({
       if (!comment) throw new Error("Comentário não encontrado.");
       const article = await getArticle(String(comment.articleId), ctx.accessToken);
       if (!article) throw new Error("Matéria do comentário não encontrada.");
-      if (ctx.user.role !== "admin" && article.authorOpenId !== ctx.user.openId) {
+      const articleOwner = article.authorOpenId ?? (article.author === ctx.user.name ? ctx.user.openId : null);
+      if (ctx.user.role !== "admin" && articleOwner !== ctx.user.openId) {
         throw new Error("Você não tem permissão para moderar este comentário.");
       }
       if (input.action === "reply") {
