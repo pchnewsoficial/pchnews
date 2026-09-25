@@ -213,8 +213,8 @@ jobs:
       - name: Verify Lovable production Admin route
         run: |
           set -euo pipefail
-          TARGET="https://pch-news.lovable.app/admin"
-          echo "Checking published Lovable Admin route: $TARGET"
+          TARGET="https://id-preview--50a4b9f4-d0a8-4f19-a810-c59546a0d4f9.lovable.app/admin"
+          echo "Checking Lovable Preview Admin route: $TARGET"
           google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=15000 \
             --dump-dom "$TARGET" > /tmp/lovable-admin-dom.html 2>/tmp/lovable-admin-chrome.err || true
           echo "Lovable Admin DOM:"
@@ -228,7 +228,7 @@ jobs:
             echo "Lovable /admin rendered an error state."
             exit 1
           fi
-          echo "Lovable production /admin rendered the protected login/access UI."
+          echo "Lovable Preview /admin rendered the protected login/access UI."
       - name: Deployment summary
         env:
           WORKER_URL: ${{ steps.deploy.outputs.worker_url }}
