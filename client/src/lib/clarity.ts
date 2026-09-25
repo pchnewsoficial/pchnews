@@ -11,11 +11,14 @@ export function initClarity() {
   const projectId = import.meta.env.VITE_CLARITY_PROJECT_ID as string | undefined;
   if (!projectId) return;
   const w = window as Window;
-  w.clarity = w.clarity || function (...args: string[]) {
-    const queue = w.clarity as typeof w.clarity & { q?: unknown[] };
-    queue.q = queue.q || [];
-    queue.q.push(args);
-  };
+  if (!w.clarity) {
+    const clarityStub = ((...args: string[]) => {
+      const queue = (clarityStub as typeof clarityStub & { q?: unknown[] });
+      queue.q = queue.q || [];
+      queue.q.push(args);
+    }) as typeof w.clarity & { q?: unknown[] };
+    w.clarity = clarityStub;
+  }
   const script = document.createElement('script');
   script.async = true;
   script.src = "https://www.clarity.ms/tag/" + encodeURIComponent(projectId);
