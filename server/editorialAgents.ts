@@ -196,7 +196,8 @@ function liberdadeEditorial(article: EditorialArticleInput): AgentResult {
   return { agentId: "liberdade-editorial", agentName: "Liberdade Editorial — Tolerajornal", status: findings.some((f) => f.severity === "warning") ? "review" : "pass", findings, output: report as unknown as Record<string, unknown> };
 }
 
-export function runEditorialAgent(agentId: EditorialAgentId, article: EditorialArticleInput, researchContext?: EditorialResearchContext): AgentResult {\n  const enrichedArticle = researchContext ? { ...article, researchContext } : article;
+export function runEditorialAgent(agentId: EditorialAgentId, article: EditorialArticleInput, researchContext?: EditorialResearchContext): AgentResult {
+  const enrichedArticle = researchContext ? { ...article, researchContext } : article;
   switch (agentId) {
     case "story-editor": return storyEditor(enrichedArticle);
     case "fact-checker": return factChecker(enrichedArticle);
