@@ -15,7 +15,15 @@
       "/api/*",
       "/manus-storage/*",
       "/legacy-image/*",
-      "/healthz"
+      "/healthz",
+      "/admin",
+      "/admin/*",
+      "/login",
+      "/perfil",
+      "/404",
+      "/materia/*",
+      "/colunista/*",
+      "/convite/*"
     ]
   }
 }
