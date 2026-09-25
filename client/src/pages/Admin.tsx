@@ -80,6 +80,8 @@ export default function Admin() {
   const setRole = trpc.access.setRole.useMutation({ onSuccess: () => refetchAccess() });
   const profileSave = trpc.profiles.save.useMutation();
   const profileUpload = trpc.profiles.uploadPhoto.useMutation();
+  const mediaList = trpc.media.list.useQuery(undefined, { enabled: Boolean(user), retry: false });
+  const mediaUpload = trpc.media.upload.useMutation();
   const canManageArticle = (article: NewsArticle) => isAdmin || article.author === currentAuthor;
   const [columnists, setColumnists] = useState<Columnist[]>(() => { try { const stored = window.localStorage.getItem(COLUMNISTS_KEY); return stored ? JSON.parse(stored) : INITIAL_COLUMNISTS; } catch { return INITIAL_COLUMNISTS; } });
   const [, navigate] = useLocation();
@@ -253,18 +255,42 @@ export default function Admin() {
     saveArticleRemote.mutate({ id: copy.id, title: copy.title, category: copy.category, author: copy.author, authorOpenId: copy.authorOpenId ?? user?.openId ?? null, summary: copy.summary, date: copy.date, updated: copy.updated, status: "draft", views: 0, image: copy.image, bodyHtml: copy.bodyHtml, scheduledAt: null, tags: JSON.stringify(copy.tags || []), youtubeUrl: copy.youtubeUrl || null, socialLinks: JSON.stringify(copy.socialLinks || {}), scope: copy.scope || "national", region: copy.region || null, state: copy.state || null, country: copy.country || "Brasil", language: copy.language || "pt-BR", featured: Boolean(copy.featured), sourceUrl: copy.sourceUrl || null, sourceName: copy.sourceName || null }, { onSuccess: () => { setArticles(nextArticles); persistArticles(nextArticles); window.dispatchEvent(new Event("pch-news-data-changed")); notify("Cópia criada e salva como rascunho."); }, onError: () => notify("Não foi possível salvar a cópia no banco.") });
   };
 
-  const uploadMedia = (event: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    if (!mediaList.data) return;
+    const remoteMedia = (mediaList.data as any[]).map((item) => ({
+      id: item.id,
+      name: item.name,
+      src: item.url,
+      size: item.size ? `${Math.round(Number(item.size) / 1024)} KB` : "",
+      createdAt: item.createdAt || "agora",
+    })) as MediaAsset[];
+    setMedia(remoteMedia);
+  }, [mediaList.data]);
+
+  const uploadMedia = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) { notify("Escolha um arquivo de imagem."); return; }
-    const reader = new FileReader();
-    reader.onload = () => {
-      const asset: MediaAsset = { id: `media-${Date.now()}`, name: file.name, src: String(reader.result), size: `${Math.round(file.size / 1024)} KB`, createdAt: "agora" };
-      const nextMedia = [asset, ...media];
-      setMedia(nextMedia); persistMedia(nextMedia); notify("Imagem adicionada à galeria.");
-    };
-    reader.readAsDataURL(file);
-    event.target.value = "";
+    if (file.size > 5 * 1024 * 1024) { notify("A imagem deve ter no máximo 5 MB."); return; }
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      let binary = "";
+      bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
+      const result = await mediaUpload.mutateAsync({
+        slug: "editorial",
+        fileName: file.name,
+        contentType: file.type as "image/png" | "image/jpeg" | "image/webp" | "image/gif",
+        base64: btoa(binary),
+      });
+      const asset: MediaAsset = { id: result.key, name: file.name, src: result.url, size: `${Math.round(file.size / 1024)} KB`, createdAt: "agora" };
+      setMedia((current) => [asset, ...current]);
+      notify("Imagem enviada para a mídia persistente.");
+    } catch (error) {
+      console.error(error);
+      notify("Não foi possível enviar a imagem para o armazenamento.");
+    } finally {
+      event.target.value = "";
+    }
   };
 
   const insertMediaIntoDraft = (asset: MediaAsset) => {
