@@ -7,7 +7,7 @@ import { NewsArticle, readStoredArticles } from "@/lib/news";
 import { ReaderComment } from "@/lib/editorial";
 const LOGO_URL = "/brand/logo.svg";
 const EyeIcon = () => <Eye size={14} />;
-const imageUrl = (article: NewsArticle) => article.sourceUrl ? `/legacy-image/${encodeURIComponent(article.sourceUrl)}` : article.image || LOGO_URL;
+const imageUrl = (article: NewsArticle) => article.sourceUrl ? `https://pch-news.pchnews-oficial.workers.dev/legacy-image/${encodeURIComponent(article.sourceUrl)}` : article.image || LOGO_URL;
 const slugify = (value: string) => value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 function youtubeEmbed(url?: string | null) { if (!url) return null; try { const parsed = new URL(url); const id = parsed.hostname.includes("youtu.be") ? parsed.pathname.slice(1) : parsed.searchParams.get("v") || parsed.pathname.split("/").filter(Boolean).pop(); return id ? `https://www.youtube.com/embed/${id}` : null; } catch { return null; } }
 function visitorId() { const key = "pch-news-visitor-id"; const current = window.localStorage.getItem(key); if (current) return current; const next = `visitor-${crypto.randomUUID()}`; window.localStorage.setItem(key, next); return next; }
