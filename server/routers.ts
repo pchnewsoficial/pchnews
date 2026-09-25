@@ -74,7 +74,7 @@ export const appRouter = router({
           state: (input.article as any).state ?? null,
           country: (input.article as any).country ?? null
         });
-        await recordEditorialResearchContext({
+        if (input.articleId !== "draft-preview") await recordEditorialResearchContext({
           id: `research-${Date.now()}-${randomBytes(4).toString("hex")}`,
           articleId: input.articleId,
           fetchedAtMs: researchContext.fetchedAtMs,
