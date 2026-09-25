@@ -1,0 +1,20 @@
+{
+  "name": "PCH News",
+  "short_name": "PCH News",
+  "description": "PCH News — Jornalismo nacional, pensamento amplo",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#071a2d",
+  "theme_color": "#071a2d",
+  "icons": [
+    {
+      "src": "/brand/favicon.svg?v=20260925",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
