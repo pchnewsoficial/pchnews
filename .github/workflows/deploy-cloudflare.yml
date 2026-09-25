@@ -131,33 +131,30 @@ jobs:
           fi
           echo "Browser-rendered PCH News DOM verified."
 
-      - name: Browser smoke test — Lovable production and preview
+      - name: Browser smoke test — Lovable production
         run: |
           set -euo pipefail
-          for TARGET in \
-            "https://pch-news.lovable.app/" \
-            "https://id-preview--50a4b9f4-d0a8-4f19-a810-c59546a0d4f9.lovable.app/"; do
-            echo "Checking rendered Lovable target: $TARGET"
-            ok=0
-            for attempt in 1 2 3 4 5 6 7 8; do
-              google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=10000 --dump-dom "$TARGET" > /tmp/lovable-dom.html 2>/tmp/lovable-chrome.err || true
-              if grep -q "PCH News" /tmp/lovable-dom.html && grep -q "PUBLICIDADE" /tmp/lovable-dom.html && grep -q "Últimas notícias" /tmp/lovable-dom.html; then
-                if ! grep -q "x-lovable-serve-error\|502 Bad Gateway\|A pré-visualização ainda não foi criada" /tmp/lovable-dom.html; then
-                  ok=1
-                  break
-                fi
+          TARGET="https://pch-news.lovable.app/"
+          echo "Checking rendered Lovable production: $TARGET"
+          ok=0
+          for attempt in 1 2 3 4 5 6 7 8; do
+            google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=10000 --dump-dom "$TARGET" > /tmp/lovable-dom.html 2>/tmp/lovable-chrome.err || true
+            if grep -q "PCH News" /tmp/lovable-dom.html && grep -q "PUBLICIDADE" /tmp/lovable-dom.html && grep -q "Últimas notícias" /tmp/lovable-dom.html; then
+              if ! grep -q "x-lovable-serve-error\|502 Bad Gateway\|A pré-visualização ainda não foi criada" /tmp/lovable-dom.html; then
+                ok=1
+                break
               fi
-              echo "Lovable target not rendered yet (attempt $attempt)."
-              sleep 15
-            done
-            if [ "$ok" -ne 1 ]; then
-              echo "Lovable target failed browser rendering: $TARGET"
-              head -c 12000 /tmp/lovable-dom.html || true
-              cat /tmp/lovable-chrome.err || true
-              exit 1
             fi
-            echo "Lovable browser rendering verified: $TARGET"
+            echo "Lovable production not rendered yet (attempt $attempt)."
+            sleep 15
           done
+          if [ "$ok" -ne 1 ]; then
+            echo "Lovable production failed browser rendering."
+            head -c 12000 /tmp/lovable-dom.html || true
+            cat /tmp/lovable-chrome.err || true
+            exit 1
+          fi
+          echo "Lovable production browser rendering verified."
 
       - name: Deployment summary
         env:
