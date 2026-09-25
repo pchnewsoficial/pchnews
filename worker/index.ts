@@ -13,7 +13,7 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 app.get("/healthz", (_req, res) => {
-  res.status(200).json({ ok: true, service: "pch-news", runtime: "cloudflare-workers" });
+  res.status(200).json({ ok: true, service: "pch-news", runtime: "cloudflare-workers", build: "2026-09-25-sync-1200z" });
 });
 
 app.get("/api/hub/health", (_req, res) => {
