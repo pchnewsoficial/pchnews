@@ -111,7 +111,7 @@ export default function Home() {
           <div className="header-motto">Jornalismo nacional, pensamento amplo <span>●</span></div>
           <div className="header-actions">
             <button className="icon-button" aria-label="Buscar" onClick={() => setSearchOpen((open) => !open)}><Search size={18} /></button>
-            <Link className="profile-link" href="/perfil"><Bookmark size={15} /> Salvos</Link>
+            <Link className="profile-link" href="/"><Bookmark size={15} /> Salvos</Link>
             <Link className="admin-link" href="/admin">Painel editorial <ArrowRight size={14} /></Link>
           </div>
         </div>
