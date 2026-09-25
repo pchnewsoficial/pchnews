@@ -38,6 +38,23 @@ export function useAuth(options?: UseAuthOptions) {
     }
   }, [logoutMutation, utils]);
 
+  useEffect(() => {
+    const { data } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_OUT") {
+        utils.auth.me.setData(undefined, null);
+        return;
+      }
+
+      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "USER_UPDATED") {
+        void utils.auth.me.invalidate();
+      }
+    });
+
+    return () => {
+      data.subscription.unsubscribe();
+    };
+  }, [utils]);
+
   const state = useMemo(
     () => ({
       user: meQuery.data ?? null,
