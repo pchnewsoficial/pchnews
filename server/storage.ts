@@ -49,3 +49,18 @@ export async function storageGetSignedUrl(relKey: string) {
   if (error) throw new Error(`Supabase Storage signed URL failed: ${error.message}`);
   return data.signedUrl;
 }
+
+
+export async function storageList(prefix = "editorial") {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase.storage
+    .from(ENV.supabaseStorageBucket)
+    .list(prefix, { limit: 200, sortBy: { column: "created_at", order: "desc" } });
+  if (error) throw new Error(`Supabase Storage list failed: ${error.message}`);
+  const rows = (data ?? []).filter((item: any) => item.name && item.id).map((item: any) => {
+    const key = `${prefix}/${item.name}`;
+    const { data: publicData } = supabase.storage.from(ENV.supabaseStorageBucket).getPublicUrl(key);
+    return { id: item.id, name: item.name, key, url: publicData.publicUrl, size: item.metadata?.size ? String(item.metadata.size) : "", createdAt: item.created_at ?? null };
+  });
+  return rows;
+}
