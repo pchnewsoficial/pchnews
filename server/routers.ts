@@ -121,7 +121,7 @@ export const appRouter = router({
     audit: adminProcedure.input(z.object({ articleId: z.string().optional() })).query(({ input, ctx }) => listArticleAudit(input.articleId, ctx.accessToken)),
   }),
   media: router({
-    list: columnistProcedure.query(({ ctx }) => storageList("editorial")),
+    list: columnistProcedure.query(({ ctx }) => storageList(`editorial/${ctx.user.openId}`)),
     upload: columnistProcedure.input(uploadSchema).mutation(async ({ input, ctx }) => {
       const safeName = input.fileName.replace(/[^a-zA-Z0-9._-]/g, "-");
       const bytes = Buffer.from(input.base64.replace(/^data:[^;]+;base64,/, ""), "base64");
