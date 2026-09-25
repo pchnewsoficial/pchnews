@@ -1,4 +1,4 @@
-import { getSupabaseServer } from "./_core/supabase";
+import { getSupabaseAdmin, getSupabaseServer } from "./_core/supabase";
 import { ENV } from "./_core/env";
 import type { AdRequest, Article, ArticleAudit, ColumnistInvite, ColumnistProfile, Comment, InsertUser, User } from "../drizzle/schema";
 
@@ -17,6 +17,22 @@ export async function upsertUser(user: InsertUser, accessToken?: string | null):
     p_login_method: user.loginMethod ?? "supabase",
   });
   if (error) throw error;
+
+  // The owner account must remain an admin even if the production database
+  // has not yet applied the latest role-hardening migration. This is scoped
+  // to the single, documented owner email and never trusts a client-supplied role.
+  if ((user.email ?? "").trim().toLowerCase() === "pchnews.oficial@gmail.com") {
+    try {
+      const adminDb = getSupabaseAdmin();
+      const { error: roleError } = await adminDb
+        .from("users")
+        .update({ role: "admin" })
+        .eq("openId", user.openId);
+      if (roleError) throw roleError;
+    } catch (roleError) {
+      console.warn("[Auth] Could not enforce owner admin role:", roleError);
+    }
+  }
 }
 export async function getUserByOpenId(openId:string, accessToken?: string | null):Promise<User|undefined> {
   const db=await getDb(accessToken); if(!db) return undefined;
