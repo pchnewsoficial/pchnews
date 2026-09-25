@@ -46,7 +46,10 @@ export default function EditorialAgents({ articles, isAdmin, currentAuthor, noti
         image: article.image || "",
         tags: JSON.stringify(article.tags || []),
         status: article.status,
-        scheduledAt: article.scheduledAt ? new Date(article.scheduledAt).getTime() : null
+        scheduledAt: article.scheduledAt ? new Date(article.scheduledAt).getTime() : null,
+        region: article.region || null,
+        state: article.state || null,
+        country: article.country || null
       }
     });
   };
@@ -72,7 +75,7 @@ export default function EditorialAgents({ articles, isAdmin, currentAuthor, noti
     {result && <section className="panel agent-result-panel">
       <div className="panel-heading"><div><span className="admin-kicker">{result.agentName}</span><h2>Resultado da análise</h2></div><AgentStatus status={result.status} /></div>
       <div className="agent-findings">{(result.findings || []).length === 0 ? <div className="agent-empty"><CheckCircle2 size={20} /><span>Nenhum alerta encontrado nesta execução.</span></div> : result.findings.map((finding: any, index: number) => <div className={"agent-finding " + finding.severity} key={finding.code + index}><span>{finding.severity === "block" ? <CircleAlert size={17} /> : finding.severity === "warning" ? <CircleAlert size={17} /> : <CheckCircle2 size={17} />}</span><div><strong>{finding.message}</strong>{finding.suggestion && <small>{finding.suggestion}</small>}</div></div>)}</div>
-      {(() => { const fr = result.agentId === "liberdade-editorial" ? result : (result.output?.agents || []).find((a: any) => a.agentId === "liberdade-editorial"); return fr ? <FreedomReviewPanel report={fr.output} /> : null; })()}<pre className="agent-output">{JSON.stringify(result.output, null, 2)}</pre>
+      {result.output?.researchContext && <div className="editor-review-result review"><strong>Contexto de pesquisa do API HUB</strong><div className="editor-review-item"><b>FONTES</b><span>{result.output.researchContext.sources?.length || 0} fonte(s) externas para conferência.</span></div><div className="editor-review-item"><b>DADOS</b><span>{result.output.researchContext.economic?.length || 0} série(s) econômica(s) · {result.output.researchContext.weather ? "clima disponível" : "sem clima"}.</span></div></div>}{(() => { const fr = result.agentId === "liberdade-editorial" ? result : (result.output?.agents || []).find((a: any) => a.agentId === "liberdade-editorial"); return fr ? <FreedomReviewPanel report={fr.output} /> : null; })()}<pre className="agent-output">{JSON.stringify(result.output, null, 2)}</pre>
     </section>}
   </div>;
 }

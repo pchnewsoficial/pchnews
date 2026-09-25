@@ -4,13 +4,14 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, columnistProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { acceptInvite, createComment, createInvite, findInvite, getArticle, getDb, getEditorialSnapshot, getViewAnalytics, listArticleAudit, listInvites, listUsers, recordArticleAudit, recordArticleView, renewInvite, revokeInvite, saveArticle, setUserRole, syncEditorial, updateColumnistProfile, recordEditorialAgentRun, listEditorialAgentRuns, listPautas, getPauta, savePauta } from "./db";
+import { acceptInvite, createComment, createInvite, findInvite, getArticle, getDb, getEditorialSnapshot, getViewAnalytics, listArticleAudit, listInvites, listUsers, recordArticleAudit, recordArticleView, renewInvite, revokeInvite, saveArticle, setUserRole, syncEditorial, updateColumnistProfile, recordEditorialAgentRun, listEditorialAgentRuns, listPautas, getPauta, savePauta, recordEditorialResearchContext, listEditorialResearchContexts } from "./db";
 import { storagePut } from "./storage";
 import { sendInviteEmail, smtpConfigured } from "./email";
 import { ENV } from "./_core/env";
 import { recordFreedomReview } from "./db";
 import { runEditorialAgent, type EditorialAgentId } from "./editorialAgents";
 import { getApiHealth, getBcbSeries, getNewsRadar, getWeather, geocodeBrazil } from "./apiHub";
+import { collectEditorialResearchContext } from "./apiHub/editorialContext";
 const articleSchema = z.object({ id: z.string(), title: z.string(), category: z.string(), author: z.string(), authorOpenId: z.string().nullable().optional(), summary: z.string(), date: z.string(), updated: z.string(), status: z.enum(["published", "draft", "scheduled", "archived"]), views: z.number().int(), image: z.string(), bodyHtml: z.string(), scheduledAt: z.number().nullable(), tags: z.string(), youtubeUrl: z.string().nullable().optional(), socialLinks: z.string().nullable().optional(), createdAt: z.coerce.date().optional(), updatedAt: z.coerce.date().optional() });
 const commentSchema = z.object({ id: z.string(), articleId: z.string(), name: z.string(), text: z.string(), createdAtMs: z.number().int(), status: z.enum(["pending", "approved", "rejected"]), reply: z.string().nullable().default(null), repliedBy: z.string().nullable().default(null), repliedAtMs: z.number().int().nullable().default(null) });
 const profileSchema = z.object({ slug: z.string(), name: z.string(), beat: z.string(), bio: z.string(), photo: z.string(), instagram: z.string(), facebook: z.string(), x: z.string(), linkedin: z.string(), updatedAt: z.coerce.date().optional() });
@@ -60,10 +61,30 @@ export const appRouter = router({
       agentId: z.enum(["story-editor","fact-checker","seo-optimization-specialist","publication-readiness","ethics-advisor","multi-platform-distributor","liberdade-editorial","journalism-master-orchestrator"]),
       article: z.object({
         id: z.string(), title: z.string(), category: z.string(), author: z.string(), summary: z.string(),
-        bodyHtml: z.string(), image: z.string(), tags: z.string(), status: z.string(), scheduledAt: z.number().nullable().optional()
+        bodyHtml: z.string(), image: z.string(), tags: z.string(), status: z.string(), scheduledAt: z.number().nullable().optional(),
+        region: z.string().nullable().optional(), state: z.string().nullable().optional(), country: z.string().nullable().optional()
       })
     })).mutation(async ({ input, ctx }) => {
-      const result = runEditorialAgent(input.agentId as EditorialAgentId, input.article);
+      let researchContext;
+      if (input.agentId === "journalism-master-orchestrator" || input.agentId === "fact-checker") {
+        researchContext = await collectEditorialResearchContext({
+          title: input.article.title,
+          category: input.article.category,
+          region: (input.article as any).region ?? null,
+          state: (input.article as any).state ?? null,
+          country: (input.article as any).country ?? null
+        });
+        if (input.articleId !== "draft-preview") await recordEditorialResearchContext({
+          id: `research-${Date.now()}-${randomBytes(4).toString("hex")}`,
+          articleId: input.articleId,
+          fetchedAtMs: researchContext.fetchedAtMs,
+          providersJson: JSON.stringify(researchContext.providers),
+          contextJson: JSON.stringify(researchContext),
+          actorOpenId: ctx.user.openId,
+          createdAtMs: Date.now()
+        }, ctx.accessToken);
+      }
+      const result = runEditorialAgent(input.agentId as EditorialAgentId, input.article, researchContext);
       const db = await getDb(ctx.accessToken);
       if (db) {
         await recordEditorialAgentRun({
@@ -83,6 +104,7 @@ export const appRouter = router({
       return result;
     }),
     history: columnistProcedure.input(z.object({ articleId: z.string().min(1) })).query(({ input, ctx }) => listEditorialAgentRuns(input.articleId, ctx.accessToken)),
+    researchHistory: columnistProcedure.input(z.object({ articleId: z.string().min(1) })).query(({ input, ctx }) => listEditorialResearchContexts(input.articleId, ctx.accessToken)),
   }),
   editorial: router({
     bootstrap: publicProcedure.query(({ ctx }) => getEditorialSnapshot(Boolean(ctx.user && ["admin","columnist"].includes(ctx.user.role)), ctx.accessToken)),
