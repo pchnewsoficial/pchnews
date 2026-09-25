@@ -36,7 +36,7 @@ export default function ArticlePage() {
     })));
   }, [article?.id, data?.comments]);
   useEffect(() => {
-    if (!article || article.status !== "published") return;
+    if (!article || !["published", "updated"].includes(article.status)) return;
     setViewCount(article.views || 0);
     recordView.mutate(
       { articleId: article.id, visitorId: visitorId() },
