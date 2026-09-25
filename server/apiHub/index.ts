@@ -131,7 +131,7 @@ export async function getIbgeMunicipalities(query: string): Promise<NormalizedIb
     stateId: Number.isFinite(Number(item?.microrregiao?.mesorregiao?.UF?.id)) ? Number(item.microrregiao.mesorregiao.UF.id) : undefined,
     stateAbbreviation: item?.microrregiao?.mesorregiao?.UF?.sigla ? String(item.microrregiao.mesorregiao.UF.sigla) : undefined,
     stateName: item?.microrregiao?.mesorregiao?.UF?.nome ? String(item.microrregiao.mesorregiao.UF.nome) : undefined,
-    region: item?."regiao-imediata"?."regiao-intermediaria"?.UF?.regiao?.nome ? String(item["regiao-imediata"]["regiao-intermediaria"].UF.regiao.nome) : undefined,
+    region: item?.["regiao-imediata"]?.["regiao-intermediaria"]?.UF?.regiao?.nome ? String(item["regiao-imediata"]["regiao-intermediaria"].UF.regiao.nome) : undefined,
     url: `https://servicodados.ibge.gov.br/api/v1/localidades/municipios/${item?.id}`,
   })).filter((item) => item.id && item.name);
 }
