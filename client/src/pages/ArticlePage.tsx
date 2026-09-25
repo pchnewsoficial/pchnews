@@ -82,7 +82,7 @@ export default function ArticlePage() {
       "publisher":{"@type":"Organization","name":"PCH News","url":origin}
     });
   }, [article?.id, params?.slug]);
-  if (!article || article.status !== "published") return <div className="article-page empty-article"><img className="article-logo" src={LOGO_URL} alt="PCH News" /><h1>Matéria não encontrada.</h1><p>Essa publicação ainda não está disponível publicamente.</p><Link className="primary-cta" href="/">Voltar para o início</Link></div>;
+  if (!article || !["published", "updated"].includes(article.status)) return <div className="article-page empty-article"><img className="article-logo" src={LOGO_URL} alt="PCH News" /><h1>Matéria não encontrada.</h1><p>Essa publicação ainda não está disponível publicamente.</p><Link className="primary-cta" href="/">Voltar para o início</Link></div>;
   const profileSlug = slugify(article.author);
   const share = (network: string) => { const url = window.location.href; const text = `${article.title} — PCH News`; const targets: Record<string, string> = { whatsapp: `https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`, facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, x: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}` }; if (network === "copy") { navigator.clipboard?.writeText(url); return; } window.open(targets[network], "_blank", "noopener,noreferrer,width=640,height=580"); };
   const submitComment = async (event: FormEvent) => {
