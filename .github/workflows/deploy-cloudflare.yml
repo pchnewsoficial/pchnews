@@ -177,6 +177,9 @@ jobs:
         run: |
           google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=10000 \
             --dump-dom "$WORKER_URL/admin" > /tmp/pch-news-admin-dom.html
+          echo "Admin browser DOM (first 16000 bytes):"
+          head -c 16000 /tmp/pch-news-admin-dom.html || true
+          echo
           if grep -q "An unexpected error occurred." /tmp/pch-news-admin-dom.html; then
             echo "React ErrorBoundary rendered an application error on /admin."
             cat /tmp/pch-news-admin-dom.html
