@@ -144,16 +144,16 @@ jobs:
           grep -q '<div id="root"></div>' /tmp/admin.html
           echo "Published /admin returns the real SPA entrypoint."
 
-          echo "Checking unauthenticated tRPC session endpoint."
+          echo "Checking unauthenticated protected tRPC endpoint."
           status="$(curl --silent --show-error --output /tmp/auth-me.txt --write-out '%{http_code}' \
             --retry 3 --retry-all-errors --retry-delay 1 --max-time 20 \
-            "$WORKER_URL/api/trpc/auth.me")"
+            "${WORKER_URL}/api/trpc/access.list")"
           if [ "$status" != "401" ]; then
-            echo "Expected unauthenticated auth.me to return HTTP 401, got $status."
+            echo "Expected unauthenticated access.list to return HTTP 401, got $status."
             cat /tmp/auth-me.txt
             exit 1
           fi
-          echo "Unauthenticated auth.me correctly rejected with HTTP 401."
+          echo "Unauthenticated protected access.list correctly rejected with HTTP 401."
 
       - name: Verify published Admin rendering in Chromium
         env:
