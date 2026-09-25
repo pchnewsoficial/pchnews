@@ -240,7 +240,7 @@ export default function Home() {
             <div><strong>PCH News</strong><p>Jornalismo nacional, pensamento amplo.</p><small>Notícias, colunas e perspectivas para libertar a mente.</small></div>
           </div>
           <div className="footer-column"><span>EDITORIAS</span><Link href="/">Brasil</Link><Link href="/">Política</Link><Link href="/">Economia</Link><Link href="/">Cultura</Link><Link href="/">Mundo</Link></div>
-          <div className="footer-column"><span>PCH NEWS</span><Link href="/#ultimas">Últimas notícias</Link><Link href="/#parceiros">Parceiros</Link><Link href="/colunista/evaldo-poeta">Coluna do Evaldo</Link><Link href="/admin">Painel editorial</Link><Link href="/">Anuncie</Link></div>
+          <div className="footer-column"><span>PCH NEWS</span><Link href="/#ultimas">Últimas notícias</Link><Link href="/#parceiros">Parceiros</Link><Link href="/colunista/evaldo-poeta">Coluna do Evaldo</Link><a href="/?admin=1">Painel editorial</a><Link href="/">Anuncie</Link></div>
           <div className="footer-column"><span>INSTITUCIONAL</span><Link href="/">Expediente</Link><Link href="/">Política editorial</Link><Link href="/">Privacidade</Link><Link href="/">Contato</Link></div>
           <div className="footer-signature">
             <span>INFORMAÇÃO PARA</span><strong>LIBERTAR A MENTE.</strong>
