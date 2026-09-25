@@ -104,7 +104,7 @@ export default {
     // not_found_handling=single-page-application in wrangler.jsonc makes
     // client-side routes (e.g. /admin and /materia/:slug) resolve to index.html.
     const spaPath = ["/admin", "/admin/integracoes", "/login", "/perfil", "/404"].includes(url.pathname) ? "/index.html" : url.pathname;
-    if (spaPath !== url.pathname) return env.ASSETS.fetch(new Request(new URL("/", request.url), request));
+    if (spaPath !== url.pathname) return env.ASSETS.fetch(new Request(new URL("/index.html", request.url), request));
     return env.ASSETS.fetch(request);
   },
 };
