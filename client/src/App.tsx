@@ -22,6 +22,6 @@ function ClarityRouteTracker() {
   useEffect(() => { clarityEvent("page_view"); }, [location]);
   return null;
 }
-function Router() { return <Switch><Route path="/" component={Home} /><Route path="/login" component={Login} />
+function HomeOrAdmin() {\n  if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("admin") === "1") return <ProtectedAdmin />;\n  return <Home />;\n}\nfunction Router() { return <Switch><Route path="/" component={HomeOrAdmin} /><Route path="/login" component={Login} />
     <Route path="/perfil" component={Profile} /><Route path="/perfil/" component={Profile} /><Route path="/admin" component={ProtectedAdmin} /><Route path="/admin/" component={ProtectedAdmin} /><Route path="/admin/integracoes" component={ApiHubAdminPage} /><Route path="/admin/integracoes/" component={ApiHubAdminPage} /><Route path="/materia/:slug" component={ArticlePage} /><Route path="/colunista/:slug" component={ColumnistProfile} /><Route path="/convite/:token" component={InviteAccept} /><Route path="/404" component={NotFound} /><Route component={NotFound} /></Switch>; }
 export default function App() { return <ErrorBoundary><EditorialDataBridge /><ClarityRouteTracker /><TooltipProvider><Toaster /><Router /></TooltipProvider></ErrorBoundary>; }
