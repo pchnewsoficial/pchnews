@@ -5,7 +5,7 @@ import { trpc } from "@/lib/trpc";
 import { EDITORIAL_CATEGORIES, NewsArticle, readStoredArticles } from "@/lib/news";
 import "@/pch-redesign.css";
 
-const LOGO_URL = "/brand/logo.jpg?v=4";
+const LOGO_URL = "/brand/logo.svg?v=20260925-2";
 const imageUrl = (article: NewsArticle) => article.sourceUrl ? `https://pch-news.pchnews-oficial.workers.dev/legacy-image/${encodeURIComponent(article.sourceUrl)}` : article.image || LOGO_URL;
 const categories = ["Todas", ...EDITORIAL_CATEGORIES];
 
@@ -112,7 +112,7 @@ export default function Home() {
           <div className="header-actions">
             <button className="icon-button" aria-label="Buscar" onClick={() => setSearchOpen((open) => !open)}><Search size={18} /></button>
             <Link className="profile-link" href="/"><Bookmark size={15} /> Salvos</Link>
-            <Link className="admin-link" href="/admin">Painel editorial <ArrowRight size={14} /></Link>
+            <a className="admin-link" href="/?admin=1">Painel editorial <ArrowRight size={14} /></a>
           </div>
         </div>
         <div className={`nav-wrap ${menuOpen ? "is-open" : ""}`}>
