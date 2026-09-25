@@ -34,7 +34,8 @@ export interface ColumnistProfile { slug:string; name:string; beat:string; bio:s
 export interface AdRequest { id:string; business:string; contact:string; packageName:string; message:string; status:"received"|"reviewing"|"approved"; createdAtMs:number; }
 export interface ColumnistInvite { id:string; email:string; name:string; tokenHash:string; expiresAtMs:number; createdAtMs:number; acceptedAtMs:number|null; revokedAtMs:number|null; }
 export interface ArticleAudit { id:string; articleId:string; actorOpenId:string; actorName:string; action:string; beforeJson:string|null; afterJson:string|null; createdAtMs:number; }
-export interface EditorialAgentRun { id:string; articleId:string; agentId:string; agentName:string; status:ReviewStatus; findingsJson:string; outputJson:string; actorOpenId:string; createdAtMs:number; }\nexport type EditorialFindingDecisionState = "pending" | "accepted" | "rejected";\nexport interface EditorialFindingDecision { id:string; articleId:string; agentRunId:string; findingCode:string; decision:EditorialFindingDecisionState; note:string|null; actorOpenId:string; createdAtMs:number; updatedAtMs:number; }
+export interface EditorialAgentRun { id:string; articleId:string; agentId:string; agentName:string; status:ReviewStatus; findingsJson:string; outputJson:string; actorOpenId:string; createdAtMs:number; }
+export type EditorialFindingDecisionState = "pending" | "accepted" | "rejected";\nexport interface EditorialFindingDecision { id:string; articleId:string; agentRunId:string; findingCode:string; decision:EditorialFindingDecisionState; note:string|null; actorOpenId:string; createdAtMs:number; updatedAtMs:number; }
 export interface EditorialFreedomReview { id:string; articleId:string; rulesetVersion:string; status:ReviewStatus; score:number; contentType:string; autonomyAnswer:string; checksJson:string; actorOpenId:string; createdAtMs:number; }
 
 export type PautaPriority = "low" | "normal" | "high" | "urgent";
