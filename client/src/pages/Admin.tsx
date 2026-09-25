@@ -1,5 +1,5 @@
 import { FreedomReviewPanel, TolerajornalMark } from "@/components/FreedomReviewPanel";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Archive, BarChart3, Bell, Check, ChevronDown, Copy, Edit3, History, Eye, ExternalLink, FileText, FolderOpen, ImagePlus, LayoutDashboard, CalendarDays, LogOut, Mail, Menu, MoreHorizontal, Pencil, Plus, Search, Settings, Smartphone, Tablet, Monitor, Bold, Italic, Underline, List, ListOrdered, Link as LinkIcon, Quote, Undo2, Redo2, Trash2, Upload, UserPlus, Users, X, MessageCircle, Megaphone, UserCircle, Sparkles } from "lucide-react";
