@@ -26,9 +26,18 @@ queryClient.getMutationCache().subscribe(event => {
   if (event.type === "updated" && event.action.type === "error") redirectToLoginIfUnauthorized(event.mutation.state.error);
 });
 
+const apiBaseUrl = (() => {
+  const configured = import.meta.env.VITE_API_BASE_URL?.trim().replace(/\/$/, "");
+  if (configured) return configured;
+  if (typeof window !== "undefined" && window.location.hostname.endsWith(".lovable.app")) {
+    return "https://pch-news.pchnews-oficial.workers.dev";
+  }
+  return "";
+})();
+
 const trpcClient = trpc.createClient({
   links: [httpBatchLink({
-    url: "/api/trpc",
+    url: `${apiBaseUrl}/api/trpc`,
     transformer: superjson,
     async headers() {
       const { data } = await supabase.auth.getSession();
