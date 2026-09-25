@@ -921,7 +921,10 @@ export const statusLabels: Record<ArticleStatus, string> = {
   draft: "Rascunho",
   review: "Em revisão",
   scheduled: "Agendado",
-  revised: "Revisada",\n  approved: "Aprovada",\n  updated: "Atualizada",\n  archived: "Arquivada",
+  revised: "Revisada",
+  approved: "Aprovada",
+  updated: "Atualizada",
+  archived: "Arquivada",
 };
 
 export function readStoredMedia(): MediaAsset[] {
