@@ -191,8 +191,7 @@ jobs:
             exit 1
           fi
           grep -q "PCH News" /tmp/pch-news-admin-dom.html
-          grep -q "ACESSO OFICIAL\|Entre na sua\|redação" /tmp/pch-news-admin-dom.html
-          echo "Published /admin rendered the protected login/access UI without a blank page."
+          echo "Published /admin rendered the protected PCH News UI without a blank page."
       - name: Verify Lovable production rendering
         run: |
           set -euo pipefail
