@@ -1,4 +1,4 @@
-import { getApiHealth, getBcbSeries, getNewsRadar, getWeather, geocodeBrazil } from "./index";
+import { getApiHealth, getBcbSeries, getNewsRadar, getWeather, geocodeBrazil, getChamberPropositions } from "./index";
 import type { NormalizedNewsItem } from "./types";
 
 export type EditorialResearchSource = {
@@ -27,6 +27,7 @@ export type EditorialResearchContext = {
     windKmh?: number;
     precipitationMm?: number;
   };
+  chamber?: Array<{ id: number; title: string; summary?: string; status?: string; presentationDate?: string; url: string }>;
   economic?: Array<{
     seriesId: number;
     label: string;
@@ -69,6 +70,7 @@ export async function collectEditorialResearchContext(input: CollectInput): Prom
   let location: EditorialResearchContext["location"];
   let weather: EditorialResearchContext["weather"];
   const economic: NonNullable<EditorialResearchContext["economic"]> = [];
+  const chamber: NonNullable<EditorialResearchContext["chamber"]> = [];
 
   const newsProvider = health.find((item) => item.id === "currents" && item.configured)
     ? "currents"
@@ -133,6 +135,21 @@ export async function collectEditorialResearchContext(input: CollectInput): Prom
     providers["open-meteo"] = { status: "skipped", message: "Sem coordenadas editoriais." };
   }
 
+  const chamberTerms = /pol[ií]tica|congresso|c[aâ]mara|deputad|projeto de lei|pl |pec |senado|governo|elei[cç][aã]o|legisla[cç][aã]o|vota[cç][aã]o|comiss[aã]o/i;
+  if (chamberTerms.test(`${input.category} ${input.title}`)) {
+    try {
+      const items = await getChamberPropositions(query);
+      chamber.push(...items);
+      providers.camara = { status: "ok", count: chamber.length };
+      for (const item of chamber) sources.push({ provider: "camara", title: item.title, url: item.url, publishedAt: item.presentationDate, source: "Câmara dos Deputados — Dados Abertos" });
+    } catch (error) {
+      providers.camara = { status: "error", message: error instanceof Error ? error.message : "Falha na API da Câmara." };
+      limitations.push("Dados da Câmara dos Deputados não puderam ser consultados nesta execução.");
+    }
+  } else {
+    providers.camara = { status: "skipped", message: "Tema não identificado como legislativo/político." };
+  }
+
   if (ECONOMIC_TERMS.test(`${input.category} ${input.title}`)) {
     const endDate = new Date();
     const startDate = new Date(endDate.getTime() - 1000 * 60 * 60 * 24 * 90);
@@ -155,5 +172,5 @@ export async function collectEditorialResearchContext(input: CollectInput): Prom
     providers.bcb = { status: "skipped", message: "Tema não identificado como econômico." };
   }
 
-  return { fetchedAtMs, query, locationQuery, sources, news, location, weather, economic, providers, limitations };
+  return { fetchedAtMs, query, locationQuery, sources, news, location, weather, chamber, economic, providers, limitations };
 }
