@@ -41,6 +41,10 @@ export async function getUserByOpenId(openId:string, accessToken?: string | null
 }
 export async function getEditorialSnapshot(includePrivate=false, accessToken?: string | null) {
   const db=await getDb(accessToken); if(!db) return {articles:[],comments:[],profiles:[],adRequests:[]};
+  // Promote due scheduled stories server-side so publication does not depend on an open Admin tab.
+  const nowMs = Date.now();
+  const { error: scheduleError } = await db.from("articles").update({ status: "published", updated: "publicado automaticamente" }).eq("status", "scheduled").not("scheduledAt", "is", null).lte("scheduledAt", nowMs);
+  if (scheduleError) throw scheduleError;
   const articlesQ=includePrivate?db.from("articles").select("*"):db.from("articles").select("*").in("status",["published","updated"]);
   const commentsQ=includePrivate?db.from("comments").select("*"):db.from("comments").select("*").eq("status","approved");
   const [a,c,p,ads]=await Promise.all([
