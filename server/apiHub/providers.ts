@@ -10,6 +10,7 @@ export const API_PROVIDERS: ApiProviderConfig[] = [
   { id: "api-football", name: "API-FOOTBALL", category: "Esportes", requiresApiKey: true, envVar: "API_FOOTBALL_KEY", baseUrl: "https://v3.football.api-sports.io", serverOnly: true, cacheTtlSeconds: 60 },
   { id: "thesportsdb", name: "TheSportsDB", category: "Esportes", requiresApiKey: false, baseUrl: "https://www.thesportsdb.com", serverOnly: true, cacheTtlSeconds: 60 },
   { id: "fipe", name: "FIPE/veículos", category: "Veículos", requiresApiKey: false, baseUrl: "https://parallelum.com.br/fipe", serverOnly: true, cacheTtlSeconds: 86400 },
+  { id: "camara", name: "Câmara dos Deputados — Dados Abertos", category: "Dados públicos/legislativo", requiresApiKey: false, baseUrl: "https://dadosabertos.camara.leg.br/api/v2", serverOnly: true, cacheTtlSeconds: 900 },
 ];
 
 export function getProvider(id: string) { return API_PROVIDERS.find(provider => provider.id === id); }
