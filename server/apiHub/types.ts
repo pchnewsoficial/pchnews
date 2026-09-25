@@ -1,6 +1,6 @@
 export type ApiProviderId =
   | "open-meteo" | "bcb" | "openstreetmap" | "image-charts"
-  | "mediastack" | "currents" | "api-football" | "thesportsdb" | "fipe" | "camara";
+  | "mediastack" | "currents" | "api-football" | "thesportsdb" | "fipe" | "camara" | "ibge";
 
 export type ApiProviderConfig = {
   id: ApiProviderId; name: string; category: string; requiresApiKey: boolean;
