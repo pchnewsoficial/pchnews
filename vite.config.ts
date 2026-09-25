@@ -25,5 +25,22 @@ export default defineConfig({
   },
   server: {
     host: true,
+    proxy: {
+      "/api": {
+        target: process.env.PCH_PREVIEW_API_TARGET || "https://pch-news.pchnews-oficial.workers.dev",
+        changeOrigin: true,
+        secure: true,
+      },
+      "/manus-storage": {
+        target: process.env.PCH_PREVIEW_API_TARGET || "https://pch-news.pchnews-oficial.workers.dev",
+        changeOrigin: true,
+        secure: true,
+      },
+      "/legacy-image": {
+        target: process.env.PCH_PREVIEW_API_TARGET || "https://pch-news.pchnews-oficial.workers.dev",
+        changeOrigin: true,
+        secure: true,
+      },
+    },
   },
 });
