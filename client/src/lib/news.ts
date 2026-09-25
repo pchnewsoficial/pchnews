@@ -1,4 +1,4 @@
-export type ArticleStatus = "draft" | "review" | "scheduled" | "published" | "archived";
+export type ArticleStatus = "draft" | "review" | "revised" | "approved" | "scheduled" | "published" | "updated" | "archived";
 export type EditorialScope = "national" | "regional" | "international";
 export type NewsArticle = {
   id: string;
@@ -921,7 +921,7 @@ export const statusLabels: Record<ArticleStatus, string> = {
   draft: "Rascunho",
   review: "Em revisão",
   scheduled: "Agendado",
-  archived: "Arquivado",
+  revised: "Revisada",\n  approved: "Aprovada",\n  updated: "Atualizada",\n  archived: "Arquivada",
 };
 
 export function readStoredMedia(): MediaAsset[] {
