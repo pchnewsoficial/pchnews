@@ -13,8 +13,11 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 app.get("/healthz", (_req, res) => {
-  app.get("/api/hub/health", (_req, res) => res.status(200).json({ providers: getApiHealth() }));
   res.status(200).json({ ok: true, service: "pch-news", runtime: "cloudflare-workers" });
+});
+
+app.get("/api/hub/health", (_req, res) => {
+  res.status(200).json({ providers: getApiHealth() });
 });
 
 registerStorageProxy(app);

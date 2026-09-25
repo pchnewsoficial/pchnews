@@ -17,6 +17,6 @@ export function getProvider(id: string) { return API_PROVIDERS.find(provider => 
 export function getApiHealth() {
   return API_PROVIDERS.map(provider => {
     const configured = !provider.requiresApiKey || Boolean(provider.envVar && process.env[provider.envVar]);
-    return { id: provider.id, name: provider.name, category: provider.category, configured, status: configured ? 'ready' as const : 'not_configured' as const };
+    return { id: provider.id, name: provider.name, category: provider.category, baseUrl: provider.baseUrl, requiresApiKey: provider.requiresApiKey, configured, status: configured ? 'ready' as const : 'not_configured' as const };
   });
 }
