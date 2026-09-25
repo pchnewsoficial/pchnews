@@ -2,6 +2,18 @@
 
 O projeto foi adaptado no GitHub para facilitar a importação como React + Vite.
 
+## Fonte oficial
+
+O repositório oficial e atual do PCH News é:
+
+`pchnewsoficial/pch-news`
+
+Branch de produção:
+
+`main`
+
+O repositório antigo `pchnewsoficial/pchnews.oficial` não é fonte de produção e não deve ser usado para importar, sincronizar ou publicar o projeto.
+
 ## Alterações feitas
 
 - Removido o runtime específico do Manus do Vite.
@@ -12,12 +24,19 @@ O projeto foi adaptado no GitHub para facilitar a importação como React + Vite
 
 ## Logo
 
-Não existe atualmente um arquivo de logo identificável no repositório. Quando o logo oficial estiver disponível, o local recomendado é `client/public/brand/logo.svg`.
+O logo oficial está em `client/public/brand/logo.svg`.
 
 ## Backend
 
-O projeto ainda contém backend, autenticação, tRPC e banco de dados. A adaptação do frontend não converte automaticamente essas partes para Supabase ou outro backend. Elas precisarão ser mantidas em um serviço compatível ou migradas separadamente.
+O projeto ainda contém backend, autenticação, tRPC e banco de dados. A adaptação do frontend não converte automaticamente essas partes para Supabase ou outro backend. Elas precisam permanecer em um serviço compatível ou ser migradas separadamente.
 
-## Importação
+## Lovable
 
-No Lovable, conecte o GitHub e selecione o repositório privado `pchnewsoficial/pchnews.oficial`, branch `main`. Depois configure as variáveis/secrets necessários para o backend.
+O projeto PCH News Hub no Lovable deve permanecer alinhado ao repositório oficial `pchnewsoficial/pch-news`, branch `main`.
+
+Ao configurar ou reconectar o GitHub no Lovable, selecionar exclusivamente:
+
+- Repositório: `pchnewsoficial/pch-news`
+- Branch: `main`
+
+Não usar `pchnewsoficial/pchnews.oficial`.
