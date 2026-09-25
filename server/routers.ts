@@ -8,6 +8,7 @@ import { acceptInvite, createComment, createInvite, findInvite, getArticle, getD
 import { storagePut } from "./storage";
 import { sendInviteEmail, smtpConfigured } from "./email";
 import { ENV } from "./_core/env";
+import { apiHubStatus, getWeather, getBcbSeries, geocode, chartUrl, qrUrl, mediastackRadar, currentsRadar, BCB_SERIES, type BcbSeriesId } from "./apiHub";
 import { recordFreedomReview } from "./db";
 import { runEditorialAgent, type EditorialAgentId } from "./editorialAgents";
 const articleSchema = z.object({ id: z.string(), title: z.string(), category: z.string(), author: z.string(), authorOpenId: z.string().nullable().optional(), summary: z.string(), date: z.string(), updated: z.string(), status: z.enum(["published", "draft", "scheduled", "archived"]), views: z.number().int(), image: z.string(), bodyHtml: z.string(), scheduledAt: z.number().nullable(), tags: z.string(), youtubeUrl: z.string().nullable().optional(), socialLinks: z.string().nullable().optional(), createdAt: z.coerce.date().optional(), updatedAt: z.coerce.date().optional() });
@@ -21,6 +22,16 @@ const hashToken = (token: string) => createHash("sha256").update(token).digest("
 const articleInput = z.object({ id: z.string(), title: z.string(), category: z.string(), author: z.string(), authorOpenId: z.string().nullable().optional(), summary: z.string(), date: z.string(), updated: z.string(), status: z.enum(["published", "draft", "scheduled", "archived"]), views: z.number().int(), image: z.string(), bodyHtml: z.string(), scheduledAt: z.number().nullable(), tags: z.string(), youtubeUrl: z.string().nullable().optional(), socialLinks: z.string().nullable().optional(), scope: z.string().optional(), region: z.string().nullable().optional(), state: z.string().nullable().optional(), country: z.string().nullable().optional(), language: z.string().optional(), featured: z.boolean().optional(), sourceUrl: z.string().nullable().optional(), sourceName: z.string().nullable().optional(), slug: z.string().nullable().optional(), seoTitle: z.string().nullable().optional(), metaDescription: z.string().nullable().optional(), canonicalUrl: z.string().nullable().optional(), focusKeyword: z.string().nullable().optional(), ogTitle: z.string().nullable().optional(), ogDescription: z.string().nullable().optional(), imageAlt: z.string().nullable().optional(), noindex: z.boolean().optional() });
 export const appRouter = router({
   system: systemRouter,
+  apiHub: router({
+    status: adminProcedure.query(() => apiHubStatus()),
+    probe: adminProcedure.input(z.object({ id: z.string() })).mutation(async ({ input }) => { try { if (input.id === "open-meteo") await getWeather(-23.55, -46.63); else if (input.id === "bcb-sgs") await getBcbSeries("selic", 1); else if (input.id === "nominatim") await geocode("São Paulo"); else if (input.id === "mediastack") await mediastackRadar("brasil"); else if (input.id === "currents") await currentsRadar("brasil"); else if (input.id !== "image-charts") return { id: input.id, ok: false, error: "provider sem teste implementado" }; return { id: input.id, ok: true, error: null }; } catch (e) { return { id: input.id, ok: false, error: String((e as Error).message) }; } }),
+    weather: publicProcedure.input(z.object({ lat: z.number().min(-90).max(90), lon: z.number().min(-180).max(180) })).query(({ input }) => getWeather(input.lat, input.lon)),
+    economy: publicProcedure.input(z.object({ series: z.enum(Object.keys(BCB_SERIES) as [BcbSeriesId, ...BcbSeriesId[]]), last: z.number().int().min(1).max(20).default(10) })).query(({ input }) => getBcbSeries(input.series, input.last)),
+    geocode: columnistProcedure.input(z.object({ q: z.string().min(2).max(120) })).query(({ input }) => geocode(input.q)),
+    chart: publicProcedure.input(z.object({ type: z.enum(["line", "bar", "pie"]), labels: z.array(z.string().max(40)).max(30), values: z.array(z.number()).max(30), title: z.string().max(80).optional() })).query(({ input }) => ({ url: chartUrl(input) })),
+    qr: publicProcedure.input(z.object({ data: z.string().url().max(500) })).query(({ input }) => ({ url: qrUrl(input.data) })),
+    newsRadar: columnistProcedure.input(z.object({ provider: z.enum(["mediastack", "currents"]), keywords: z.string().min(2).max(100) })).query(({ input }) => input.provider === "mediastack" ? mediastackRadar(input.keywords) : currentsRadar(input.keywords)),
+  }),
   pauta: router({
     list: columnistProcedure.query(({ ctx }) => listPautas(ctx.accessToken)),
     create: columnistProcedure.input(z.object({

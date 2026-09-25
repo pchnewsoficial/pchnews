@@ -3,6 +3,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Copy, Facebook, Linkedin, MessageCircle, MessageSquare, Send, Eye } from "lucide-react";
 import { Link, useRoute } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { trackEvent } from "@/lib/analytics";
 import { NewsArticle, readStoredArticles } from "@/lib/news";
 import { ReaderComment } from "@/lib/editorial";
 const LOGO_URL = "/brand/logo.svg";
@@ -37,6 +38,7 @@ export default function ArticlePage() {
   }, [article?.id, data?.comments]);
   useEffect(() => {
     if (!article || article.status !== "published") return;
+    trackEvent("article_view", { article_id: article.id, category: article.category || "" });
     setViewCount(article.views || 0);
     recordView.mutate(
       { articleId: article.id, visitorId: visitorId() },
