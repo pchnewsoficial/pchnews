@@ -27,7 +27,7 @@ type Draft = Pick<NewsArticle, "title" | "category" | "author" | "summary" | "im
 
 const blankDraft: Draft = { title: "", category: "Brasil", author: "Redação PCH News", summary: "", slug: "", seoTitle: "", metaDescription: "", canonicalUrl: "", focusKeyword: "", ogTitle: "", ogDescription: "", imageAlt: "", noindex: false, scope: "national", region: "", state: "", country: "Brasil", language: "pt-BR", featured: false, image: "", status: "draft", bodyHtml: "<p>Comece a escrever o corpo da notícia...</p>", scheduledAt: "", tagsInput: "", youtubeUrl: "", socialLinks: { instagram: "", facebook: "", x: "", linkedin: "", tiktok: "", website: "" } };
 
-const statusClass: Record<ArticleStatus, string> = { published: "status-published", draft: "status-draft", review: "status-review", scheduled: "status-scheduled", archived: "status-archived" };
+const statusClass: Record<ArticleStatus, string> = { published: "status-published", draft: "status-draft", review: "status-review", revised: "status-review", approved: "status-published", scheduled: "status-scheduled", updated: "status-published", archived: "status-archived" };
 
 function getGreeting() {
   const hour = new Date().getHours();
@@ -251,7 +251,7 @@ export default function Admin() {
       : [{ ...draft, id: makeArticleId(), scope: draft.scope || "national", region: draft.region || null, state: draft.state || null, country: draft.country || null, language: draft.language || "pt-BR", featured: draft.featured, date: "20/09/2026", tags: draft.tagsInput.split(",").map((tag) => tag.trim()).filter(Boolean), updated: draft.status === "scheduled" ? `agendada para ${formatSchedule(draft.scheduledAt)}` : "agora", views: 0 }, ...articles];
 
     const savedArticle = editing ? nextArticles.find((article) => article.id === editing.id)! : nextArticles[0];
-    const remoteStatus = savedArticle.status === "review" ? "draft" : savedArticle.status;
+    const remoteStatus = savedArticle.status;
     try {
       await saveArticleRemote.mutateAsync({ id: savedArticle.id, title: savedArticle.title, category: savedArticle.category, author: savedArticle.author, authorOpenId: savedArticle.authorOpenId ?? user?.openId ?? null, summary: savedArticle.summary, date: savedArticle.date, updated: savedArticle.updated, status: remoteStatus, views: savedArticle.views, image: savedArticle.image, bodyHtml: savedArticle.bodyHtml, scheduledAt: savedArticle.scheduledAt ? new Date(savedArticle.scheduledAt).getTime() : null, tags: JSON.stringify(savedArticle.tags || []), slug: savedArticle.slug || slugify(savedArticle.title), seoTitle: savedArticle.seoTitle || savedArticle.title, metaDescription: savedArticle.metaDescription || savedArticle.summary, canonicalUrl: savedArticle.canonicalUrl || null, focusKeyword: savedArticle.focusKeyword || null, ogTitle: savedArticle.ogTitle || savedArticle.title, ogDescription: savedArticle.ogDescription || savedArticle.summary, imageAlt: savedArticle.imageAlt || savedArticle.title, noindex: Boolean(savedArticle.noindex), youtubeUrl: savedArticle.youtubeUrl || null, socialLinks: JSON.stringify(savedArticle.socialLinks || {}), scope: savedArticle.scope || "national", region: savedArticle.region || null, state: savedArticle.state || null, country: savedArticle.country || "Brasil", language: savedArticle.language || "pt-BR", featured: Boolean(savedArticle.featured), sourceUrl: savedArticle.sourceUrl || null, sourceName: savedArticle.sourceName || null });
       setArticles(nextArticles);
@@ -267,7 +267,10 @@ export default function Admin() {
 
   const nextWorkflowStatus = (status: ArticleStatus): ArticleStatus => {
     if (status === "draft") return "review";
-    if (status === "review") return "published";
+    if (status === "review") return "revised";
+    if (status === "revised") return "approved";
+    if (status === "approved") return "scheduled";
+    if (status === "published") return "updated";
     if (status === "scheduled") return "published";
     if (status === "archived") return "draft";
     return "draft";
@@ -279,7 +282,7 @@ export default function Admin() {
     const nextArticles = articles.map((article) => article.id === id ? { ...article, status, updated: "agora", authorOpenId: article.authorOpenId ?? user?.openId ?? null } : article);
     const updatedArticle = nextArticles.find((article) => article.id === id);
     if (!updatedArticle) return;
-    const remoteStatus = status === "review" ? "draft" : status;
+    const remoteStatus = status;
     saveArticleRemote.mutate({ id: updatedArticle.id, title: updatedArticle.title, category: updatedArticle.category, author: updatedArticle.author, authorOpenId: updatedArticle.authorOpenId ?? null, summary: updatedArticle.summary, date: updatedArticle.date, updated: updatedArticle.updated, status: remoteStatus, views: updatedArticle.views, image: updatedArticle.image, bodyHtml: updatedArticle.bodyHtml, scheduledAt: updatedArticle.scheduledAt ? new Date(updatedArticle.scheduledAt).getTime() : null, tags: JSON.stringify(updatedArticle.tags || []), youtubeUrl: updatedArticle.youtubeUrl || null, socialLinks: JSON.stringify(updatedArticle.socialLinks || {}), scope: updatedArticle.scope || "national", region: updatedArticle.region || null, state: updatedArticle.state || null, country: updatedArticle.country || "Brasil", language: updatedArticle.language || "pt-BR", featured: Boolean(updatedArticle.featured), sourceUrl: updatedArticle.sourceUrl || null, sourceName: updatedArticle.sourceName || null }, { onSuccess: () => { setArticles(nextArticles); persistArticles(nextArticles); window.dispatchEvent(new Event("pch-news-data-changed")); notify(`Notícia marcada como ${statusLabels[status].toLowerCase()}.`); }, onError: () => notify("O banco recusou a alteração de status; a publicação não foi alterada.") });
   };
 
