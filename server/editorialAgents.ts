@@ -1,4 +1,5 @@
 import { runFreedomReview } from "./editorialFreedom";
+import type { EditorialResearchContext } from "./apiHub/editorialContext";
 
 export type EditorialAgentId =
   | "story-editor"
@@ -21,6 +22,7 @@ export type EditorialArticleInput = {
   tags: string;
   status: string;
   scheduledAt?: number | null;
+  researchContext?: EditorialResearchContext;
 };
 
 export type AgentFinding = {
@@ -104,7 +106,22 @@ function factChecker(article: EditorialArticleInput): AgentResult {
   if (!links.length) findings.push({ severity: "warning", code: "no-source-links", message: "Não foram encontrados links de fonte no corpo.", suggestion: "Inclua links de fontes quando a matéria depender de dados, documentos ou declarações verificáveis." });
   const namedClaims = sentences(body).filter((line) => /\b(segundo|afirmou|disse|informou|de acordo com|apontou)\b/i.test(line));
   if (namedClaims.length) findings.push({ severity: "info", code: "attribution-check", message: `${namedClaims.length} trecho(s) usam atribuição e merecem conferência da declaração original.` });
-  return { agentId: "fact-checker", agentName: "Fact Checker", status: findings.some((f) => f.severity === "warning") ? "review" : "pass", findings, output: { evidenceCandidates: evidenceSentences.slice(0, 20), sourceLinks: links, attributedClaims: namedClaims.slice(0, 20) } };
+  const research = article.researchContext;
+  if (research) {
+    if (research.sources.length) {
+      findings.push({
+        severity: "info",
+        code: "api-context-sources",
+        message: `O API HUB trouxe ${research.sources.length} fonte(s) externas para conferência contextual.`,
+        suggestion: "Abra as fontes originais e confirme datas, números, declarações e contexto antes de publicar.",
+        evidence: research.sources.slice(0, 6).map((source) => `${source.source || source.provider}: ${source.title}`)
+      });
+    }
+    if (research.limitations.length) {
+      findings.push({ severity: "info", code: "api-context-limitations", message: "A coleta automática teve limitações; elas não substituem a apuração humana.", evidence: research.limitations.slice(0, 6) });
+    }
+  }
+  return { agentId: "fact-checker", agentName: "Fact Checker", status: findings.some((f) => f.severity === "warning") ? "review" : "pass", findings, output: { evidenceCandidates: evidenceSentences.slice(0, 20), sourceLinks: links, attributedClaims: namedClaims.slice(0, 20), researchContext: research ?? null } };
 }
 
 function seo(article: EditorialArticleInput): AgentResult {
@@ -179,24 +196,24 @@ function liberdadeEditorial(article: EditorialArticleInput): AgentResult {
   return { agentId: "liberdade-editorial", agentName: "Liberdade Editorial — Tolerajornal", status: findings.some((f) => f.severity === "warning") ? "review" : "pass", findings, output: report as unknown as Record<string, unknown> };
 }
 
-export function runEditorialAgent(agentId: EditorialAgentId, article: EditorialArticleInput): AgentResult {
+export function runEditorialAgent(agentId: EditorialAgentId, article: EditorialArticleInput, researchContext?: EditorialResearchContext): AgentResult {\n  const enrichedArticle = researchContext ? { ...article, researchContext } : article;
   switch (agentId) {
-    case "story-editor": return storyEditor(article);
-    case "fact-checker": return factChecker(article);
-    case "seo-optimization-specialist": return seo(article);
-    case "publication-readiness": return publicationReadiness(article);
-    case "ethics-advisor": return ethics(article);
-    case "multi-platform-distributor": return distributor(article);
-    case "liberdade-editorial": return liberdadeEditorial(article);
+    case "story-editor": return storyEditor(enrichedArticle);
+    case "fact-checker": return factChecker(enrichedArticle);
+    case "seo-optimization-specialist": return seo(enrichedArticle);
+    case "publication-readiness": return publicationReadiness(enrichedArticle);
+    case "ethics-advisor": return ethics(enrichedArticle);
+    case "multi-platform-distributor": return distributor(enrichedArticle);
+    case "liberdade-editorial": return liberdadeEditorial(enrichedArticle);
     case "journalism-master-orchestrator": {
       const results = [
-        storyEditor(article),
-        factChecker(article),
-        seo(article),
-        ethics(article),
-        liberdadeEditorial(article),
-        publicationReadiness(article),
-        distributor(article)
+        storyEditor(enrichedArticle),
+        factChecker(enrichedArticle),
+        seo(enrichedArticle),
+        ethics(enrichedArticle),
+        liberdadeEditorial(enrichedArticle),
+        publicationReadiness(enrichedArticle),
+        distributor(enrichedArticle)
       ];
       const blocked = results.some((result) => result.status === "block");
       const review = results.some((result) => result.status === "review");
@@ -205,7 +222,7 @@ export function runEditorialAgent(agentId: EditorialAgentId, article: EditorialA
         agentName: "Journalism Master Orchestrator",
         status: blocked ? "block" : review ? "review" : "pass",
         findings: results.flatMap((result) => result.findings).slice(0, 80),
-        output: { agents: results, publicationGate: blocked ? "blocked" : review ? "human-review" : "ready" }
+        output: { agents: results, researchContext: researchContext ?? null, publicationGate: blocked ? "blocked" : review ? "human-review" : "ready" }
       };
     }
   }
