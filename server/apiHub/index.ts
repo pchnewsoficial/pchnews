@@ -66,7 +66,7 @@ type RankedChamberProposition = {
 };
 
 export async function getChamberPropositions(query: string): Promise<NormalizedChamberProposition[]> {
-  const raw = await fetchJson<{ dados?: ChamberApiProposition[] }>("https://dadosabertos.camara.leg.br/api/v2/proposicoes?ordem=DESC&ordenarPor=id&itens=50");
+  const terms = query.toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").split(/\\W+/).filter((term) => term.length >= 4);\n  if (!terms.length) return [];\n  const params = new URLSearchParams({ ordem: "DESC", ordenarPor: "id", itens: "50", keywords: terms.join(",") });\n  const raw = await fetchJson<{ dados?: ChamberApiProposition[] }>("https://dadosabertos.camara.leg.br/api/v2/proposicoes?" + params.toString());
   const items = Array.isArray(raw?.dados) ? raw.dados : [];
   const terms = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(/\W+/).filter((term) => term.length >= 4);
   const ranked: RankedChamberProposition[] = items.map((item) => {
