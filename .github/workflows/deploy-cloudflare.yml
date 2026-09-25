@@ -140,9 +140,18 @@ jobs:
         run: |
           set -euo pipefail
           echo "Checking published Admin route: $WORKER_URL/admin"
-          curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 --max-time 20 \
-            "$WORKER_URL/admin" -D /tmp/admin-headers.txt -o /tmp/admin.html
-          test -s /tmp/admin.html
+          status="$(curl --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 --max-time 20 \
+            "$WORKER_URL/admin" -D /tmp/admin-headers.txt -o /tmp/admin.html -w '%{http_code}')"
+          echo "Published /admin HTTP status: $status"
+          echo "Published /admin response headers:"
+          cat /tmp/admin-headers.txt
+          echo "Published /admin response body:"
+          head -c 4000 /tmp/admin.html || true
+          echo
+          if [ "$status" != "200" ]; then
+            echo "Published /admin did not return HTTP 200."
+            exit 1
+          fi
           grep -qi '^content-type: text/html' /tmp/admin-headers.txt
           grep -q '<div id="root"></div>' /tmp/admin.html
           echo "Published /admin returns the real SPA entrypoint."
