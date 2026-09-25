@@ -9,6 +9,24 @@ import { getApiHealth } from "../server/apiHub";
 
 const app = express();
 
+const ALLOWED_BROWSER_ORIGINS = new Set([
+  "https://pch-news.lovable.app",
+  "https://id-preview--50a4b9f4-d0a8-4f19-a810-c59546a0d4f9.lovable.app",
+]);
+
+app.use("/api", (req, res, next) => {
+  const origin = req.header("Origin");
+  if (origin && ALLOWED_BROWSER_ORIGINS.has(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.setHeader("Vary", "Origin");
+  }
+  if (req.method === "OPTIONS") return res.sendStatus(204);
+  next();
+});
+
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
