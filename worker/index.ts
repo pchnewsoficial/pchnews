@@ -5,6 +5,7 @@ import { registerOAuthRoutes } from "../server/_core/oauth";
 import { registerStorageProxy } from "../server/_core/storageProxy";
 import { appRouter } from "../server/routers";
 import { createContext } from "../server/_core/context";
+import { getApiHealth } from "../apiHub";
 
 const app = express();
 
@@ -12,6 +13,7 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 app.get("/healthz", (_req, res) => {
+  app.get("/api/hub/health", (_req, res) => res.status(200).json({ providers: getApiHealth() }));
   res.status(200).json({ ok: true, service: "pch-news", runtime: "cloudflare-workers" });
 });
 
