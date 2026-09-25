@@ -138,6 +138,37 @@ export const appRouter = router({
       await createComment(row, ctx.accessToken);
       return row;
     }),
+    moderate: columnistProcedure.input(z.object({
+      id: z.string().min(1),
+      action: z.enum(["approve", "reject", "remove", "reply"]),
+      reply: z.string().max(4000).optional(),
+    })).mutation(async ({ input, ctx }) => {
+      const db = await getDb(ctx.accessToken);
+      if (!db) throw new Error("Database unavailable");
+      const { data: comment, error: commentError } = await db.from("comments").select("*").eq("id", input.id).maybeSingle();
+      if (commentError) throw commentError;
+      if (!comment) throw new Error("Comentário não encontrado.");
+      const article = await getArticle(String(comment.articleId), ctx.accessToken);
+      if (!article) throw new Error("Matéria do comentário não encontrada.");
+      if (ctx.user.role !== "admin" && article.authorOpenId !== ctx.user.openId) {
+        throw new Error("Você não tem permissão para moderar este comentário.");
+      }
+      if (input.action === "reply") {
+        const reply = input.reply?.trim();
+        if (!reply) throw new Error("A resposta não pode ficar vazia.");
+        const { data, error } = await db.from("comments").update({
+          reply,
+          repliedBy: ctx.user.name || ctx.user.email || "PCH News",
+          repliedAtMs: Date.now(),
+        }).eq("id", input.id).select("*").single();
+        if (error) throw error;
+        return data;
+      }
+      const nextStatus = input.action === "approve" ? "approved" : "rejected";
+      const { data, error } = await db.from("comments").update({ status: nextStatus }).eq("id", input.id).select("*").single();
+      if (error) throw error;
+      return data;
+    }),
   }),
   access: router({ list: adminProcedure.query(async ({ ctx }) => { return listUsers(ctx.accessToken); }), setRole: adminProcedure.input(z.object({ openId: z.string(), role: z.enum(["user", "admin", "columnist"]) })).mutation(async ({ input, ctx }) => { return setUserRole(input.openId,input.role,ctx.accessToken); }) }),
   invites: router({
