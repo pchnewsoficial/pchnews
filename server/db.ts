@@ -100,6 +100,17 @@ export async function listEditorialResearchContexts(articleId:string,accessToken
 }
 
 export async function recordEditorialAgentRun(entry:any,accessToken?:string|null){const db=await getDb(accessToken);if(!db)return {success:false};const {error}=await db.from("editorialAgentRuns").insert(entry);if(error)throw error;return {success:true};}
+export async function recordEditorialFindingDecision(entry:any,accessToken?:string|null){
+  const db=await getDb(accessToken);if(!db)throw new Error("Database unavailable");
+  const {data,error}=await db.from("editorialFindingDecisions").upsert(entry,{onConflict:"agentRunId,findingCode,actorOpenId"}).select().single();
+  if(error)throw error;return data;
+}
+export async function listEditorialFindingDecisions(articleId:string,agentRunId?:string,accessToken?:string|null){
+  const db=await getDb(accessToken);if(!db)return [];
+  let q=db.from("editorialFindingDecisions").select("*").eq("articleId",articleId).order("updatedAtMs",{ascending:false});
+  if(agentRunId)q=q.eq("agentRunId",agentRunId);
+  const {data,error}=await q;if(error)throw error;return data??[];
+}
 export async function listEditorialAgentRuns(articleId:string,accessToken?:string|null){const db=await getDb(accessToken);if(!db)return [];const {data,error}=await db.from("editorialAgentRuns").select("*").eq("articleId",articleId).order("createdAtMs",{ascending:false}).limit(100);if(error)throw error;return data??[];}
 export async function recordFreedomReview(entry:any,accessToken?:string|null){const db=await getDb(accessToken);if(!db)return {success:false};const {error}=await db.from("editorialFreedomReviews").insert(entry);if(error)throw error;return {success:true};}
 export async function listUsers(accessToken?:string|null){const db=await getDb(accessToken);if(!db)return [];const {data,error}=await db.from("users").select("id,openId,name,email,role,lastSignedIn").order("lastSignedIn",{ascending:false});if(error)throw error;return data??[];}
