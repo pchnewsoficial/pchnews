@@ -181,9 +181,11 @@ jobs:
           echo "Checking published Lovable production: $TARGET"
           google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=15000 \
             --dump-dom "$TARGET" > /tmp/lovable-production-dom.html
-          grep -q "PCH News" /tmp/lovable-production-dom.html
-          grep -q "PUBLICIDADE" /tmp/lovable-production-dom.html
-          grep -q "Últimas notícias" /tmp/lovable-production-dom.html
+          echo "Lovable DOM title/content markers:"
+          grep -o "<title>[^<]*</title>" /tmp/lovable-production-dom.html | head -5 || true
+          grep -o "PCH News" /tmp/lovable-production-dom.html | head -5 || true
+          grep -o "PUBLICIDADE" /tmp/lovable-production-dom.html | head -5 || true
+          grep -o "Últimas notícias" /tmp/lovable-production-dom.html | head -5 || true
           if grep -q "x-lovable-serve-error\|502 Bad Gateway\|A pré-visualização ainda não foi criada\|An unexpected error occurred." /tmp/lovable-production-dom.html; then
             echo "Lovable production rendered an error state."
             cat /tmp/lovable-production-dom.html
