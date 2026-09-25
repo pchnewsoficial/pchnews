@@ -1,4 +1,4 @@
-import { ArrowRight, Eye, EyeOff, LockKeyhole, ShieldCheck } from "lucide-react";
+import { ArrowRight, LockKeyhole, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { startLogin } from "@/const";
@@ -11,11 +11,11 @@ const OWNER_EMAIL = "pchnews.oficial@gmail.com";
 export default function Login() {
   const [, navigate] = useLocation();
   const { user, loading, error: authError } = useAuth();
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(OWNER_EMAIL);
   const [sending, setSending] = useState(false);
   const [googleError, setGoogleError] = useState("");
   const [message, setMessage] = useState("");
-  const [showEmail, setShowEmail] = useState(false);
+  const [showGoogle, setShowGoogle] = useState(false);
 
   useEffect(() => {
     if (!loading && user) navigate("/admin");
@@ -24,7 +24,7 @@ export default function Login() {
   const handleGoogle = async () => {
     setGoogleError("");
     const error = await startLogin();
-    if (error) setGoogleError(error.message);
+    if (error) setGoogleError("O login com Google ainda não está habilitado no Supabase. Use o link seguro por e-mail.");
   };
 
   const handleMagicLink = async (event: React.FormEvent) => {
@@ -41,12 +41,20 @@ export default function Login() {
       return;
     }
 
+    const redirectTo = typeof window !== "undefined" ? window.location.origin + "/admin" : undefined;
     const { error } = await supabase.auth.signInWithOtp({
       email: normalized,
-      options: { shouldCreateUser: false },
+      options: {
+        shouldCreateUser: false,
+        ...(redirectTo ? { emailRedirectTo: redirectTo } : {}),
+      },
     });
     setSending(false);
-    setMessage(error ? error.message : "Link de acesso enviado. Confira seu e-mail para continuar.");
+    setMessage(
+      error
+        ? error.message
+        : "Link de acesso enviado. Abra o e-mail no mesmo navegador e você será levado diretamente ao painel administrativo.",
+    );
   };
 
   if (loading && !user) {
@@ -81,42 +89,47 @@ export default function Login() {
           <p>Acesse o painel para publicar, revisar e administrar o PCH News.</p>
         </div>
 
-        <button className="login-google" type="button" onClick={handleGoogle}>
-          <span className="google-mark" aria-hidden="true">G</span>
-          <span>Entrar com Google</span>
-          <ArrowRight size={17} />
+        <form className="login-form" onSubmit={handleMagicLink}>
+          <label>
+            <span>E-MAIL ADMINISTRATIVO</span>
+            <div className="login-input">
+              <LockKeyhole size={16} aria-hidden="true" />
+              <input
+                aria-label="E-mail administrativo"
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="seu e-mail"
+                autoComplete="email"
+                autoFocus
+                required
+              />
+            </div>
+          </label>
+          <button className="login-submit" type="submit" disabled={sending}>
+            <span>{sending ? "Enviando link…" : "Enviar link de acesso"}</span>
+            <ArrowRight size={16} />
+          </button>
+        </form>
+
+        <div className="login-divider"><span>acesso sem senha</span></div>
+
+        <button
+          className="login-email-toggle"
+          type="button"
+          onClick={() => setShowGoogle((value) => !value)}
+          aria-expanded={showGoogle}
+        >
+          <span>{showGoogle ? "Ocultar opções secundárias" : "Outras opções de acesso"}</span>
+          <ArrowRight size={15} />
         </button>
 
-        <div className="login-divider"><span>ou acesso por e-mail</span></div>
-
-        {!showEmail ? (
-          <button className="login-email-toggle" type="button" onClick={() => setShowEmail(true)}>
-            <span>Usar link seguro por e-mail</span><ArrowRight size={15} />
+        {showGoogle && (
+          <button className="login-google" type="button" onClick={handleGoogle}>
+            <span className="google-mark" aria-hidden="true">G</span>
+            <span>Entrar com Google</span>
+            <ArrowRight size={17} />
           </button>
-        ) : (
-          <form className="login-form" onSubmit={handleMagicLink}>
-            <label>
-              <span>E-MAIL ADMINISTRATIVO</span>
-              <div className="login-input">
-                <LockKeyhole size={16} aria-hidden="true" />
-                <input
-                  aria-label="E-mail administrativo"
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  placeholder="seu e-mail"
-                  autoComplete="email"
-                  autoFocus
-                  required
-                />
-                <button type="button" aria-label="Fechar acesso por e-mail" onClick={() => setShowEmail(false)}>×</button>
-              </div>
-            </label>
-            <button className="login-submit" type="submit" disabled={sending}>
-              <span>{sending ? "Enviando link…" : "Enviar link de acesso"}</span>
-              <ArrowRight size={16} />
-            </button>
-          </form>
         )}
 
         {(googleError || authError) && (
@@ -129,7 +142,7 @@ export default function Login() {
           <span><strong>Ambiente editorial protegido</strong><small>Permissões administradas pelo Supabase. Nenhuma senha é armazenada nesta aplicação.</small></span>
         </div>
 
-        <p className="login-support">Problemas para entrar? Use a conta administrativa autorizada ou o convite enviado pela redação.</p>
+        <p className="login-support">Use a conta administrativa autorizada: {OWNER_EMAIL}.</p>
       </section>
 
       <footer className="login-footer">© 2026 PCH News · Notícias para libertar a mente.</footer>
