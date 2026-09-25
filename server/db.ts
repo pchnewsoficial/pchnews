@@ -41,7 +41,7 @@ export async function getUserByOpenId(openId:string, accessToken?: string | null
 }
 export async function getEditorialSnapshot(includePrivate=false, accessToken?: string | null) {
   const db=await getDb(accessToken); if(!db) return {articles:[],comments:[],profiles:[],adRequests:[]};
-  const articlesQ=includePrivate?db.from("articles").select("*"):db.from("articles").select("*").eq("status","published");
+  const articlesQ=includePrivate?db.from("articles").select("*"):db.from("articles").select("*").in("status",["published","updated"]);
   const commentsQ=includePrivate?db.from("comments").select("*"):db.from("comments").select("*").eq("status","approved");
   const [a,c,p,ads]=await Promise.all([
     articlesQ.order("createdAt",{ascending:false}),
