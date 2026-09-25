@@ -5,7 +5,7 @@ import { startLogin } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 
-const LOGO_URL = "/brand/logo.jpg?v=5";
+const LOGO_URL = "/brand/logo.svg?v=20260925-2";
 const OWNER_EMAIL = "pchnews.oficial@gmail.com";
 
 export default function Login() {
@@ -18,7 +18,7 @@ export default function Login() {
   const [showGoogle, setShowGoogle] = useState(false);
 
   useEffect(() => {
-    if (!loading && user) navigate("/admin");
+    if (!loading && user) window.location.assign("/?admin=1");
   }, [loading, user, navigate]);
 
   const handleGoogle = async () => {
@@ -41,7 +41,7 @@ export default function Login() {
       return;
     }
 
-    const redirectTo = typeof window !== "undefined" ? window.location.origin + "/admin" : undefined;
+    const redirectTo = typeof window !== "undefined" ? window.location.origin + "/?admin=1" : undefined;
     const { error } = await supabase.auth.signInWithOtp({
       email: normalized,
       options: {
