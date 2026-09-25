@@ -7,6 +7,9 @@ import superjson from "superjson";
 import App from "./App";
 import { supabase } from "./lib/supabase";
 import "./index.css";
+import { initClarity } from "./lib/clarity";
+
+initClarity();
 
 const queryClient = new QueryClient();
 
