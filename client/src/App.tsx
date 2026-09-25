@@ -23,5 +23,5 @@ function ClarityRouteTracker() {
   return null;
 }
 function Router() { return <Switch><Route path="/" component={Home} /><Route path="/login" component={Login} />
-    <Route path="/perfil" component={Profile} /><Route path="/admin" component={ProtectedAdmin} /><Route path="/admin/integracoes" component={ApiHubAdminPage} /><Route path="/materia/:slug" component={ArticlePage} /><Route path="/colunista/:slug" component={ColumnistProfile} /><Route path="/convite/:token" component={InviteAccept} /><Route path="/404" component={NotFound} /><Route component={NotFound} /></Switch>; }
+    <Route path="/perfil" component={Profile} /><Route path="/perfil/" component={Profile} /><Route path="/admin" component={ProtectedAdmin} /><Route path="/admin/" component={ProtectedAdmin} /><Route path="/admin/integracoes" component={ApiHubAdminPage} /><Route path="/admin/integracoes/" component={ApiHubAdminPage} /><Route path="/materia/:slug" component={ArticlePage} /><Route path="/colunista/:slug" component={ColumnistProfile} /><Route path="/convite/:token" component={InviteAccept} /><Route path="/404" component={NotFound} /><Route component={NotFound} /></Switch>; }
 export default function App() { return <ErrorBoundary><EditorialDataBridge /><ClarityRouteTracker /><TooltipProvider><Toaster /><Router /></TooltipProvider></ErrorBoundary>; }
