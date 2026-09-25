@@ -5,7 +5,7 @@ import { Link, useRoute } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { NewsArticle, readStoredArticles } from "@/lib/news";
 import { ReaderComment } from "@/lib/editorial";
-const LOGO_URL = "/brand/logo.svg";
+const LOGO_URL = "/brand/logo.jpg?v=4";
 const EyeIcon = () => <Eye size={14} />;
 const imageUrl = (article: NewsArticle) => article.sourceUrl ? `https://pch-news.pchnews-oficial.workers.dev/legacy-image/${encodeURIComponent(article.sourceUrl)}` : article.image || LOGO_URL;
 const slugify = (value: string) => value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
