@@ -86,10 +86,11 @@ export const appRouter = router({
         }, ctx.accessToken);
       }
       const result = runEditorialAgent(input.agentId as EditorialAgentId, input.article, researchContext);
+      const runId = `agent-${Date.now()}-${randomBytes(4).toString("hex")}`;
       const db = await getDb(ctx.accessToken);
       if (db) {
         await recordEditorialAgentRun({
-          id: `agent-${Date.now()}-${randomBytes(4).toString("hex")}`,
+          id: runId,
           articleId: input.articleId,
           agentId: result.agentId,
           agentName: result.agentName,
@@ -102,7 +103,7 @@ export const appRouter = router({
         const freedom = result.agentId === "liberdade-editorial" ? result : (result.output as any)?.agents?.find((a: any) => a.agentId === "liberdade-editorial");
         if (freedom) { const r = freedom.output as any; await recordFreedomReview({ id: `freedom-${Date.now()}-${randomBytes(4).toString("hex")}`, articleId: input.articleId, rulesetVersion: r.rulesetVersion, status: freedom.status, score: r.score, contentType: r.contentType, autonomyAnswer: r.autonomy.answer, checksJson: JSON.stringify(r.checks), actorOpenId: ctx.user.openId, createdAtMs: Date.now() }, ctx.accessToken); }
       }
-      return result;
+      return { ...result, runId };
     }),
     history: columnistProcedure.input(z.object({ articleId: z.string().min(1) })).query(({ input, ctx }) => listEditorialAgentRuns(input.articleId, ctx.accessToken)),
     researchHistory: columnistProcedure.input(z.object({ articleId: z.string().min(1) })).query(({ input, ctx }) => listEditorialResearchContexts(input.articleId, ctx.accessToken)),
