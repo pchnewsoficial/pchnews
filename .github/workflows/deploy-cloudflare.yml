@@ -192,6 +192,20 @@ jobs:
             exit 1
           fi
           echo "Lovable production browser rendering verified."
+      - name: Verify Lovable production Admin route
+        run: |
+          set -euo pipefail
+          TARGET="https://pch-news.lovable.app/admin"
+          echo "Checking published Lovable Admin route: $TARGET"
+          google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=15000 \
+            --dump-dom "$TARGET" > /tmp/lovable-admin-dom.html 2>/tmp/lovable-admin-chrome.err || true
+          grep -q "PCH News" /tmp/lovable-admin-dom.html
+          grep -q "ACESSO OFICIAL\|Entre na sua\|redação" /tmp/lovable-admin-dom.html
+          if grep -q "An unexpected error occurred.\|502 Bad Gateway\|Not Found" /tmp/lovable-admin-dom.html; then
+            echo "Lovable /admin rendered an error state."
+            exit 1
+          fi
+          echo "Lovable production /admin rendered the protected login/access UI."
       - name: Deployment summary
         env:
           WORKER_URL: ${{ steps.deploy.outputs.worker_url }}
