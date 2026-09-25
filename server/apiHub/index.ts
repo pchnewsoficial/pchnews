@@ -37,6 +37,7 @@ export async function getNewsRadar(provider: 'mediastack' | 'currents', query?: 
   const data = await fetchJson<any>("https://api.currentsapi.services/v1/latest-news?" + params.toString(), { timeoutMs: 8000, retries: 1 });
   return (data?.news || []).map((item: any) => ({ title: item.title || "", description: item.description || undefined, url: item.url || "", imageUrl: item.image || undefined, publishedAt: item.published || undefined, source: item.author || undefined, language: item.language || "pt" })).filter((item: NormalizedNewsItem) => item.title && item.url);
 }
+
 export type NormalizedChamberProposition = {
   id: number;
   title: string;
@@ -46,12 +47,30 @@ export type NormalizedChamberProposition = {
   url: string;
 };
 
+type ChamberApiProposition = {
+  id?: number;
+  ementa?: string;
+  keywords?: string;
+  siglaTipo?: string;
+  numero?: number;
+  ano?: number;
+  statusProposicao?: { descricao?: string };
+  ultimoStatus?: { descricao?: string };
+  dataApresentacao?: string;
+  uri?: string;
+};
+
+type RankedChamberProposition = {
+  item: ChamberApiProposition;
+  score: number;
+};
+
 export async function getChamberPropositions(query: string): Promise<NormalizedChamberProposition[]> {
-  const raw = await fetchJson<any>("https://dadosabertos.camara.leg.br/api/v2/proposicoes?ordem=DESC&ordenarPor=id&itens=50");
+  const raw = await fetchJson<{ dados?: ChamberApiProposition[] }>("https://dadosabertos.camara.leg.br/api/v2/proposicoes?ordem=DESC&ordenarPor=id&itens=50");
   const items = Array.isArray(raw?.dados) ? raw.dados : [];
   const terms = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(/\W+/).filter((term) => term.length >= 4);
-  const ranked = items.map((item: any) => {
-    const haystack = `${item?.ementa || ""} ${item?.keywords || ""} ${item?.siglaTipo || ""}`.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const ranked: RankedChamberProposition[] = items.map((item) => {
+    const haystack = `${item.ementa || ""} ${item.keywords || ""} ${item.siglaTipo || ""}`.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const score = terms.reduce((total, term) => total + (haystack.includes(term) ? 1 : 0), 0);
     return { item, score };
   }).filter(({ score }) => score > 0).sort((a, b) => b.score - a.score).slice(0, 8);
