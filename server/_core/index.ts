@@ -33,15 +33,22 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
+
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
   app.get("/healthz", (_req, res) => {
-  app.get("/api/hub/health", (_req, res) => res.status(200).json({ providers: getApiHealth() }));
     res.status(200).json({ ok: true, service: "pch-news" });
   });
+
+  app.get("/api/hub/health", (_req, res) => {
+    res.status(200).json({ providers: getApiHealth() });
+  });
+
   registerStorageProxy(app);
   registerOAuthRoutes(app);
+
   // tRPC API
   app.use(
     "/api/trpc",
@@ -50,6 +57,7 @@ async function startServer() {
       createContext,
     })
   );
+
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
@@ -66,6 +74,7 @@ async function startServer() {
     console.error("[PCH Server] listen error:", error);
     process.exitCode = 1;
   });
+
   server.listen(port, "0.0.0.0", () => {
     console.log(`[PCH Server] listening on 0.0.0.0:${port}`);
   });
