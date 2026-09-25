@@ -13,10 +13,10 @@ export function initClarity() {
   const w = window as Window;
   if (!w.clarity) {
     const clarityStub = ((...args: string[]) => {
-      const queue = (clarityStub as typeof clarityStub & { q?: unknown[] });
+      const queue = clarityStub as unknown as { q?: unknown[] };
       queue.q = queue.q || [];
       queue.q.push(args);
-    }) as typeof w.clarity & { q?: unknown[] };
+    }) as unknown as NonNullable<Window["clarity"]> & { q?: unknown[] };
     w.clarity = clarityStub;
   }
   const script = document.createElement('script');
