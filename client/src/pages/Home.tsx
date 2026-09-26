@@ -94,6 +94,8 @@ export default function Home() {
   const lead = carouselStories[safeSlide] || published[0];
   const sideStories = published.filter((article) => article.id !== lead?.id).sort((a, b) => b.views - a.views).slice(0, 3);
 
+  const pilulas = useMemo(() => published.filter((article) => (article.tags || []).some((tag) => tag.toLowerCase().includes("pílula do poeta")) || article.author.toLowerCase().includes("evaldo poeta")).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 6), [published]);
+
   const columnists = useMemo(() => {
     const map = new Map<string, NewsArticle>();
     published.filter((article) => article.author !== "Redação PCH News").forEach((article) => {
@@ -239,6 +241,11 @@ export default function Home() {
         )}
 
         <section className="quote-strip"><div className="container quote-inner"><span className="quote-mark">“</span><p>Conteúdo e interação com responsabilidade, ética e entretenimento.</p><span className="quote-sign">PCH <i>NEWS</i></span></div></section>
+
+        {pilulas.length > 0 && <section className="container pilulas-showcase">
+          <div className="section-heading large-heading"><div><span className="eyebrow">COLUNAS · EVALDO POETA</span><h2>Pílulas do Poeta</h2></div><div className="heading-rule"><span>Últimas publicações</span></div></div>
+          <div className="pilulas-rail">{pilulas.map((article) => <Link href={`/materia/${article.id}`} className="pilula-card" key={article.id}><span className="pilula-card-kicker">PÍLULA DO POETA</span><h3>{article.title}</h3><p>{article.summary || "Uma palavra para pensar, refletir e transformar escolhas."}</p><Meta article={article} /><span className="read-more">Ler pílula <ArrowRight size={14} /></span></Link>)}</div>
+        </section>}
 
         {columnists.length > 0 && <section className="container columnist-showcase">
           <div className="section-heading large-heading"><div><span className="eyebrow">VOZES PCH NEWS · BRASIL</span><h2>Colunistas em destaque</h2></div><div className="heading-rule"><span>Autores e perspectivas</span></div></div>
