@@ -17,7 +17,7 @@ import { ArticleStatus, EDITORIAL_CATEGORIES, EDITORIAL_SCOPES, EDITORIAL_CONTEN
 
 type View = "overview" | "articles" | "pauta" | "media" | "settings" | "profile" | "comments" | "ads" | "stats" | "audit" | "agents" | "apiHub" | "events" | "editorialRequests";
 type AccessUser = { id: number; openId: string; name: string | null; email: string | null; role: "user" | "admin" | "editor" | "journalist" | "columnist" | "reviewer"; lastSignedIn: Date };
-const LOGO_URL = "/brand/pch-news-official-20260926.svg?v=20260927";
+const LOGO_URL = "/brand/pch-news-official-current.svg?v=20260927";
 const slugify = (value: string) => value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
 type Draft = Pick<NewsArticle, "title" | "category" | "author" | "summary" | "image" | "status" | "bodyHtml" | "scope" | "region" | "state" | "country" | "language" | "featured" | "slug" | "seoTitle" | "metaDescription" | "canonicalUrl" | "focusKeyword" | "ogTitle" | "ogDescription" | "imageAlt" | "noindex"> & { contentType: NonNullable<NewsArticle["contentType"]>; editorialChecklist: NonNullable<NewsArticle["editorialChecklist"]>; editorialNotes: string; contraponto: string; keyTakeaway: string; scheduledAt: string; tagsInput: string; youtubeUrl: string; socialLinks: { instagram: string; facebook: string; x: string; linkedin: string; tiktok: string; website: string } };
