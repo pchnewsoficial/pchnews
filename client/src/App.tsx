@@ -15,6 +15,8 @@ import NotFound from "./pages/NotFound";
 import Institutional from "./pages/Institutional";
 import PublicAds from "./pages/PublicAds";
 import LawNews from "./pages/LawNews";
+import PrivacyConsent from "./components/PrivacyConsent";
+import { PrivacyPage, TermsPage, CookiesPage, PartnersPage } from "./pages/LegalPages";
 import EditorialDataBridge from "./components/EditorialDataBridge";
 import { useEffect } from "react";
 import { clarityEvent } from "./lib/clarity";
@@ -29,5 +31,9 @@ function HomeOrAdmin() {
   return <Home />;
 }
 function Router() { return <Switch><Route path="/" component={HomeOrAdmin} /><Route path="/login" component={Login} />
-    <Route path="/perfil" component={Profile} /><Route path="/perfil/" component={Profile} /><Route path="/admin" component={ProtectedAdmin} /><Route path="/admin/" component={ProtectedAdmin} /><Route path="/admin/integracoes" component={ApiHubAdminPage} /><Route path="/admin/integracoes/" component={ApiHubAdminPage} /><Route path="/materia/:slug" component={ArticlePage} /><Route path="/colunista/:slug" component={ColumnistProfile} /><Route path="/convite/:token" component={InviteAccept} /><Route path="/institucional" component={Institutional} /><Route path="/institucional/" component={Institutional} /><Route path="/anuncie" component={PublicAds} /><Route path="/anuncie/" component={PublicAds} /><Route path="/lei" component={LawNews} /><Route path="/lei/" component={LawNews} /><Route path="/404" component={NotFound} /><Route component={NotFound} /></Switch>; }
-export default function App() { return <ErrorBoundary><EditorialDataBridge /><ClarityRouteTracker /><TooltipProvider><Toaster /><Router /></TooltipProvider></ErrorBoundary>; }
+    <Route path="/perfil" component={Profile} /><Route path="/perfil/" component={Profile} /><Route path="/admin" component={ProtectedAdmin} /><Route path="/admin/" component={ProtectedAdmin} /><Route path="/admin/integracoes" component={ApiHubAdminPage} /><Route path="/admin/integracoes/" component={ApiHubAdminPage} /><Route path="/materia/:slug" component={ArticlePage} /><Route path="/colunista/:slug" component={ColumnistProfile} /><Route path="/convite/:token" component={InviteAccept} /><Route path="/institucional" component={Institutional} /><Route path="/institucional/" component={Institutional} /><Route path="/anuncie" component={PublicAds} /><Route path="/anuncie/" component={PublicAds} /><Route path="/lei" component={LawNews} /><Route path="/lei/" component={LawNews} />
+    <Route path="/privacidade" component={PrivacyPage} /><Route path="/privacidade/" component={PrivacyPage} />
+    <Route path="/termos" component={TermsPage} /><Route path="/termos/" component={TermsPage} />
+    <Route path="/cookies" component={CookiesPage} /><Route path="/cookies/" component={CookiesPage} />
+    <Route path="/parceiros" component={PartnersPage} /><Route path="/parceiros/" component={PartnersPage} /><Route path="/404" component={NotFound} /><Route component={NotFound} /></Switch>; }
+export default function App() { return <ErrorBoundary><EditorialDataBridge /><ClarityRouteTracker /><TooltipProvider><Toaster /><PrivacyConsent /><Router /></TooltipProvider></ErrorBoundary>; }
