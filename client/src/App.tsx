@@ -19,7 +19,7 @@ import LawNews from "./pages/LawNews";
 import PrivacyConsent from "./components/PrivacyConsent";
 import { PrivacyPage, TermsPage, CookiesPage, PartnersPage } from "./pages/LegalPages";
 import EditorialDataBridge from "./components/EditorialDataBridge";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { clarityEvent } from "./lib/clarity";
 function ProtectedAdmin() { const { user, loading, error } = useAuth(); if (loading) return <div className="app-loading">Carregando acesso seguro…</div>; if (!user) return <Login />; if (error) return <div className="article-placeholder"><span className="admin-kicker">FALHA DE AUTENTICAÇÃO</span><h1>Não foi possível validar sua sessão.</h1><p>O acesso ao painel está disponível, mas a sessão ainda não pôde ser confirmada pelo servidor.</p><button className="primary-cta" onClick={() => window.location.reload()}>Tentar novamente</button></div>; if (!("admin" === user.role || "columnist" === user.role)) return <div className="article-placeholder"><span className="admin-kicker">ACESSO RESTRITO</span><h1>Seu acesso ainda não foi liberado.</h1><p>Peça ao administrador do PCH News para transformar sua conta em colunista.</p><button className="primary-cta" onClick={() => window.location.assign("/login")}>Voltar ao acesso</button></div>; return <Admin />; }
 function NavigationEnhancements() {
