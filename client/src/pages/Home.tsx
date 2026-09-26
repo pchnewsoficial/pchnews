@@ -8,7 +8,13 @@ import PublicFooter from "@/components/PublicFooter";
 
 const LOGO_URL = "/brand/pch-news-official-current.svg?v=20260927";
 const LOGO_FALLBACK_URL = "/brand/pch-news-official-current.svg?v=20260927";
-const imageUrl = (article: NewsArticle) => article.sourceUrl ? `https://pch-news.pchnews-oficial.workers.dev/legacy-image/${encodeURIComponent(article.sourceUrl)}` : article.image || LOGO_URL;
+const imageUrl = (article: NewsArticle) => {
+  if (article.image) return article.image;
+  if (article.sourceUrl?.startsWith("https://pchnews.hostingpress.com.br/materia/")) {
+    return `https://pch-news.pchnews-oficial.workers.dev/legacy-image/${encodeURIComponent(article.sourceUrl)}`;
+  }
+  return LOGO_URL;
+};
 const categories = ["Todas", "Brasil", "Regiões", "Política", "Economia", "Internacional"];
 const moreCategories = EDITORIAL_CATEGORIES.filter((category) => !categories.includes(category));
 
