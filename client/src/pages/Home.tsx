@@ -36,6 +36,7 @@ export default function Home() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [activeSlide, setActiveSlide] = useState(0);
+  const [activeAdSlide, setActiveAdSlide] = useState(0);
   const [now, setNow] = useState(() => new Date());
   const [coordinates, setCoordinates] = useState<{ latitude: number; longitude: number } | null>(null);
 
@@ -103,6 +104,17 @@ export default function Home() {
   }, [published]);
 
   useEffect(() => setActiveSlide(0), [activeCategory, activeTopic, query]);
+
+  const adSlides = [
+    { eyebrow: "PCH NEWS • MÍDIA ESTRATÉGICA", title: "Sua marca pode ser", emphasis: "a próxima notícia.", text: "Apresente sua empresa, produto ou serviço para uma audiência que busca informação.", cta: "ANUNCIE NO PCH NEWS" },
+    { eyebrow: "PUBLICIDADE", title: "Sua campanha no", emphasis: "lugar certo.", text: "Home, editorias, patrocínios e projetos especiais com identificação clara.", cta: "CONHEÇA OS FORMATOS" },
+    { eyebrow: "REDE PCH NEWS", title: "Conecte sua marca ao", emphasis: "jornalismo digital.", text: "Planeje presença por período e, futuramente, por região, cidade e dispositivo.", cta: "FALE COM O PCH NEWS" },
+  ];
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setActiveAdSlide((current) => (current + 1) % adSlides.length), 6000);
+    return () => window.clearInterval(timer);
+  }, [adSlides.length]);
 
   useEffect(() => {
     if (carouselStories.length < 2) return;
@@ -175,10 +187,16 @@ export default function Home() {
       </header>
 
       <main>
-        <section className="container ad-banner" id="anuncie">
-          <div className="ad-copy"><span className="ad-tag">PUBLICIDADE</span><span className="eyebrow gold">PCH NEWS • MÍDIA ESTRATÉGICA</span><h1>Sua marca pode ser<br /><em>a próxima notícia.</em></h1><p>Apresente sua empresa, produto ou serviço para uma audiência que busca informação.</p><Link className="gold-button" href="/anuncie">ANUNCIE NO PCH NEWS <ArrowRight size={16} /></Link></div>
-          <div className="ad-device"><div className="device-top"><span /><span /><span /></div><div className="device-content"><div className="device-logo">PCH<br /><small>NEWS</small></div><div className="device-lines"><i /><i /><i /><i /></div><div className="device-cards"><b /><b /><b /></div></div></div>
-          <div className="ad-side">Sua marca não precisa interromper a notícia.<strong>Ela pode ser<br />a notícia.</strong><span>◉</span></div>
+        <section className="container ad-banner ad-carousel" id="anuncie" aria-roledescription="carousel" aria-label="Publicidade PCH News" onMouseEnter={(event) => event.currentTarget.dataset.paused = "true"} onMouseLeave={(event) => delete event.currentTarget.dataset.paused}>
+          <div className="ad-carousel-track" style={{ transform: `translateX(-${activeAdSlide * 100}%)` }}>
+            {adSlides.map((slide) => <div className="ad-slide" key={slide.title}>
+              <div className="ad-copy"><span className="ad-tag">{slide.eyebrow}</span><h1>{slide.title}<br /><em>{slide.emphasis}</em></h1><p>{slide.text}</p><Link className="gold-button" href="/anuncie">{slide.cta} <ArrowRight size={16} /></Link></div>
+              <div className="ad-device"><div className="device-top"><span /><span /><span /></div><div className="device-content"><div className="device-logo">PCH<br /><small>NEWS</small></div><div className="device-lines"><i /><i /><i /><i /></div><div className="device-cards"><b /><b /><b /></div></div></div>
+              <div className="ad-side"><span>PUBLICIDADE</span><strong>{String(activeAdSlide + 1).padStart(2, "0")} / {String(adSlides.length).padStart(2, "0")}</strong><small>Peça comercial identificada.</small></div>
+            </div>)}
+          </div>
+          <div className="ad-carousel-controls"><button type="button" aria-label="Publicidade anterior" onClick={() => setActiveAdSlide((current) => (current - 1 + adSlides.length) % adSlides.length)}><ArrowLeft size={16} /></button><div className="ad-carousel-dots">{adSlides.map((slide, index) => <button type="button" key={slide.title} aria-label={`Ir para peça ${index + 1}`} className={index === activeAdSlide ? "active" : ""} onClick={() => setActiveAdSlide(index)} />)}</div><button type="button" aria-label="Próxima publicidade" onClick={() => setActiveAdSlide((current) => (current + 1) % adSlides.length)}><ArrowRight size={16} /></button></div>
+          <div className="ad-progress" aria-hidden="true"><span key={activeAdSlide} /></div>
         </section>
 
         {lead ? (
@@ -264,11 +282,11 @@ export default function Home() {
             <div className="heading-rule"><span>Distribuição e conexão editorial</span></div>
           </div>
           <div className="partners-grid">
-            <a className="partner-card" href="https://pchnews.hostingpress.com.br" target="_blank" rel="noreferrer">
+            <Link className="partner-card" href="/parceiros">
               <span className="partner-mark">HP</span>
               <div><strong>HostingPRESS</strong><p>Portal de origem e infraestrutura parceira do PCH News.</p></div>
               <ArrowRight size={18} />
-            </a>
+            </Link>
             <div className="partner-card partner-card-next">
               <span className="partner-mark">+</span>
               <div><strong>Novos parceiros</strong><p>Este espaço já está preparado para receber os próximos portais parceiros.</p></div>
