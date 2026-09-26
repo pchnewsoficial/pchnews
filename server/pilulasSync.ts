@@ -1,0 +1,106 @@
+import { saveArticle } from "./db";
+
+const SOURCE = "https://pchnews.hostingpress.com.br";
+const USER_AGENT = "PCH-News-Pilulas-Sync/1.0";
+
+function decodeHtml(value: string) {
+  return value.replace(/&nbsp;/gi, " ").replace(/&amp;/gi, "&").replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'").replace(/&lt;/gi, "<").replace(/&gt;/gi, ">")
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCharCode(parseInt(n, 16)));
+}
+function stripTags(value: string) {
+  return decodeHtml(value.replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<style[\s\S]*?<\/style>/gi, "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
+}
+function absoluteUrl(value: string) {
+  try { return new URL(value, SOURCE).toString(); } catch { return ""; }
+}
+function extractLinks(html: string) {
+  const links = new Set<string>();
+  const re = /href\s*=\s*["']([^"']*\/materia\/[^"']+)["']/gi;
+  for (const match of html.matchAll(re)) {
+    const url = absoluteUrl(decodeHtml(match[1]));
+    if (url.startsWith(SOURCE + "/materia/")) links.add(url.split("#")[0]);
+  }
+  return Array.from(links);
+}
+function jsonLd(html: string) {
+  for (const match of html.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
+    try {
+      const parsed = JSON.parse(match[1].trim());
+      const values = Array.isArray(parsed) ? parsed : [parsed];
+      for (const value of values) if (value?.articleBody || value?.headline || value?.datePublished) return value;
+    } catch {}
+  }
+  return null;
+}
+function meta(html: string, key: string, property = false) {
+  const attr = property ? "property" : "name";
+  const re = new RegExp("<meta[^>]+" + attr + "=[\\\"']" + key + "[\\\"'][^>]+content=[\\\"']([^\\\"']*)[\\\"'][^>]*>", "i");
+  const match = re.exec(html);
+  return match?.[1] ? decodeHtml(match[1]) : "";
+}
+function escapeHtml(value: string) {
+  return value.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c] || c));
+}
+function toBodyHtml(text: string) {
+  return text.split(/\n{2,}/).map((part) => part.trim()).filter(Boolean).slice(0, 120)
+    .map((part) => "<p>" + escapeHtml(part) + "</p>").join("");
+}
+function dateFromText(value: string) {
+  const m = value.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+  return m ? m[3] + "-" + m[2] + "-" + m[1] : new Date().toISOString().slice(0, 10);
+}
+
+export async function syncHostingPressPilulas(accessToken?: string | null) {
+  const homeResponse = await fetch(SOURCE + "/", { headers: { "user-agent": USER_AGENT }, redirect: "follow" });
+  if (!homeResponse.ok) throw new Error("HostingPRESS respondeu HTTP " + homeResponse.status + ".");
+  const home = await homeResponse.text();
+  const links = extractLinks(home).slice(0, 30);
+  if (!links.length) throw new Error("Nenhuma matéria /materia/ foi encontrada na fonte HostingPRESS.");
+
+  const imported: string[] = [];
+  for (const url of links) {
+    try {
+      const response = await fetch(url, { headers: { "user-agent": USER_AGENT }, redirect: "follow" });
+      if (!response.ok) continue;
+      const html = await response.text();
+      const lower = html.toLowerCase();
+      if (!lower.includes("pílula do poeta") || !lower.includes("evaldo poeta")) continue;
+      const ld = jsonLd(html) as any;
+      const headline = stripTags(ld?.headline || meta(html, "og:title", true) || /<h1[^>]*>([\s\S]*?)<\/h1>/i.exec(html)?.[1] || "");
+      if (!headline) continue;
+      const description = stripTags(ld?.description || meta(html, "description") || meta(html, "og:description", true) || "");
+      const date = typeof ld?.datePublished === "string" ? ld.datePublished.slice(0, 10) : dateFromText(stripTags(html));
+      const articleBody = typeof ld?.articleBody === "string" ? ld.articleBody.trim() : "";
+      const bodyHtml = articleBody ? toBodyHtml(articleBody) : (description ? "<p>" + escapeHtml(description) + "</p>" : "<p>Conteúdo sincronizado da fonte editorial.</p>");
+      const slug = url.split("/materia/")[1]?.replace(/\/$/, "") || headline.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      await saveArticle({
+        id: "hostingpress-pilula-" + slug,
+        title: headline,
+        category: "Colunas",
+        author: "Evaldo Poeta",
+        authorOpenId: null,
+        summary: description || headline,
+        date,
+        updated: new Date().toISOString(),
+        status: "published",
+        views: 0,
+        image: "",
+        bodyHtml,
+        tags: ["Pílula do Poeta", "Evaldo Poeta", "reflexão"],
+        scope: "national",
+        language: "pt-BR",
+        featured: true,
+        sourceUrl: url,
+        sourceName: "PCH News / HostingPRESS",
+        slug,
+      }, accessToken);
+      imported.push(headline);
+    } catch (error) {
+      console.warn("[PCH] Pílula sync skipped:", url, error);
+    }
+  }
+  if (!imported.length) throw new Error("A fonte respondeu, mas nenhuma Pílula do Poeta de Evaldo Poeta pôde ser importada.");
+  return { success: true, imported, count: imported.length, source: SOURCE };
+}
