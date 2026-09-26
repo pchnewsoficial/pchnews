@@ -21,7 +21,7 @@ export default function Login() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    if (!loading && user && !resetPasswordMode) window.location.assign("/admin");
+    if (!loading && user && !resetPasswordMode) window.location.assign("/?admin=1");
   }, [loading, user, resetPasswordMode, navigate]);
 
   useEffect(() => {
@@ -59,7 +59,7 @@ export default function Login() {
       );
       return;
     }
-    window.location.assign("/admin");
+    window.location.assign("/?admin=1");
   };
 
   const handleForgotPassword = async () => {
@@ -99,7 +99,7 @@ export default function Login() {
     // Keep the magic-link callback on the exact host where the login started.
     // This avoids sending production users to the Lovable preview/published host.
     const redirectTo = typeof window !== "undefined"
-      ? window.location.origin + "/admin"
+      ? window.location.origin + "/?admin=1"
       : undefined;
     const { error } = await supabase.auth.signInWithOtp({
       email: normalized,
