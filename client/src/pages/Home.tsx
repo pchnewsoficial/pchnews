@@ -101,13 +101,17 @@ export default function Home() {
   const pilulas = useMemo(() => published.filter((article) => (article.tags || []).some((tag) => tag.toLowerCase().includes("pílula do poeta")) || article.author.toLowerCase().includes("evaldo poeta")).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 6), [published]);
 
   const columnists = useMemo(() => {
-    const map = new Map<string, NewsArticle>();
-    published.filter((article) => article.author !== "Redação PCH News").forEach((article) => {
-      const current = map.get(article.author);
-      if (!current || article.views > current.views) map.set(article.author, article);
-    });
-    return Array.from(map.values()).sort((a, b) => b.views - a.views).slice(0, 6);
-  }, [published]);
+    const profiles = Array.isArray(remoteEditorial?.profiles) ? remoteEditorial.profiles as any[] : [];
+    return profiles
+      .map((profile) => {
+        const stories = published.filter((article) => article.author === profile.name);
+        const featured = [...stories].sort((a, b) => b.views - a.views)[0];
+        return { profile, featured, publicationCount: stories.length };
+      })
+      .filter((item) => item.profile?.name)
+      .sort((a, b) => (Number(Boolean(b.featured)) - Number(Boolean(a.featured))) || ((b.featured?.views || 0) - (a.featured?.views || 0)))
+      .slice(0, 6);
+  }, [published, remoteEditorial?.profiles]);
 
   useEffect(() => setActiveSlide(0), [activeCategory, activeTopic, query]);
 
@@ -252,12 +256,12 @@ export default function Home() {
           <div className="pilulas-rail">{pilulas.map((article) => <Link href={`/materia/${article.id}`} className="pilula-card" key={article.id}><span className="pilula-card-kicker">PÍLULA DO POETA</span><h3>{article.title}</h3><p>{article.summary || "Uma palavra para pensar, refletir e transformar escolhas."}</p><Meta article={article} /><span className="read-more">Ler pílula <ArrowRight size={14} /></span></Link>)}</div>
         </section>}
 
-        {columnists.length > 0 && <section className="container columnist-showcase">
-          <div className="section-heading large-heading"><div><span className="eyebrow">VOZES PCH NEWS · BRASIL</span><h2>Colunistas em destaque</h2></div><div className="heading-rule"><span>Autores e perspectivas</span></div></div>
+        {columnists.length > 0 && <section className="container columnist-showcase" id="colunistas">
+          <div className="section-heading large-heading"><div><span className="eyebrow">VOZES PCH NEWS · BRASIL</span><h2>Colunistas em destaque</h2></div><div className="heading-rule"><span>Perfis, publicações e perspectivas</span></div></div>
           <div className="columnist-rail">
-            {columnists.map((article) => <Link href={`/colunista/${slugify(article.author)}`} className="columnist-card" key={article.author}>
-              <div className="columnist-card-image"><img src={imageUrl(article)} alt="" onError={(event) => { event.currentTarget.src = article.image || LOGO_URL; }} /><span><UserRound size={13} /> Colunista</span></div>
-              <div className="columnist-card-copy"><strong>{article.author}</strong><small>{article.category} · {article.views.toLocaleString("pt-BR")} views na publicação em destaque</small><h3>{article.title}</h3></div>
+            {columnists.map(({ profile, featured, publicationCount }) => <Link href={`/colunista/${profile.slug}`} className="columnist-card" key={profile.slug}>
+              <div className="columnist-card-image"><img src={profile.photo || LOGO_URL} alt={profile.name} onError={(event) => { event.currentTarget.src = LOGO_URL; }} /><span><UserRound size={13} /> Colunista</span></div>
+              <div className="columnist-card-copy"><strong>{profile.name}</strong><small>{profile.beat} · {publicationCount} {publicationCount === 1 ? "publicação" : "publicações"}</small><p>{profile.bio}</p>{featured ? <><h3>{featured.title}</h3><span className="read-more">Ler coluna <ArrowRight size={14} /></span></> : <span className="read-more">Ver perfil <ArrowRight size={14} /></span>}</div>
             </Link>)}
           </div>
         </section>}
