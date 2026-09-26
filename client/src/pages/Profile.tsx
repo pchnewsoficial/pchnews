@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 
-const LOGO_URL = "/brand/pch-news-official-20260926.svg?v=20260926";
+const LOGO_URL = "/brand/pch-news-official-current.svg?v=20260926";
 
 export default function Profile() {
   const [, navigate] = useLocation();
