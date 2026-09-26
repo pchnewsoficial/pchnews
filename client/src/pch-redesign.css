@@ -35,6 +35,24 @@ body { background: var(--pch-paper) !important; color: var(--pch-ink) !important
 .header-motto {
   display:none !important;
 }
+.header-live-info {
+  display:flex !important;
+  align-items:center !important;
+  gap:14px !important;
+  margin-left:auto !important;
+  color:#fff !important;
+  font-family:'DM Sans',sans-serif !important;
+  font-size:12px !important;
+  font-weight:800 !important;
+  white-space:nowrap !important;
+}
+.header-live-item {
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:6px !important;
+  color:#f3f5f7 !important;
+}
+.header-live-item svg { color:var(--pch-gold) !important; }
 .header-actions { margin-left:auto !important; gap:14px !important; }
 .header-actions .profile-link,
 .header-actions .admin-link { display:none !important; }
@@ -306,6 +324,8 @@ main { padding-top:18px !important; }
   .header-main { padding:0 20px !important; height:84px !important; }
   .official-logo { width:70px !important; height:70px !important; }
   .header-motto { display:none !important; }
+  .header-live-info { gap:9px !important; font-size:11px !important; }
+  .header-live-item { gap:4px !important; }
   .primary-nav { padding:0 20px !important; gap:18px !important; overflow-x:auto !important; }
   .lead-layout { grid-template-columns:1fr !important; padding:0 20px !important; }
   .lead-carousel,.lead-story { height:480px !important; }
@@ -316,6 +336,7 @@ main { padding-top:18px !important; }
 @media (max-width: 640px) {
   .header-main { padding:0 14px !important; }
   .brand-lockup { min-width:0 !important; }
+  .header-live-info { display:none !important; }
   .official-logo { width:155px !important; }
   .mobile-only { display:inline-flex !important; }
   .primary-nav { padding:0 14px !important; }
