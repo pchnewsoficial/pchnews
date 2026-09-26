@@ -5,9 +5,15 @@ import { Link, useRoute } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { NewsArticle } from "@/lib/news";
 import { ReaderComment } from "@/lib/editorial";
-const LOGO_URL = "/brand/pch-news-official-20260926.svg?v=20260927";
+const LOGO_URL = "/brand/pch-news-official-current.svg?v=20260927";
 const EyeIcon = () => <Eye size={14} />;
-const imageUrl = (article: NewsArticle) => article.sourceUrl ? `https://pch-news.pchnews-oficial.workers.dev/legacy-image/${encodeURIComponent(article.sourceUrl)}` : article.image || LOGO_URL;
+const imageUrl = (article: NewsArticle) => {
+  if (article.image) return article.image;
+  if (article.sourceUrl?.startsWith("https://pchnews.hostingpress.com.br/materia/")) {
+    return `/legacy-image/${encodeURIComponent(article.sourceUrl)}`;
+  }
+  return LOGO_URL;
+};
 const slugify = (value: string) => value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 function youtubeEmbed(url?: string | null) {
   if (!url?.trim()) return null;
