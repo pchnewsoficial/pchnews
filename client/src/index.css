@@ -485,17 +485,9 @@ button { border: 0; }
 
 
 /* PCH News — responsive navigation layer */
-.page-float-actions{position:fixed;right:18px;bottom:22px;z-index:80;display:flex;flex-direction:column;gap:7px}
-.page-float-actions button{width:40px;height:40px;display:grid;place-items:center;border:1px solid rgba(7,27,41,.16);border-radius:50%;background:rgba(255,255,255,.94);color:#071b29;box-shadow:0 7px 22px rgba(7,27,41,.16);backdrop-filter:blur(8px);transition:transform .18s ease,background .18s ease}
-.page-float-actions button:hover{transform:translateY(-2px);background:#071b29;color:#fff}
-.mobile-quick-bar,.mobile-quick-menu{display:none}
+
+
+
+
 @media(max-width:640px){
-  .page-float-actions{right:12px;bottom:76px;gap:5px}.page-float-actions button{width:36px;height:36px}
-  .mobile-quick-bar{position:fixed;display:grid;grid-template-columns:repeat(4,1fr);left:10px;right:10px;bottom:10px;z-index:90;padding:7px;border:1px solid rgba(7,27,41,.14);border-radius:16px;background:rgba(7,27,41,.96);box-shadow:0 12px 35px rgba(0,0,0,.24);backdrop-filter:blur(12px)}
-  .mobile-quick-bar button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:46px;background:transparent;color:#fff;font-size:9px;font-weight:700}
-  .mobile-quick-bar button:first-child{color:#f2b90b}
-  .mobile-quick-menu{position:fixed;right:12px;bottom:76px;z-index:91;display:grid;min-width:190px;overflow:hidden;border:1px solid rgba(7,27,41,.14);border-radius:12px;background:#fff;box-shadow:0 12px 35px rgba(0,0,0,.22)}
-  .mobile-quick-menu button{display:flex;align-items:center;gap:10px;padding:13px 15px;background:#fff;color:#071b29;text-align:left;font-size:13px;font-weight:700;border-bottom:1px solid #e6e9eb}
-  .mobile-quick-menu button:last-child{border-bottom:0}
-  .site-footer{padding-bottom:82px!important}
-}
+  
