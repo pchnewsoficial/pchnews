@@ -29,7 +29,9 @@ export default function Home() {
   const [articles, setArticles] = useState<NewsArticle[]>(() => readStoredArticles());
   const { data: remoteEditorial } = trpc.editorial.bootstrap.useQuery(undefined, { retry: false });
   const [activeCategory, setActiveCategory] = useState("Todas");
+  const [activeTopic, setActiveTopic] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [activeSlide, setActiveSlide] = useState(0);
@@ -64,6 +66,8 @@ export default function Home() {
     setArticles(normalized);
   }, [remoteEditorial]);
 
+  const weatherTemperature = (headerWeather.data as { current?: { temperature_2m?: number } } | undefined)?.current?.temperature_2m;
+
   const published = useMemo(() => articles.filter((article) => {
     if (!["published", "updated"].includes(article.status)) return false;
     if (!article.scheduledAt) return true;
@@ -97,13 +101,13 @@ export default function Home() {
     return Array.from(map.values()).sort((a, b) => b.views - a.views).slice(0, 6);
   }, [published]);
 
-  useEffect(() => setActiveSlide(0), [activeCategory, query]);
+  useEffect(() => setActiveSlide(0), [activeCategory, activeTopic, query]);
 
   useEffect(() => {
     if (carouselStories.length < 2) return;
     const timer = window.setInterval(() => setActiveSlide((current) => (current + 1) % carouselStories.length), 6500);
     return () => window.clearInterval(timer);
-  }, [carouselStories.length, activeCategory, query]);
+  }, [carouselStories.length, activeCategory, activeTopic, query]);
 
   const goToSlide = (direction: number) => {
     if (!carouselStories.length) return;
@@ -142,7 +146,7 @@ export default function Home() {
             </div>
             <div className="header-live-item" title={coordinates ? "Clima da sua localização" : "Autorize a localização para consultar o clima"}>
               {coordinates ? <Thermometer size={15} aria-hidden="true" /> : <MapPin size={15} aria-hidden="true" />}
-              <span>{headerWeather.data?.current?.temperature_2m != null ? `${Math.round(Number(headerWeather.data.current.temperature_2m))}°C` : coordinates ? "Clima..." : "Localização"}</span>
+              <span>{weatherTemperature != null ? `${Math.round(Number(weatherTemperature))}°C` : coordinates ? "Clima..." : "Localização"}</span>
             </div>
           </div>
           <div className="header-actions">
