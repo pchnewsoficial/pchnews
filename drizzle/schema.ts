@@ -1,4 +1,4 @@
-export type UserRole = "user" | "admin" | "columnist";
+export type UserRole = "user" | "admin" | "editor" | "journalist" | "columnist" | "reviewer";
 export type ArticleStatus = "published" | "draft" | "review" | "revised" | "approved" | "scheduled" | "updated" | "archived";
 export type CommentStatus = "pending" | "approved" | "rejected";
 export type ReviewStatus = "pass" | "review" | "block";
