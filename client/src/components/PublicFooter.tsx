@@ -8,7 +8,7 @@ export default function PublicFooter() {
     <footer className="site-footer">
       <div className="container footer-inner">
         <div className="footer-brand-block">
-          <img className="footer-logo" src={LOGO_URL} alt="PCH News" />
+          <img className="footer-logo" src={LOGO_URL} alt="PCH News" decoding="async" />
           <div>
             <strong>PCH News</strong>
             <p>Jornalismo nacional, pensamento amplo.</p>
