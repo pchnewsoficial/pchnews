@@ -35,7 +35,7 @@ function slugify(value: string) {
 export default function Home() {
   // Supabase is the only source of editorial content. Do not seed or read articles from browser storage.
   const [articles, setArticles] = useState<NewsArticle[]>([]);
-  const { data: remoteEditorial } = trpc.editorial.bootstrap.useQuery(undefined, { retry: false });
+  const { data: remoteEditorial, isLoading: editorialLoading, error: editorialError, refetch: refetchEditorial } = trpc.editorial.bootstrap.useQuery(undefined, { retry: 2, retryDelay: 1200, staleTime: 15_000 });
   const [activeCategory, setActiveCategory] = useState("Todas");
   const [activeTopic, setActiveTopic] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -78,6 +78,21 @@ export default function Home() {
 
   const eventCarousel = trpc.events.carousel.useQuery({ limit: 6 }, { retry: false, staleTime: 60 * 1000 });
   const weatherTemperature = (headerWeather.data as { current?: { temperature_2m?: number } } | undefined)?.current?.temperature_2m;
+
+  if (editorialError && articles.length === 0) {
+    return (
+      <div className="site-shell">
+        <main className="article-placeholder" role="alert">
+          <span className="admin-kicker">PCH NEWS</span>
+          <h1>Não foi possível carregar as notícias agora.</h1>
+          <p>{editorialError.message || "A conexão com a redação está temporariamente indisponível."}</p>
+          <button className="primary-cta" onClick={() => void refetchEditorial()} disabled={editorialLoading}>
+            {editorialLoading ? "Tentando novamente…" : "Tentar novamente"}
+          </button>
+        </main>
+      </div>
+    );
+  }
 
   const published = useMemo(() => articles.filter((article) => {
     if (!["published", "updated"].includes(article.status)) return false;
