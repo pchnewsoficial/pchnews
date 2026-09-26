@@ -10,6 +10,7 @@ import { storagePut, storageList } from "./storage";
 import { sendInviteEmail, smtpConfigured } from "./email";
 import { ENV } from "./_core/env";
 import { recordFreedomReview } from "./db";
+// Production build guard: keep editorial event routes type-safe.
 import { runEditorialAgent, type EditorialAgentId } from "./editorialAgents";
 import { getApiHealth, getBcbSeries, getNewsRadar, getWeather, geocodeBrazil, getIbgeMunicipalities } from "./apiHub";
 import { collectEditorialResearchContext } from "./apiHub/editorialContext";
