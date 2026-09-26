@@ -5,6 +5,8 @@ type Env = {
   SUPABASE_URL: string;
   SUPABASE_SERVICE_ROLE_KEY?: string;
   SUPABASE_SECRET_KEY?: string;
+  SUPABASE_PUBLISHABLE_KEY?: string;
+  SUPABASE_ANON_KEY?: string;
   PCH_ADMIN_EMAILS?: string;
 };
 
@@ -67,12 +69,50 @@ async function currentUser(request: Request, env: Env, required = false) {
 
 async function handleProcedure(path: string, request: Request, env: Env, input: any) {
   const adminKey = env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SECRET_KEY;
-  if (!env.SUPABASE_URL || !adminKey) throw new Error("Supabase server secrets are not configured.");
-  const db = createClient(env.SUPABASE_URL, adminKey, { auth: { persistSession: false, autoRefreshToken: false } });
+  const publicKey = env.SUPABASE_PUBLISHABLE_KEY || env.SUPABASE_ANON_KEY;
+  const hasAdminDb = Boolean(env.SUPABASE_URL && adminKey);
+  const hasPublicDb = Boolean(env.SUPABASE_URL && publicKey);
   const STAFF_ROLES = ["admin", "editor", "journalist", "columnist", "reviewer"] as const;
   const CONTENT_EDIT_ROLES = ["admin", "editor", "journalist", "columnist"] as const;
 
   if (path === "auth.me") return await currentUser(request, env);
+
+  // The public homepage must remain readable even when the private Worker secret
+  // has not yet been configured. It uses only RLS-protected public rows here.
+  if (path === "editorial.bootstrap") {
+    if (!env.SUPABASE_URL || (!adminKey && !publicKey)) throw new Error("Supabase public configuration is not available.");
+    let user = null;
+    if (adminKey) user = await currentUser(request, env);
+    const staff = Boolean(user && STAFF_ROLES.includes(user.role as typeof STAFF_ROLES[number]));
+    const db = createClient(env.SUPABASE_URL, staff || adminKey ? adminKey! : publicKey!, { auth: { persistSession: false, autoRefreshToken: false } });
+    const now = Date.now();
+    const publicArticleColumns = "id,title,category,author,summary,date,updated,status,views,image,bodyHtml,scheduledAt,tags,youtubeUrl,socialLinks,slug,seoTitle,metaDescription,canonicalUrl,focusKeyword,ogTitle,ogDescription,imageAlt,noindex,createdAt,updatedAt,scope,region,state,country,language,featured,sourceUrl,sourceName,contentType";
+    let articleQuery = db.from("articles").select(staff || adminKey ? "*" : publicArticleColumns).order("updatedAt", { ascending: false });
+    if (!staff) articleQuery = articleQuery.eq("status", "published").or("scheduledAt.is.null,scheduledAt.lte." + now);
+    const [{ data: articles, error: articleError }, { data: comments }, { data: profiles }] = await Promise.all([
+      articleQuery,
+      hasAdminDb && staff
+        ? db.from("comments").select("*").order("createdAtMs", { ascending: false })
+        : db.from("comments").select("id,articleId,name,text,createdAtMs,status,reply,repliedBy,repliedAtMs").eq("status", "approved").order("createdAtMs", { ascending: false }),
+      db.from("columnistProfiles").select("slug,name,beat,bio,photo,instagram,facebook,x,linkedin,updatedAt").order("name")
+    ]);
+    if (articleError) throw new Error(articleError.message);
+    return { articles: articles ?? [], comments: comments ?? [], profiles: profiles ?? [], adRequests: [] };
+  }
+
+  if (path === "editorial.recordView" && !adminKey) {
+    if (!env.SUPABASE_URL || !publicKey) throw new Error("Supabase public configuration is not available.");
+    const visitorId = String(input.visitorId || "");
+    const articleId = String(input.articleId || "");
+    if (!visitorId || !articleId) throw new Error("Invalid view.");
+    const db = createClient(env.SUPABASE_URL, publicKey, { auth: { persistSession: false, autoRefreshToken: false } });
+    const { data, error } = await db.rpc("increment_article_view", { p_article_id: articleId, p_visitor_id: visitorId });
+    if (error) throw new Error(error.message);
+    return { success: Boolean(data?.counted), views: Number(data?.views || 0) };
+  }
+
+  if (!env.SUPABASE_URL || !adminKey) throw new Error("Supabase server secrets are not configured.");
+  const db = createClient(env.SUPABASE_URL, adminKey, { auth: { persistSession: false, autoRefreshToken: false } });
   if (path === "auth.logout") return { success: true };
 
   if (path === "editorial.bootstrap") {
