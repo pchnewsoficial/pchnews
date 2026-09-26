@@ -21,7 +21,7 @@ type AccessUser = { id: number; openId: string; name: string | null; email: stri
 const LOGO_URL = "/brand/pch-news-official-20260926.svg?v=20260927";
 const COLUMNISTS_KEY = "pch-news-columnists";
 const slugify = (value: string) => value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-const INITIAL_COLUMNISTS: Columnist[] = [{ id: "col-1", name: "Evaldo Poeta", email: "evaldo@pchnews.com.br", beat: "Cultura e opinião", active: true }, { id: "col-2", name: "Marina Alves", email: "marina@pchnews.com.br", beat: "Saúde e bem-estar", active: true }];
+const INITIAL_COLUMNISTS: Columnist[] = [{ id: "col-1", name: "Evaldo Poeta", email: "", beat: "Colunista PCH News", active: true }];
 
 type Draft = Pick<NewsArticle, "title" | "category" | "author" | "summary" | "image" | "status" | "bodyHtml" | "scope" | "region" | "state" | "country" | "language" | "featured" | "slug" | "seoTitle" | "metaDescription" | "canonicalUrl" | "focusKeyword" | "ogTitle" | "ogDescription" | "imageAlt" | "noindex"> & { contentType: NonNullable<NewsArticle["contentType"]>; editorialChecklist: NonNullable<NewsArticle["editorialChecklist"]>; editorialNotes: string; contraponto: string; keyTakeaway: string; scheduledAt: string; tagsInput: string; youtubeUrl: string; socialLinks: { instagram: string; facebook: string; x: string; linkedin: string; tiktok: string; website: string } };
 
@@ -107,7 +107,7 @@ export default function Admin() {
   const mediaList = trpc.media.list.useQuery(undefined, { enabled: Boolean(user), retry: false });
   const mediaUpload = trpc.media.upload.useMutation();
   const canManageArticle = (article: NewsArticle) => isAdmin || (["editor", "journalist", "columnist"].includes(user?.role || "") && article.author === currentAuthor);
-  const [columnists, setColumnists] = useState<Columnist[]>(() => { try { const stored = window.localStorage.getItem(COLUMNISTS_KEY); return stored ? JSON.parse(stored) : INITIAL_COLUMNISTS; } catch { return INITIAL_COLUMNISTS; } });
+  const [columnists, setColumnists] = useState<Columnist[]>(() => { try { const stored = window.localStorage.getItem(COLUMNISTS_KEY); const parsed = stored ? JSON.parse(stored) : INITIAL_COLUMNISTS; return Array.isArray(parsed) ? parsed.filter((item: Columnist) => item.name === "Evaldo Poeta") : INITIAL_COLUMNISTS; } catch { return INITIAL_COLUMNISTS; } });
   const [, navigate] = useLocation();
 
   useEffect(() => {
