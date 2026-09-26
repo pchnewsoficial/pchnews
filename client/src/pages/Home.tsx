@@ -103,6 +103,7 @@ export default function Home() {
   const columnists = useMemo(() => {
     const profiles = Array.isArray(remoteEditorial?.profiles) ? remoteEditorial.profiles as any[] : [];
     return profiles
+      .filter((profile) => profile?.slug === "evaldo-poeta" || profile?.name === "Evaldo Poeta")
       .map((profile) => {
         const stories = published.filter((article) => article.author === profile.name);
         const featured = [...stories].sort((a, b) => b.views - a.views)[0];
@@ -110,7 +111,7 @@ export default function Home() {
       })
       .filter((item) => item.profile?.name)
       .sort((a, b) => (Number(Boolean(b.featured)) - Number(Boolean(a.featured))) || ((b.featured?.views || 0) - (a.featured?.views || 0)))
-      .slice(0, 6);
+      .slice(0, 1);
   }, [published, remoteEditorial?.profiles]);
 
   useEffect(() => setActiveSlide(0), [activeCategory, activeTopic, query]);
