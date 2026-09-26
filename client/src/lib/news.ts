@@ -26,6 +26,7 @@ export type NewsArticle = {
   youtubeUrl?: string | null;
   socialLinks?: { instagram?: string; facebook?: string; x?: string; linkedin?: string; tiktok?: string; website?: string };
   slug?: string | null; seoTitle?: string | null; metaDescription?: string | null; canonicalUrl?: string | null; focusKeyword?: string | null; ogTitle?: string | null; ogDescription?: string | null; imageAlt?: string | null; noindex?: boolean;
+  contentType?: EditorialContentType; editorialChecklist?: EditorialChecklist; editorialNotes?: string | null; contraponto?: string | null; keyTakeaway?: string | null;
 };
 
 export const EDITORIAL_CATEGORIES = ["Brasil", "Regiões", "Internacional", "Política", "Economia", "Saúde & Beleza", "Desenvolvimento Humano", "Ciência & Tecnologia", "Cultura", "Esportes", "Direitos e Cidadania", "Lei & Justiça", "Cidades", "Colunas", "Investigação", "Especiais"] as const;
