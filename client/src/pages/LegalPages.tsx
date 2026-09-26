@@ -1,4 +1,5 @@
 import { Link } from "wouter";
+import type { ReactNode } from "react";
 import PageMeta from "@/components/PageMeta";
 import PublicFooter from "@/components/PublicFooter";
 import { ShieldCheck, FileText, Cookie, ArrowRight } from "lucide-react";
@@ -23,7 +24,7 @@ const content = {
   },
 } as const;
 
-function Shell({ kind, children }: { kind: LegalKind; children: React.ReactNode }) {
+function Shell({ kind, children }: { kind: LegalKind; children: ReactNode }) {
   const meta = content[kind];
   return <div className="site-shell public-module-page"><PageMeta title={`${meta.title} — PCH News`} description={meta.description} canonicalPath={kind === "privacy" ? "/privacidade" : `/${kind}`} /><header className="public-module-hero"><div className="container"><span className="eyebrow">{meta.kicker}</span><h1>{meta.title}</h1><p>{meta.description}</p></div></header><main className="container legal-layout">{children}</main><PublicFooter /></div>;
 }
