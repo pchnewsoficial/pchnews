@@ -41,8 +41,12 @@ export default function PrivacyConsent() {
     applyClarityConsent(next);
   };
 
+  // Once consent has been saved, the consent bar must stay completely hidden.
+  // It can only be reopened intentionally from the footer.
+  if (consent && !settingsOpen) return null;
+
   return (
-    <div className="privacy-consent" role="dialog" aria-label="Preferências de privacidade">
+    <div className="privacy-consent" role="dialog" aria-modal="true" aria-label="Preferências de privacidade">
       <div className="privacy-consent-copy">
         <div className="privacy-consent-title"><ShieldCheck size={18} /> Sua privacidade importa</div>
         <p>Usamos tecnologias necessárias para o funcionamento do site. Analytics e publicidade não necessários ficam desativados até sua escolha.</p>
