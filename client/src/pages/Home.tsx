@@ -293,7 +293,7 @@ export default function Home() {
       </main>
 
 
-        <section className="container services-section" id="servicos"><div className="section-heading large-heading"><div><span className="eyebrow">UTILIDADE PÚBLICA</span><h2>Serviços PCH News</h2></div><div className="heading-rule"><span>Informação que ajuda no dia a dia</span></div></div><div className="services-grid"><Link href="/eventos" className="service-card"><CalendarDays size={24}/><div><strong>Agenda de eventos</strong><p>Encontre eventos por cidade, estado e proximidade.</p></div><ArrowRight size={16}/></Link><Link href="/anuncie" className="service-card service-card-announcement"><span className="service-icon">PCH</span><div><strong>Conhecimento PCH</strong><p>Espaço especial para conteúdos, projetos e anúncios identificados.</p></div><ArrowRight size={16}/></Link><Link href="/anuncie" className="service-card"><span className="service-icon">ADS</span><div><strong>Anuncie</strong><p>Formatos comerciais com identificação clara.</p></div><ArrowRight size={16}/></Link></div></section>
+        <section className="container services-section" id="servicos"><div className="section-heading large-heading"><div><span className="eyebrow">UTILIDADE PÚBLICA</span><h2>Serviços PCH News</h2></div><div className="heading-rule"><span>Informação que ajuda no dia a dia</span></div></div><div className="services-grid"><Link href="/eventos" className="service-card"><CalendarDays size={24}/><div><strong>Agenda de eventos</strong><p>Encontre eventos por cidade, estado e proximidade.</p></div><ArrowRight size={16}/></Link><Link href="/anuncie" className="service-card service-card-announcement service-card-knowledge"><span className="service-icon service-icon-pch"><strong>PCH</strong><small>CONHECIMENTO</small></span><div><span className="service-eyebrow">CONTEÚDO · PROJETOS · MARCAS</span><strong>Conhecimento PCH</strong><p>Um espaço especial para apresentar ideias, projetos e conteúdos comerciais com identificação clara.</p></div><ArrowRight size={16}/></Link><Link href="/anuncie" className="service-card"><span className="service-icon">ADS</span><div><strong>Anuncie</strong><p>Formatos comerciais com identificação clara.</p></div><ArrowRight size={16}/></Link></div></section>
 
         {(published.some((article) => article.youtubeUrl) || published.some((article) => (article.tags || []).some((tag) => /podcast/i.test(tag)))) && <section className="container media-hub-section" id="midia"><div className="section-heading large-heading"><div><span className="eyebrow">PCH NEWS · VÍDEOS E PODCASTS</span><h2>Programas e conversas</h2></div><div className="heading-rule"><span>Conteúdo audiovisual</span></div></div><div className="media-hub-grid">{published.filter((article) => article.youtubeUrl || (article.tags || []).some((tag) => /podcast/i.test(tag))).slice(0,6).map((article) => <Link key={article.id} href={`/materia/${article.id}`} className="media-hub-card"><div className="media-hub-label">{article.youtubeUrl ? "VÍDEO" : "PODCAST"}</div><h3>{article.title}</h3><p>{article.summary}</p><span>Assistir / ouvir <ArrowRight size={14}/></span></Link>)}</div></section>}
         <section className="container partners-section" id="parceiros">
@@ -313,6 +313,14 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+      <nav className="mobile-app-nav" aria-label="Atalhos rápidos">
+        <Link href="/" className="mobile-app-item"><span><Bookmark size={18} /></span><small>Início</small></Link>
+        <Link href="/eventos" className="mobile-app-item"><span><CalendarDays size={18} /></span><small>Agenda</small></Link>
+        <button type="button" className="mobile-app-item" onClick={() => { setSearchOpen(true); window.scrollTo({ top: 0, behavior: "smooth" }); }}><span><Search size={18} /></span><small>Buscar</small></button>
+        <Link href="/anuncie" className="mobile-app-item"><span><ArrowRight size={18} /></span><small>Anuncie</small></Link>
+        <button type="button" className="mobile-app-item" onClick={() => { setMenuOpen((open) => !open); window.scrollTo({ top: 0, behavior: "smooth" }); }}><span><Menu size={18} /></span><small>Menu</small></button>
+      </nav>
 
       <PublicFooter />
 
