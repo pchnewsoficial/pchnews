@@ -8,7 +8,8 @@ import "@/pch-redesign.css";
 const LOGO_URL = "/brand/pch-news-official-20260926.svg?v=20260926";
 const LOGO_FALLBACK_URL = "/brand/pch-news-official-20260926.svg?v=20260926";
 const imageUrl = (article: NewsArticle) => article.sourceUrl ? `https://pch-news.pchnews-oficial.workers.dev/legacy-image/${encodeURIComponent(article.sourceUrl)}` : article.image || LOGO_URL;
-const categories = ["Todas", "Brasil", "Política", "Economia", "Mundo"];\nconst moreCategories = EDITORIAL_CATEGORIES.filter((category) => !categories.includes(category));
+const categories = ["Todas", "Brasil", "Política", "Economia", "Mundo"];
+const moreCategories = EDITORIAL_CATEGORIES.filter((category) => !categories.includes(category));
 
 function Meta({ article }: { article: NewsArticle }) {
   return (
