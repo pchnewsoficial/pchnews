@@ -960,3 +960,75 @@ main { padding-top:18px !important; }
 /* Block 7 — editorial request queue */
 .editorial-request-admin-list{display:grid;gap:14px}.editorial-request-admin-card{display:grid;grid-template-columns:1fr 280px;gap:20px;padding:20px;border:1px solid #dfe4e7;background:#fff}.editorial-request-admin-card h3{margin:6px 0;font-size:20px}.editorial-request-admin-card p{margin:7px 0;color:#56616a;font-size:13px;line-height:1.5}.editorial-request-admin-card small{color:#8a949b}.editorial-request-admin-actions{display:grid;align-content:start;gap:9px}.editorial-request-admin-actions select,.editorial-request-admin-actions textarea{width:100%;border:1px solid #ccd4d9;padding:10px;font:inherit}.editorial-request-admin-actions textarea{min-height:100px;resize:vertical}@media(max-width:760px){.editorial-request-admin-card{grid-template-columns:1fr}}
 
+
+
+/* PCH News — mobile + agenda refinement 2026-09-26 */
+.official-logo,.footer-logo{background:transparent!important;box-shadow:none!important;border:0!important;object-fit:contain!important;display:block!important}
+.official-logo{mix-blend-mode:normal!important}
+.footer-logo{width:86px!important;height:86px!important;max-width:86px!important;padding:0!important}
+.service-card-announcement{border-color:#e5d3a5!important;background:linear-gradient(135deg,#fffdf7,#fff8e8)!important}
+.service-card-announcement .service-icon{background:#071a2d!important;color:#f4b72d!important}
+
+/* Agenda: clearer editorial hierarchy and better empty state */
+.events-hero{position:relative!important;overflow:hidden!important}
+.events-hero:after{content:"";position:absolute;inset:auto -10% -55% auto;width:420px;height:420px;border-radius:50%;border:1px solid rgba(244,183,45,.16);pointer-events:none}
+.events-main{padding-top:28px!important;padding-bottom:64px!important}
+.events-filters{background:#fff!important;border:1px solid #e1e6eb!important;border-radius:16px!important;padding:18px!important;box-shadow:0 10px 28px rgba(7,26,45,.05)!important}
+.events-filters>div{min-width:0!important}
+.events-filters select,.events-filters input{min-height:44px!important;border-radius:10px!important;border:1px solid #d7dee6!important;background:#fbfcfd!important}
+.events-section,.events-map-section,.events-calendar{margin-top:30px!important}
+.events-section .section-heading{margin-bottom:16px!important}
+.event-count{display:inline-flex!important;align-items:center!important;min-height:30px!important;padding:0 10px!important;border:1px solid #e0e5ea!important;border-radius:999px!important;background:#fff!important;color:#657285!important;font-size:11px!important;font-weight:800!important}
+.events-grid{align-items:stretch!important}
+.event-card{background:#fff!important;border:1px solid #e1e6eb!important;border-radius:16px!important;overflow:hidden!important;box-shadow:0 8px 22px rgba(7,26,45,.045)!important;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease!important}
+.event-card:hover,.event-card.is-selected{transform:translateY(-2px)!important;border-color:#d7b15b!important;box-shadow:0 14px 30px rgba(7,26,45,.09)!important}
+.event-date{background:linear-gradient(180deg,#071a2d,#0c2940)!important;color:#fff!important;min-width:82px!important}
+.event-date svg{color:#f4b72d!important}
+.event-card-title{font-size:20px!important;line-height:1.15!important}
+.event-card-body>p{color:#5f6c79!important;display:-webkit-box!important;-webkit-line-clamp:3!important;-webkit-box-orient:vertical!important;overflow:hidden!important}
+.event-meta{gap:9px!important;color:#697684!important}
+.event-card-links{margin-top:auto!important;padding-top:12px!important}
+.events-empty{background:#fff!important;border:1px dashed #cbd5df!important;border-radius:16px!important;padding:54px 20px!important;min-height:180px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;text-align:center!important;color:#6a7785!important}
+.events-empty h2{margin:10px 0 6px!important;color:#203247!important}
+.events-empty p{max-width:520px!important;margin:0!important;line-height:1.55!important}
+.map-placeholder{background:linear-gradient(135deg,#fff,#f4f7f9)!important;border:1px dashed #cbd5df!important;border-radius:16px!important;min-height:220px!important}
+.events-calendar{background:#fff!important;border:1px solid #e1e6eb!important;border-radius:16px!important;padding:20px!important;box-shadow:0 10px 28px rgba(7,26,45,.045)!important}
+.calendar-day{min-height:92px!important;border-color:#e9edf1!important}
+.calendar-day.today{box-shadow:inset 0 0 0 2px #f4b72d!important;background:#fffaf0!important}
+.calendar-event{border-left:3px solid #f4b72d!important;background:#f7f9fb!important;border-radius:5px!important}
+.event-success{border-radius:12px!important;border:1px solid #cfe5d7!important;background:#f1faf4!important;color:#2b6544!important;padding:12px 14px!important;margin-top:18px!important}
+
+@media(max-width:700px){
+  .header-main{padding:0 14px!important;gap:10px!important}
+  .mobile-only{display:grid!important;flex:0 0 34px!important}
+  .brand-lockup{min-width:0!important;flex:1!important;max-width:none!important;gap:7px!important}
+  .official-logo{width:48px!important;height:48px!important}
+  .brand-wordmark{font-size:14px!important;letter-spacing:-.02em!important}
+  .header-live-info{gap:7px!important;margin-left:0!important;font-size:10px!important}
+  .header-live-item{gap:4px!important}
+  .header-actions{margin-left:0!important;gap:4px!important}
+  .header-actions .icon-button{width:32px!important;height:32px!important}
+  .primary-nav{padding:0 14px!important;gap:20px!important;overflow-x:auto!important;scrollbar-width:none!important}
+  .primary-nav::-webkit-scrollbar{display:none}
+  .primary-nav button{flex:0 0 auto!important;padding:16px 0 13px!important}
+  .nav-wrap.is-open .primary-nav{display:flex!important}
+  .ad-banner.ad-carousel{margin-left:14px!important;margin-right:14px!important;width:auto!important;border-radius:10px!important}
+  .footer-inner{padding:34px 14px!important}
+  .footer-brand-block{align-items:flex-start!important}
+  .footer-logo{width:72px!important;height:72px!important}
+  .events-main{padding-left:14px!important;padding-right:14px!important}
+  .events-filters{grid-template-columns:1fr!important;gap:12px!important}
+  .events-calendar{padding:12px!important;overflow:hidden!important}
+  .calendar-day{min-height:72px!important;padding:6px!important}
+  .calendar-event{font-size:9px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+  .event-card{display:flex!important;flex-direction:column!important}
+  .event-date{min-width:0!important;display:grid!important;grid-template-columns:auto 1fr auto!important;gap:7px!important;align-items:center!important;padding:10px 13px!important}
+  .event-date svg{width:16px!important}
+  .event-card-body{padding:15px!important}
+  .event-card-title{font-size:18px!important}
+  .event-meta{flex-direction:column!important;align-items:flex-start!important}
+  .events-hero{padding:44px 14px 34px!important}
+  .events-hero h1{font-size:38px!important}
+  .events-hero-actions{flex-direction:column!important;align-items:stretch!important}
+  .events-hero-actions button{width:100%!important;justify-content:center!important}
+}
