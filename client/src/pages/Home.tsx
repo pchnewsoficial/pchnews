@@ -5,7 +5,8 @@ import { trpc } from "@/lib/trpc";
 import { EDITORIAL_CATEGORIES, NewsArticle, readStoredArticles } from "@/lib/news";
 import "@/pch-redesign.css";
 
-const LOGO_URL = "/brand/logo.svg?v=20260925-2";
+const LOGO_URL = "/brand/logo.jpg?v=20260926";
+const LOGO_FALLBACK_URL = "/brand/logo.svg?v=20260926";
 const imageUrl = (article: NewsArticle) => article.sourceUrl ? `https://pch-news.pchnews-oficial.workers.dev/legacy-image/${encodeURIComponent(article.sourceUrl)}` : article.image || LOGO_URL;
 const categories = ["Todas", ...EDITORIAL_CATEGORIES];
 
@@ -104,7 +105,7 @@ export default function Home() {
         <div className="container header-main">
           <button className="icon-button mobile-only" aria-label="Abrir menu" onClick={() => setMenuOpen((open) => !open)}>{menuOpen ? <X size={20} /> : <Menu size={20} />}</button>
           <Link className="brand-lockup" href="/">
-            <img className="official-logo" src={LOGO_URL} alt="PCH News" onError={(event) => { event.currentTarget.src = "/brand/favicon.svg"; }} />
+            <img className="official-logo" src={LOGO_URL} alt="PCH News" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = LOGO_FALLBACK_URL; }} />
             <span className="brand-wordmark" aria-hidden="true"><strong>PCH</strong> NEWS</span>
             <span className="brand-caption">Informação para<br /><strong>libertar a mente.</strong></span>
           </Link>
