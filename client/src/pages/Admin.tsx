@@ -18,7 +18,7 @@ import { ArticleStatus, EDITORIAL_CATEGORIES, EDITORIAL_SCOPES, EDITORIAL_CONTEN
 type View = "overview" | "articles" | "pauta" | "media" | "settings" | "profile" | "comments" | "ads" | "stats" | "audit" | "agents" | "apiHub" | "events" | "editorialRequests";
 type Columnist = { id: string; name: string; email: string; beat: string; active: boolean };
 type AccessUser = { id: number; openId: string; name: string | null; email: string | null; role: "user" | "admin" | "columnist"; lastSignedIn: Date };
-const LOGO_URL = "/brand/pch-news-official-20260926.svg?v=20260926";
+const LOGO_URL = "/brand/pch-news-official-20260926.svg?v=20260927";
 const COLUMNISTS_KEY = "pch-news-columnists";
 const slugify = (value: string) => value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 const INITIAL_COLUMNISTS: Columnist[] = [{ id: "col-1", name: "Evaldo Poeta", email: "evaldo@pchnews.com.br", beat: "Cultura e opinião", active: true }, { id: "col-2", name: "Marina Alves", email: "marina@pchnews.com.br", beat: "Saúde e bem-estar", active: true }];
