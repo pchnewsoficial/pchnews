@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 const LOGO_URL = "/brand/pch-news-official-20260926.svg?v=20260927";
-const OWNER_EMAIL = "pchnews.oficial@gmail.com";
+const OWNER_EMAIL = "pchnews.oficial@gmail.com";\nconst PUBLIC_APP_ORIGIN = "https://pchnews.lovable.app";
 
 export default function Login() {
   const [email, setEmail] = useState(OWNER_EMAIL);
@@ -58,7 +58,7 @@ export default function Login() {
     const normalized = email.trim().toLowerCase();
     if (normalized !== OWNER_EMAIL) { setMessage("Use o e-mail administrativo cadastrado no PCH News."); return; }
     setSending(true); setMessage("");
-    const redirectTo = typeof window !== "undefined" ? window.location.origin + "/?admin=1&reset=1" : undefined;
+    const redirectTo = PUBLIC_APP_ORIGIN + "/?admin=1&reset=1";
     const { error } = await supabase.auth.resetPasswordForEmail(normalized, redirectTo ? { redirectTo } : undefined);
     setSending(false);
     setMessage(error ? "Não foi possível enviar o e-mail de recuperação." : "E-mail de recuperação enviado. Abra o link recebido para definir uma nova senha.");
