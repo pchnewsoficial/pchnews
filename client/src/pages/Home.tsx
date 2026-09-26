@@ -69,6 +69,7 @@ export default function Home() {
     setArticles(normalized);
   }, [remoteEditorial]);
 
+  const eventCarousel = trpc.events.carousel.useQuery({ limit: 6 }, { retry: false, staleTime: 60 * 1000 });
   const weatherTemperature = (headerWeather.data as { current?: { temperature_2m?: number } } | undefined)?.current?.temperature_2m;
 
   const published = useMemo(() => articles.filter((article) => {
@@ -210,6 +211,17 @@ export default function Home() {
           <div className="ad-carousel-controls"><button type="button" aria-label="Publicidade anterior" onClick={() => setActiveAdSlide((current) => (current - 1 + adSlides.length) % adSlides.length)}><ArrowLeft size={16} /></button><div className="ad-carousel-dots">{adSlides.map((slide, index) => <button type="button" key={slide.title} aria-label={`Ir para peça ${index + 1}`} className={index === activeAdSlide ? "active" : ""} onClick={() => setActiveAdSlide(index)} />)}</div><button type="button" aria-label="Próxima publicidade" onClick={() => setActiveAdSlide((current) => (current + 1) % adSlides.length)}><ArrowRight size={16} /></button></div>
           <div className="ad-progress" aria-hidden="true"><span key={activeAdSlide} /></div>
         </section>
+
+        {(eventCarousel.data || []).length > 0 && <section className="container events-promo-home" aria-label="Eventos em destaque">
+          <div className="section-heading large-heading"><div><span className="eyebrow">AGENDA PCH NEWS</span><h2>Eventos próximos</h2></div><Link href="/eventos" className="read-more">Ver agenda <ArrowRight size={14}/></Link></div>
+          <div className="events-promo-rail">
+            {(eventCarousel.data || []).map((event:any) => <Link key={event.id} href={`/eventos/${event.id}`} className="events-promo-card">
+              <div className="events-promo-date"><CalendarDays size={15}/><strong>{new Intl.DateTimeFormat("pt-BR",{day:"2-digit",month:"short"}).format(new Date(Number(event.startAtMs)))}</strong><span>{new Intl.DateTimeFormat("pt-BR",{hour:"2-digit",minute:"2-digit"}).format(new Date(Number(event.startAtMs)))}</span></div>
+              <div><span className="item-category">{event.eventType}</span><h3>{event.title}</h3><p><MapPin size={12}/> {event.city}/{event.state}</p></div>
+              {event.sponsored && <span className="event-sponsored-label">PATROCINADO</span>}
+            </Link>)}
+          </div>
+        </section>}
 
         {lead ? (
           <section className="container lead-layout">
