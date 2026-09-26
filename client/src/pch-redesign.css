@@ -375,7 +375,7 @@ main { padding-top:18px !important; }
   .brand-lockup { flex:1 1 auto !important; min-width:0 !important; overflow:hidden !important; }
   .official-logo { display:block !important; width:148px !important; height:58px !important; max-width:100% !important; object-fit:contain !important; object-position:left center !important; }
   .header-actions { flex:0 0 auto !important; }
-  .nav-wrap { width:100% !important; overflow:hidden !important; }
+  .nav-wrap { width:100% !important; overflow:visible !important; }
   .primary-nav { width:100% !important; box-sizing:border-box !important; flex-wrap:nowrap !important; white-space:nowrap !important; scrollbar-width:none !important; }
   .primary-nav::-webkit-scrollbar { display:none !important; }
   .lead-layout { width:100% !important; box-sizing:border-box !important; padding:0 12px !important; min-width:0 !important; }
