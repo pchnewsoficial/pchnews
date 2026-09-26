@@ -159,17 +159,22 @@ export async function savePauta(pauta: any, accessToken?: string | null) {
 export async function listPublicEvents(filters?: any) {
   const db = await getDb(); if (!db) return [];
   const nowMs = Date.now();
-  // Public agenda is always future-facing. An event disappears automatically
-  // after its end time; when no end time exists, its start time is the expiry.
+  // Keep the database query simple and apply lifecycle filtering in application code.
+  // This avoids PostgREST OR-expression issues with camelCase columns while preserving
+  // the rule: an event remains public through its end time; without an end time it
+  // expires at its start time.
   let q = db.from("events").select("*").eq("status", "approved")
-    .or("and(endAtMs.not.is.null,endAtMs.gte." + nowMs + "),and(endAtMs.is.null,startAtMs.gte." + nowMs + ")")
     .order("startAtMs", { ascending: true });
   if (filters?.state) q = q.eq("state", filters.state);
   if (filters?.city) q = q.ilike("city", filters.city);
   if (filters?.eventType) q = q.eq("eventType", filters.eventType);
   if (filters?.fromMs) q = q.gte("startAtMs", filters.fromMs);
   const { data, error } = await q; if (error) throw error;
-  const rows = data || [];
+  const rows = (data || []).filter((e) => {
+    const end = e.endAtMs == null ? null : Number(e.endAtMs);
+    const start = Number(e.startAtMs);
+    return end !== null ? end >= nowMs : start >= nowMs;
+  });
   if (filters?.nearLat === undefined || filters?.nearLng === undefined) return rows.map((e) => ({ ...e, distanceKm: null }));
   const rad = (v: number) => v * Math.PI / 180;
   const dist = (lat: number, lng: number) => {
@@ -199,7 +204,13 @@ export async function createEvent(input: any, accessToken?: string | null) {
 export async function getPublicEvent(id: string, accessToken?: string | null) {
   const db = await getDb(accessToken); if (!db) return undefined;
   const { data, error } = await db.from("events").select("*").eq("id", id).eq("status", "approved").maybeSingle();
-  if (error) throw error; return data ?? undefined;
+  if (error) throw error;
+  if (!data) return undefined;
+  const nowMs = Date.now();
+  const end = data.endAtMs == null ? null : Number(data.endAtMs);
+  const start = Number(data.startAtMs);
+  if (end !== null ? end < nowMs : start < nowMs) return undefined;
+  return data;
 }
 export async function listEventsAdmin(accessToken?: string | null) {
   const db = await getDb(accessToken); if (!db) return [];
