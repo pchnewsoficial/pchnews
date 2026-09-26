@@ -2,7 +2,7 @@ import { ArrowLeft, ArrowRight, BookOpen, Facebook, Instagram, Linkedin, Twitter
 import { Link, useRoute } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { NewsArticle } from "@/lib/news";
-const LOGO_URL = "/brand/logo.jpg?v=20260926";
+const LOGO_URL = "/brand/logo-fixed.svg?v=20260926";
 const imageUrl = (article: NewsArticle) => article.sourceUrl ? `/legacy-image/${encodeURIComponent(article.sourceUrl)}` : article.image || LOGO_URL;
 const slugify = (value: string) => value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 export default function ColumnistProfile() {
