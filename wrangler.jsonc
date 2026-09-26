@@ -19,6 +19,8 @@
       "/healthz",
       "/admin",
       "/admin/*",
+      "/eventos",
+      "/eventos/*",
       "/login",
       "/perfil",
       "/404",
