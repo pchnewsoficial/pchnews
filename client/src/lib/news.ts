@@ -30,6 +30,20 @@ export type NewsArticle = {
 
 export const EDITORIAL_CATEGORIES = ["Brasil", "Política", "Economia", "Mundo", "Cultura", "Esportes", "Saúde", "Educação", "Ciência & Tecnologia", "Meio ambiente", "Cidades", "Colunas"] as const;
 
+/**
+ * Secondary editorial taxonomy. These are intentionally subthemes, not new
+ * top-level categories, so the main navigation stays compact while the
+ * newsroom can classify more specific coverage through tags.
+ */
+export const EDITORIAL_SUBTHEMES = [
+  { label: "Saúde e Beleza", parent: "Saúde" },
+  { label: "Desenvolvimento Humano", parent: "Colunas" },
+  { label: "Terapia e Bem-Estar", parent: "Saúde" },
+] as const;
+
+export type EditorialSubtheme = typeof EDITORIAL_SUBTHEMES[number]["label"];
+
+
 export const EDITORIAL_SCOPES: Array<{ id: EditorialScope; label: string }> = [
   { id: "national", label: "Brasil" },
   { id: "regional", label: "Regiões" },
