@@ -1,4 +1,4 @@
-/* PCH News — editorial homepage refresh */
+/* PCH News — editorial homepage refresh | build-sync 2026-09-26 */
 :root {
   --pch-ink: #0b1320;
   --pch-navy: #071a2d;
@@ -905,10 +905,7 @@ main { padding-top:18px !important; }
   .legal-layout { padding:28px 14px 50px !important; }
   .legal-document { padding:24px 20px !important; }
   .partners-page-grid { grid-template-columns:1fr !important; padding:30px 14px 50px !important; }
-  .privacy-consent { left:10px !important; right:10px !important; bottom:10px !important; flex-direction:column !important; align-items:stretch !important; }
-  .privacy-consent-actions { justify-content:stretch !important; }
-  .privacy-btn { flex:1 !important; justify-content:center !important; }
-  .privacy-consent-options { justify-content:flex-start !important; flex-direction:column !important; }
+
 }
 
 
