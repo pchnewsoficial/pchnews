@@ -11,6 +11,7 @@ export default function Login() {
   const [, navigate] = useLocation();
   const { user, loading, error: authError } = useAuth();
   const [email, setEmail] = useState(OWNER_EMAIL);
+  const [password, setPassword] = useState("");
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -18,10 +19,10 @@ export default function Login() {
     if (!loading && user) window.location.assign("/?admin=1");
   }, [loading, user, navigate]);
 
-  const handleMagicLink = async (event: React.FormEvent) => {
+  const handlePasswordLogin = async (event: React.FormEvent) => {
     event.preventDefault();
     const normalized = email.trim().toLowerCase();
-    if (!normalized) return;
+    if (!normalized || !password) return;
     setSending(true);
     setMessage("");
 
@@ -30,6 +31,18 @@ export default function Login() {
       setMessage("Este acesso por e-mail é exclusivo da conta administrativa. Colunistas entram pelo convite individual.");
       return;
     }
+
+    const { error } = await supabase.auth.signInWithPassword({ email: normalized, password });
+    setSending(false);
+    if (error) { setMessage("Não foi possível entrar com essas credenciais."); return; }
+    window.location.assign("/?admin=1");
+  };
+
+  const handleMagicLink = async () => {
+    const normalized = email.trim().toLowerCase();
+    if (normalized !== OWNER_EMAIL) return;
+    setSending(true);
+    setMessage("");
 
     // Keep the magic-link callback on the exact host where the login started.
     // This avoids sending production users to the Lovable preview/published host.
@@ -83,7 +96,7 @@ export default function Login() {
           <p>Acesse o painel para publicar, revisar e administrar o PCH News.</p>
         </div>
 
-        <form className="login-form" onSubmit={handleMagicLink}>
+        <form className="login-form" onSubmit={handlePasswordLogin}>
           <label>
             <span>E-MAIL ADMINISTRATIVO</span>
             <div className="login-input">
@@ -100,13 +113,20 @@ export default function Login() {
               />
             </div>
           </label>
+          <label>
+            <span>SENHA</span>
+            <div className="login-input">
+              <LockKeyhole size={16} aria-hidden="true" />
+              <input aria-label="Senha administrativa" type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="current-password" required />
+            </div>
+          </label>
           <button className="login-submit" type="submit" disabled={sending}>
-            <span>{sending ? "Enviando link…" : "Enviar link de acesso"}</span>
+            <span>{sending ? "Entrando…" : "Entrar no painel editorial"}</span>
             <ArrowRight size={16} />
           </button>
         </form>
 
-        <div className="login-divider"><span>acesso sem senha</span></div>
+        <div className="login-divider"><span>ou acesso por link seguro</span></div>
 
         {authError && (
           <div className="login-error" role="alert">{authError.message}</div>
@@ -118,7 +138,7 @@ export default function Login() {
           <span><strong>Ambiente editorial protegido</strong><small>Permissões administradas pelo Supabase. Nenhuma senha é armazenada nesta aplicação.</small></span>
         </div>
 
-        <p className="login-support">Use a conta administrativa autorizada: {OWNER_EMAIL}.</p>
+        <p className="login-support">Conta administrativa: {OWNER_EMAIL}. Altere a senha provisória depois do primeiro acesso.</p>
       </section>
 
       <footer className="login-footer">© 2026 PCH News · Notícias para libertar a mente.</footer>
