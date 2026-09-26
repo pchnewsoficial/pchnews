@@ -106,6 +106,8 @@ export default {
     const isSpaRoute =
       url.pathname === "/admin" ||
       url.pathname.startsWith("/admin/") ||
+      url.pathname === "/eventos" ||
+      url.pathname.startsWith("/eventos/") ||
       url.pathname === "/login" ||
       url.pathname === "/perfil" ||
       url.pathname === "/404" ||
