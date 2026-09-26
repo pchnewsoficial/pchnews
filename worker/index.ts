@@ -53,7 +53,7 @@ app.use(
 app.listen(3000);
 
 export default {
-  async scheduled(_controller: ScheduledController, _env: unknown, _ctx: ExecutionContext) {
+  async scheduled(_controller: any, _env: any, _ctx: any) {
     const db = getSupabaseAdmin();
     const nowMs = Date.now();
     const { data: due, error } = await db.from("articles").select("id,scheduledAt,status").eq("status", "scheduled").lte("scheduledAt", nowMs).limit(100);
