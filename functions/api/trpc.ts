@@ -69,13 +69,15 @@ async function handleProcedure(path: string, request: Request, env: Env, input: 
   const adminKey = env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SECRET_KEY;
   if (!env.SUPABASE_URL || !adminKey) throw new Error("Supabase server secrets are not configured.");
   const db = createClient(env.SUPABASE_URL, adminKey, { auth: { persistSession: false, autoRefreshToken: false } });
+  const STAFF_ROLES = ["admin", "editor", "journalist", "columnist", "reviewer"] as const;
+  const CONTENT_EDIT_ROLES = ["admin", "editor", "journalist", "columnist"] as const;
 
   if (path === "auth.me") return await currentUser(request, env);
   if (path === "auth.logout") return { success: true };
 
   if (path === "editorial.bootstrap") {
     const user = await currentUser(request, env);
-    const staff = Boolean(user && ["admin", "columnist"].includes(user.role));
+    const staff = Boolean(user && STAFF_ROLES.includes(user.role as typeof STAFF_ROLES[number]));
     const now = Date.now();
     let articleQuery = db.from("articles").select("*").order("updatedAt", { ascending: false });
     if (!staff) articleQuery = articleQuery.eq("status", "published").or("scheduledAt.is.null,scheduledAt.lte." + now);
@@ -106,7 +108,7 @@ async function handleProcedure(path: string, request: Request, env: Env, input: 
   }
 
   const user = await currentUser(request, env, true);
-  if (!user || !["admin", "columnist"].includes(user.role)) throw new Error("FORBIDDEN");
+  if (!user || !STAFF_ROLES.includes(user.role as typeof STAFF_ROLES[number])) throw new Error("FORBIDDEN");
 
   if (path === "editorialAgents.run") {
     const allowed = ["story-editor","fact-checker","seo-optimization-specialist","publication-readiness","ethics-advisor","multi-platform-distributor","liberdade-editorial","journalism-master-orchestrator"];
@@ -144,12 +146,13 @@ async function handleProcedure(path: string, request: Request, env: Env, input: 
 
 
   if (path === "editorial.saveArticle") {
+    if (!CONTENT_EDIT_ROLES.includes(user.role as typeof CONTENT_EDIT_ROLES[number])) throw new Error("FORBIDDEN");
     const article = input as Article;
     const { data: existing } = await db.from("articles").select("*").eq("id", article.id).maybeSingle();
     if (user.role !== "admin" && existing?.authorOpenId && existing.authorOpenId !== user.openId) throw new Error("FORBIDDEN");
     const next = {
       ...article,
-      authorOpenId: article.authorOpenId || existing?.authorOpenId || (user.role === "columnist" ? user.openId : null),
+      authorOpenId: article.authorOpenId || existing?.authorOpenId || (user.role === "admin" ? null : user.openId),
       socialLinks: article.socialLinks ? (typeof article.socialLinks === "string" ? JSON.parse(article.socialLinks) : article.socialLinks) : {},
       youtubeUrl: article.youtubeUrl ?? null,
       updatedAt: new Date().toISOString()
@@ -239,10 +242,30 @@ async function handleProcedure(path: string, request: Request, env: Env, input: 
   if (path === "access.setRole") {
     if (!user || user.role !== "admin") throw new Error("FORBIDDEN");
     const openId = String(input.openId || "");
-    const role = ["user", "admin", "columnist"].includes(input.role) ? input.role : "user";
+    const role = STAFF_ROLES.includes(input.role) || input.role === "user" ? input.role : "user";
     if (!openId) throw new Error("Usuário inválido.");
-    const { error } = await db.from("users").update({ role }).eq("openId", openId);
+    const { data: target, error } = await db.from("users").select("openId,name").eq("openId", openId).maybeSingle();
     if (error) throw new Error(error.message);
+    if (!target) throw new Error("Usuário não encontrado.");
+    const { error: roleError } = await db.from("users").update({ role }).eq("openId", openId);
+    if (roleError) throw new Error(roleError.message);
+    if (role === "user") {
+      const { error: memberDeleteError } = await db.from("editorialMembers").delete().eq("openId", openId);
+      if (memberDeleteError) throw new Error(memberDeleteError.message);
+    } else {
+      const { data: existingMember } = await db.from("editorialMembers").select("beat,profileSlug,status,createdAtMs").eq("openId", openId).maybeSingle();
+      const { error: memberError } = await db.from("editorialMembers").upsert({
+        openId,
+        displayName: target.name || "Membro editorial",
+        role,
+        status: existingMember?.status || "active",
+        beat: existingMember?.beat || null,
+        profileSlug: existingMember?.profileSlug || null,
+        createdAtMs: existingMember?.createdAtMs || Date.now(),
+        updatedAtMs: Date.now()
+      }, { onConflict: "openId" });
+      if (memberError) throw new Error(memberError.message);
+    }
     return { success: true };
   }
 
