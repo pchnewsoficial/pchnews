@@ -4,7 +4,6 @@ import { supabase } from "@/lib/supabase";
 
 const LOGO_URL = "/brand/pch-news-official-20260926.svg?v=20260927";
 const OWNER_EMAIL = "pchnews.oficial@gmail.com";
-const PUBLIC_APP_ORIGIN = "https://pchnews.lovable.app";
 
 export default function Login() {
   const [email, setEmail] = useState(OWNER_EMAIL);
@@ -52,15 +51,20 @@ export default function Login() {
       );
       return;
     }
-    window.location.assign("/?admin=1");
+    window.location.assign("/admin");
   };
 
   const handleForgotPassword = async () => {
     const normalized = email.trim().toLowerCase();
     if (normalized !== OWNER_EMAIL) { setMessage("Use o e-mail administrativo cadastrado no PCH News."); return; }
     setSending(true); setMessage("");
-    const redirectTo = PUBLIC_APP_ORIGIN + "/?admin=1&reset=1";
-    const { error } = await supabase.auth.resetPasswordForEmail(normalized, redirectTo ? { redirectTo } : undefined);
+    const redirectTo = typeof window !== "undefined"
+      ? window.location.origin + "/admin?reset=1"
+      : undefined;
+    const { error } = await supabase.auth.resetPasswordForEmail(
+      normalized,
+      redirectTo ? { redirectTo } : undefined,
+    );
     setSending(false);
     setMessage(error ? "Não foi possível enviar o e-mail de recuperação." : "E-mail de recuperação enviado. Abra o link recebido para definir uma nova senha.");
   };
@@ -73,7 +77,7 @@ export default function Login() {
     setSending(false);
     if (error) { setMessage("Não foi possível alterar a senha. Solicite um novo link de recuperação."); return; }
     setMessage("Senha alterada com sucesso. Entrando no painel editorial…");
-    window.setTimeout(() => window.location.assign("/?admin=1"), 700);
+    window.setTimeout(() => window.location.assign("/admin"), 700);
   };
 
   const returnToLogin = () => {
@@ -92,7 +96,7 @@ export default function Login() {
     // Keep the magic-link callback on the exact host where the login started.
     // This avoids sending production users to the Lovable preview/published host.
     const redirectTo = typeof window !== "undefined"
-      ? window.location.origin + "/?admin=1"
+      ? window.location.origin + "/admin"
       : undefined;
     const { error } = await supabase.auth.signInWithOtp({
       email: normalized,
