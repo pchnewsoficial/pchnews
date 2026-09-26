@@ -34,18 +34,6 @@ export default function Institutional() {
         <section className="container institutional-section">
           <div className="institutional-copy"><span className="public-kicker">COMO FAZEMOS JORNALISMO</span><h2>Apuração, revisão e responsabilidade humana.</h2><p>As matérias são construídas a partir de informações e fontes que podem ser verificadas, passam por revisão editorial e podem receber apoio de ferramentas e agentes tecnológicos. A tecnologia auxilia pesquisa, organização, revisão e identificação de pontos de atenção; a decisão editorial final permanece sob responsabilidade humana.</p><p>Quando uma informação relevante muda, o PCH News pode atualizar a matéria e registrar a alteração. Correções e contexto fazem parte do compromisso com o leitor.</p></div>
         </section>
-        <section className="container institutional-section creator-section">
-          <div className="institutional-section-heading"><div><span className="public-kicker">QUEM CRIOU O PCH NEWS</span><h2>Rivaldo Poeta</h2><p><strong>Criador do PCH News · Cronista · Criador da Poesia Cognitiva Hipnótica (PCH)</strong></p></div></div>
-          <div className="creator-bio">
-            <p>Rivaldo Poeta é escritor, cronista e criador da <strong>Poesia Cognitiva Hipnótica (PCH)</strong> — uma linguagem autoral que une poesia, reflexão, comunicação e elementos de diferentes campos do conhecimento para transformar informação em experiência, reflexão em consciência e palavras em movimento.</p>
-            <p>É autor de obras como <strong>Prisão Interior — Só Você Pode Sair</strong>, <strong>Hábito de Refletir</strong>, <strong>Pílulas Terapêuticas</strong> e <strong>Poemas Reais, Códigos Milionários</strong>, nas quais desenvolve uma escrita que aproxima linguagem, comportamento, emoções, espiritualidade e experiência humana.</p>
-            <p>No <strong>PCH News</strong>, atua como criador do veículo e cronista, participando da construção de sua identidade editorial e desenvolvendo conteúdos que transitam entre comportamento, sociedade, cultura, negócios, comunicação, espiritualidade e cotidiano.</p>
-            <p>Sua proposta não é apenas contar o que aconteceu, mas provocar uma segunda leitura da realidade: <strong>o que existe por trás do fato, o que ele revela sobre as pessoas e o que podemos compreender a partir dele?</strong></p>
-            <blockquote>“A informação chama a atenção. A compreensão transforma o olhar.”</blockquote>
-            <p>Rivaldo também desenvolve o conceito editorial que busca integrar a linguagem PCH ao jornalismo, à comunicação institucional, à publicidade, à educação, à cultura e às narrativas humanas.</p>
-            <p>No PCH News, sua escrita busca <strong>informar, conectar e provocar reflexão</strong> — usando a palavra não apenas para dizer alguma coisa, mas para fazer alguma coisa acontecer dentro de quem lê.</p>
-          </div>
-        </section>
         <section className="container institutional-section institutional-highlight">
           <div><span className="public-kicker">PUBLICIDADE E CONTEÚDO COMERCIAL</span><h2>Publicidade identificada, jornalismo independente.</h2><p>Conteúdo comercial e publicidade devem ser identificados de forma clara. Uma solicitação comercial não determina a pauta, o texto ou a conclusão de uma matéria jornalística.</p><Link className="gold-button" href="/anuncie">Conheça o PCH News Ads <ArrowRight size={16}/></Link></div>
           <div className="institutional-actions"><Link href="/lei">Conheça Lei &amp; Justiça <ArrowRight size={16}/></Link><Link href="/">Voltar às notícias <ArrowRight size={16}/></Link></div>
