@@ -9,7 +9,25 @@ const LOGO_URL = "/brand/pch-news-official-20260926.svg?v=20260926";
 const EyeIcon = () => <Eye size={14} />;
 const imageUrl = (article: NewsArticle) => article.sourceUrl ? `https://pch-news.pchnews-oficial.workers.dev/legacy-image/${encodeURIComponent(article.sourceUrl)}` : article.image || LOGO_URL;
 const slugify = (value: string) => value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-function youtubeEmbed(url?: string | null) { if (!url) return null; try { const parsed = new URL(url); const id = parsed.hostname.includes("youtu.be") ? parsed.pathname.slice(1) : parsed.searchParams.get("v") || parsed.pathname.split("/").filter(Boolean).pop(); return id ? `https://www.youtube.com/embed/${id}` : null; } catch { return null; } }
+function youtubeEmbed(url?: string | null) {
+  if (!url?.trim()) return null;
+  try {
+    const parsed = new URL(url.trim());
+    const host = parsed.hostname.toLowerCase().replace(/^www\\./, "");
+    let id = "";
+    if (host === "youtu.be") {
+      id = parsed.pathname.split("/").filter(Boolean)[0] || "";
+    } else if (host === "youtube.com" || host === "m.youtube.com" || host === "music.youtube.com") {
+      const parts = parsed.pathname.split("/").filter(Boolean);
+      if (parsed.pathname === "/watch") id = parsed.searchParams.get("v") || "";
+      else if (["embed", "shorts", "live"].includes(parts[0] || "")) id = parts[1] || "";
+    }
+    if (!/^[A-Za-z0-9_-]{11}$/.test(id)) return null;
+    return `https://www.youtube.com/embed/${id}?rel=0`;
+  } catch {
+    return null;
+  }
+}
 function visitorId() { const key = "pch-news-visitor-id"; const current = window.localStorage.getItem(key); if (current) return current; const next = `visitor-${crypto.randomUUID()}`; window.localStorage.setItem(key, next); return next; }
 function mapServerArticle(article: any): NewsArticle { return { ...article, tags: typeof article.tags === "string" ? JSON.parse(article.tags || "[]") : article.tags || [], socialLinks: typeof article.socialLinks === "string" ? JSON.parse(article.socialLinks || "{}") : article.socialLinks || {}, scheduledAt: article.scheduledAt ? new Date(Number(article.scheduledAt)).toISOString().slice(0, 16) : undefined }; }
 export default function ArticlePage() {
