@@ -156,6 +156,34 @@ export async function savePauta(pauta: any, accessToken?: string | null) {
 }
 
 
+export async function listEventCarousel(filters?: { state?: string; city?: string; region?: string; limit?: number }) {
+  const db = await getDb(); if (!db) return [];
+  const nowMs = Date.now();
+  let q = db.from("events").select("*").eq("status","approved")
+    .lte("promotionStartAtMs", nowMs)
+    .gte("promotionEndAtMs", nowMs)
+    .order("startAtMs", { ascending: true });
+  const { data, error } = await q;
+  if (error) throw error;
+  const rows = (data || []).filter((e:any) => {
+    const scope = e.visibilityScope ?? "national";
+    const stateMatch = !filters?.state || !e.visibilityState || e.visibilityState.toLowerCase() === filters.state.toLowerCase();
+    const cityMatch = !filters?.city || !e.visibilityCity || e.visibilityCity.toLowerCase() === filters.city.toLowerCase();
+    const regionMatch = !filters?.region || !e.visibilityRegion || e.visibilityRegion.toLowerCase() === filters.region.toLowerCase();
+    if (scope === "national") return true;
+    if (scope === "state") return stateMatch;
+    if (scope === "city") return cityMatch;
+    if (scope === "regional" || scope === "subregional") return regionMatch || stateMatch;
+    return true;
+  });
+  const score = (e:any) => {
+    const remaining = Math.max(0, Number(e.startAtMs) - nowMs);
+    const proximity = Math.max(0, 100000000 - remaining / 1000);
+    return proximity + Number(e.editorialPriority ?? 0) * 100000 + Number(e.commercialPriority ?? 0) * 1000000;
+  };
+  return rows.sort((a:any,b:any) => score(b)-score(a) || Number(a.startAtMs)-Number(b.startAtMs)).slice(0, Math.min(filters?.limit ?? 8, 20));
+}
+
 export async function listPublicEvents(filters?: any) {
   const db = await getDb(); if (!db) return [];
   const nowMs = Date.now();
@@ -191,6 +219,18 @@ export async function createEvent(input: any, accessToken?: string | null) {
   const nowMs = Date.now();
   const { data, error } = await db.from("events").insert({
     ...input,
+    visibilityScope: input.visibilityScope ?? "national",
+    visibilityRegion: input.visibilityRegion ?? null,
+    visibilityState: input.visibilityState ?? input.state ?? null,
+    visibilitySubregion: input.visibilitySubregion ?? null,
+    visibilityCity: input.visibilityCity ?? input.city ?? null,
+    promotionStartAtMs: input.promotionStartAtMs ?? (Number(input.startAtMs) - 5 * 24 * 60 * 60 * 1000),
+    promotionEndAtMs: input.promotionEndAtMs ?? (input.endAtMs ?? input.startAtMs),
+    editorialPriority: input.editorialPriority ?? 0,
+    commercialPriority: input.commercialPriority ?? 0,
+    promotionType: input.promotionType ?? "normal",
+    sponsored: Boolean(input.sponsored ?? false),
+    paymentStatus: input.paymentStatus ?? "not_applicable",
     sourceType: input.sourceType ?? "public_submission",
     sourceName: input.sourceName ?? null,
     sourceUrl: input.sourceUrl ?? null,
