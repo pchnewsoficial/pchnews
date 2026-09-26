@@ -37,6 +37,7 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [activeSlide, setActiveSlide] = useState(0);
   const [activeAdSlide, setActiveAdSlide] = useState(0);
+  const [adPaused, setAdPaused] = useState(false);
   const [now, setNow] = useState(() => new Date());
   const [coordinates, setCoordinates] = useState<{ latitude: number; longitude: number } | null>(null);
 
@@ -114,9 +115,10 @@ export default function Home() {
   ];
 
   useEffect(() => {
+    if (adPaused) return;
     const timer = window.setInterval(() => setActiveAdSlide((current) => (current + 1) % adSlides.length), 6000);
     return () => window.clearInterval(timer);
-  }, [adSlides.length]);
+  }, [adSlides.length, adPaused]);
 
   useEffect(() => {
     if (carouselStories.length < 2) return;
@@ -189,7 +191,7 @@ export default function Home() {
       </header>
 
       <main>
-        <section className="container ad-banner ad-carousel" id="anuncie" aria-roledescription="carousel" aria-label="Publicidade PCH News" onMouseEnter={(event) => event.currentTarget.dataset.paused = "true"} onMouseLeave={(event) => delete event.currentTarget.dataset.paused}>
+        <section className="container ad-banner ad-carousel" id="anuncie" aria-roledescription="carousel" aria-label="Publicidade PCH News" onMouseEnter={() => setAdPaused(true)} onMouseLeave={() => setAdPaused(false)} onFocusCapture={() => setAdPaused(true)} onBlurCapture={() => setAdPaused(false)}>
           <div className="ad-carousel-track" style={{ transform: `translateX(-${activeAdSlide * 100}%)` }}>
             {adSlides.map((slide) => <div className="ad-slide" key={slide.title}>
               <div className="ad-copy"><span className="ad-tag">{slide.eyebrow}</span><h1>{slide.title}<br /><em>{slide.emphasis}</em></h1><p>{slide.text}</p><Link className="gold-button" href="/anuncie">{slide.cta} <ArrowRight size={16} /></Link></div>
