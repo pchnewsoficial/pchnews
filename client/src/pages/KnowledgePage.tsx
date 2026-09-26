@@ -33,6 +33,18 @@ export default function KnowledgePage() {
           <div><span className="eyebrow">EDITORIAL</span><h2>Um espaço separado da publicidade.</h2><p>Conhecimento PCH e Anuncie agora têm destinos diferentes. Quando houver conteúdo de marca ou publicidade, ele será identificado de forma clara.</p></div>
           <Link className="gold-button" href="/anuncie">Quero anunciar <ArrowRight size={16}/></Link>
         </section>
+        <section className="knowledge-note">
+          <div><span className="eyebrow">PROPÓSITO</span><h2>Informar para ampliar consciência.</h2><p>O PCH News existe para transformar informação em compreensão, aproximando jornalismo, conhecimento, cultura e desenvolvimento humano de pessoas e comunidades.</p></div>
+        </section>
+        <section className="knowledge-note">
+          <div>
+            <span className="eyebrow">MVV · PCH NEWS</span>
+            <h2>Missão, Visão e Valores.</h2>
+            <p><strong>Missão:</strong> informar com clareza, responsabilidade e utilidade, valorizando fatos, pessoas e contextos.</p>
+            <p><strong>Visão:</strong> construir uma plataforma jornalística digital de alcance nacional, preparada para dialogar com diferentes regiões e, no futuro, com o público internacional.</p>
+            <p><strong>Valores:</strong> verdade factual, independência editorial, respeito às pessoas, transparência, responsabilidade, pluralidade, inovação e compromisso com o interesse público.</p>
+          </div>
+        </section>
       </main>
       <PublicFooter />
     </div>
