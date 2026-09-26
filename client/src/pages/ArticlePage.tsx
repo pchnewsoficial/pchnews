@@ -35,7 +35,18 @@ function youtubeEmbed(url?: string | null) {
   }
 }
 function visitorId() { const key = "pch-news-visitor-id"; const current = window.localStorage.getItem(key); if (current) return current; const next = `visitor-${crypto.randomUUID()}`; window.localStorage.setItem(key, next); return next; }
-function mapServerArticle(article: any): NewsArticle { return { ...article, tags: typeof article.tags === "string" ? JSON.parse(article.tags || "[]") : article.tags || [], socialLinks: typeof article.socialLinks === "string" ? JSON.parse(article.socialLinks || "{}") : article.socialLinks || {}, scheduledAt: article.scheduledAt ? new Date(Number(article.scheduledAt)).toISOString().slice(0, 16) : undefined }; }
+function parseJson<T>(value: unknown, fallback: T): T {
+  if (typeof value !== "string") return (value as T) ?? fallback;
+  try { return JSON.parse(value) as T; } catch { return fallback; }
+}
+function mapServerArticle(article: any): NewsArticle {
+  return {
+    ...article,
+    tags: parseJson<string[]>(article.tags, []),
+    socialLinks: parseJson<NonNullable<NewsArticle["socialLinks"]>>(article.socialLinks, {}),
+    scheduledAt: article.scheduledAt ? new Date(Number(article.scheduledAt)).toISOString().slice(0, 16) : undefined,
+  };
+}
 export default function ArticlePage() {
   const [, params] = useRoute("/materia/:slug");
   const { data } = trpc.editorial.bootstrap.useQuery(undefined, { retry: 1, staleTime: 15_000 });
