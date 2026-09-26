@@ -58,7 +58,7 @@ export default function Login() {
     const normalized = email.trim().toLowerCase();
     if (normalized !== OWNER_EMAIL) { setMessage("Use o e-mail administrativo cadastrado no PCH News."); return; }
     setSending(true); setMessage("");
-    const redirectTo = typeof window !== "undefined" ? window.location.origin + "/login?reset=1" : undefined;
+    const redirectTo = typeof window !== "undefined" ? window.location.origin + "/?admin=1&reset=1" : undefined;
     const { error } = await supabase.auth.resetPasswordForEmail(normalized, redirectTo ? { redirectTo } : undefined);
     setSending(false);
     setMessage(error ? "Não foi possível enviar o e-mail de recuperação." : "E-mail de recuperação enviado. Abra o link recebido para definir uma nova senha.");
@@ -107,18 +107,6 @@ export default function Login() {
         : "Link de acesso enviado. Abra o e-mail no mesmo navegador e você será levado diretamente ao painel administrativo.",
     );
   };
-
-  if (loading && !user && !resetPasswordMode) {
-    return (
-      <main className="login-shell" aria-busy="true">
-        <section className="login-card login-loading-card">
-          <div className="login-brand"><img src={LOGO_URL} alt="PCH News" /><span>STUDIO</span></div>
-          <div className="login-loading-mark" />
-          <p>Verificando sua sessão segura…</p>
-        </section>
-      </main>
-    );
-  }
 
   return (
     <main className="login-shell">
