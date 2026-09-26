@@ -154,7 +154,9 @@ export default function Home() {
           <nav className="container primary-nav" aria-label="Navegação principal">
             {categories.map((category) => <button key={category} className={activeCategory === category && !activeTopic ? "active" : ""} onClick={() => { setActiveCategory(category); setActiveTopic(null); setMenuOpen(false); setMoreOpen(false); }}>{category.toUpperCase()}</button>)}
             <button className={`more-trigger ${moreOpen ? "active" : ""}`} type="button" aria-expanded={moreOpen} aria-haspopup="menu" onClick={() => setMoreOpen((open) => !open)}>+ MAIS <ChevronDown size={14} /></button>
-            {moreOpen && <div className="more-menu" role="menu">
+
+          </nav>
+          {moreOpen && <div className="more-menu" role="menu">
               <div className="more-menu-section"><span className="more-menu-label">EDITORIAS</span><div className="more-menu-grid">
                 {moreCategories.map((category) => <button key={category} type="button" role="menuitem" className={activeCategory === category && !activeTopic ? "is-selected" : ""} onClick={() => { setActiveCategory(category); setActiveTopic(null); setMoreOpen(false); setMenuOpen(false); }}>{category}</button>)}
               </div></div>
@@ -162,7 +164,6 @@ export default function Home() {
                 {EDITORIAL_SUBTHEMES.map((topic) => <button key={topic.label} type="button" role="menuitem" className={activeTopic === topic.label ? "is-selected" : ""} onClick={() => { setActiveTopic(topic.label); setActiveCategory(topic.parent); setMoreOpen(false); setMenuOpen(false); }}>{topic.label}</button>)}
               </div></div>
             </div>}
-          </nav>
         </div>
         {searchOpen && <div className="search-row container"><Search size={17} /><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar no PCH News..." aria-label="Buscar no PCH News" />{query && <button onClick={() => setQuery("")} aria-label="Limpar busca"><X size={16} /></button>}<span>{visible.length} resultados</span></div>}
       </header>
