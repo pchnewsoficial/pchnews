@@ -59,6 +59,18 @@ jobs:
           set -euo pipefail
           pnpm dlx wrangler@4.38.0 whoami
 
+      - name: Verify Supabase runtime secret exists
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          secrets="$(pnpm dlx wrangler@4.38.0 secret list)"
+          echo "$secrets"
+          echo "$secrets" | grep -Eq 'SUPABASE_(SECRET_KEY|SERVICE_ROLE_KEY)' || {
+            echo "Missing Supabase server secret in Worker. Expected SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY."
+            exit 1
+          }
       - name: Configure Supabase runtime secrets
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
