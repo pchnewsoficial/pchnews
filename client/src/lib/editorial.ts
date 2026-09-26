@@ -12,7 +12,7 @@ export type ReaderComment = { id: string; articleId: string; name: string; text:
 export const COMMENTS_STORAGE_KEY = "pch-news-reader-comments";
 export function readComments(): ReaderComment[] { if (typeof window === "undefined") return []; try { const raw = window.localStorage.getItem(COMMENTS_STORAGE_KEY); return raw ? JSON.parse(raw) : []; } catch { return []; } }
 export function persistComments(comments: ReaderComment[]) { if (typeof window !== "undefined") { window.localStorage.setItem(COMMENTS_STORAGE_KEY, JSON.stringify(comments)); window.dispatchEvent(new CustomEvent("pch-news-data-changed")); } }
-export type AdRequest = { id: string; business: string; contact: string; packageName: string; message: string; status: "received" | "reviewing" | "approved"; createdAtMs: number };
+export type AdRequest = { id: string; business: string; contact: string; packageName: string; message: string; status: "received" | "reviewing" | "approved"; createdAtMs: number; contactName?: string | null; email?: string | null; phone?: string | null; city?: string | null; website?: string | null; socials?: string | null; adType?: string | null; budget?: string | null; period?: string | null; consentAtMs?: number | null; source?: string | null };
 export const ADS_STORAGE_KEY = "pch-news-ad-requests";
 export function readAdRequests(): AdRequest[] { if (typeof window === "undefined") return []; try { const raw = window.localStorage.getItem(ADS_STORAGE_KEY); return raw ? JSON.parse(raw) : []; } catch { return []; } }
 export function persistAdRequests(items: AdRequest[]) { if (typeof window !== "undefined") { window.localStorage.setItem(ADS_STORAGE_KEY, JSON.stringify(items)); window.dispatchEvent(new CustomEvent("pch-news-data-changed")); } }
