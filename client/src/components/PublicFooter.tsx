@@ -27,7 +27,7 @@ export default function PublicFooter() {
           <span>EDITORIAL</span>
           <Link href="/#ultimas">Últimas notícias</Link>
           <Link href="/colunista/evaldo-poeta">Colunistas</Link>
-          <a href="/?admin=1">Painel editorial</a>
+          <a href="/admin">Painel editorial</a>
         </div>
         <div className="footer-column">
           <span>TRANSPARÊNCIA</span>
