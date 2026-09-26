@@ -78,7 +78,6 @@ export default function Admin() {
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [comments, setComments] = useState<ReaderComment[]>([]);
   const [profiles, setProfiles] = useState<Record<string, ProfileData>>({});
-  const adRequests = editorialRemote?.adRequests ?? [];
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const { user, logout: oauthLogout } = useAuth();
@@ -87,8 +86,9 @@ export default function Admin() {
   const displayName = user?.name || "Redação PCH News";
   const displayInitials = getInitials(displayName);
   const { data: editorialRemote, refetch: refetchEditorial } = trpc.editorial.bootstrap.useQuery(undefined, { enabled: Boolean(user), retry: false });
+  const adRequests = editorialRemote?.adRequests ?? [];
   const pendingComments = comments.filter((comment) => comment.status === "pending").length;
-  const pendingTasks = pendingComments + (editorialRemote?.adRequests?.length ?? adRequests.length);
+  const pendingTasks = pendingComments + adRequests.length;
   const isAdmin = currentRole === "admin";
   const { data: analytics } = trpc.editorial.analytics.useQuery({ author: isAdmin ? undefined : currentAuthor }, { enabled: Boolean(user), retry: false });
   const { data: accessUsers = [], refetch: refetchAccess } = trpc.access.list.useQuery(undefined, { enabled: isAdmin, retry: false });
