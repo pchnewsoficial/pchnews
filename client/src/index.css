@@ -491,3 +491,9 @@ button { border: 0; }
 
 @media(max-width:640px){
   
+  .mobile-only { display: inline-flex; }
+  .header-main { height: 72px; }
+  .header-actions { gap: 8px; }
+  .primary-nav { overflow-x: auto; gap: 18px; }
+  .container { padding-left: 16px; padding-right: 16px; }
+}
