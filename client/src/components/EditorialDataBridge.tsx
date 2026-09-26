@@ -27,7 +27,7 @@ function toDbPayload(user: { role: string; openId: string; name?: string | null 
   }));
   const adRequests = readAdRequests().map((ad) => ({
     id: ad.id, business: ad.business, contact: ad.contact, packageName: ad.packageName,
-    message: ad.message, status: ad.status, createdAtMs: ad.createdAtMs || Date.now(),
+    message: ad.message, status: ad.status, createdAtMs: ad.createdAtMs || Date.now(), contactName: ad.contactName ?? null, email: ad.email ?? null, phone: ad.phone ?? null, city: ad.city ?? null, website: ad.website ?? null, socials: ad.socials ?? null, adType: ad.adType ?? ad.packageName ?? null, budget: ad.budget ?? null, period: ad.period ?? null, consentAtMs: ad.consentAtMs ?? null, source: ad.source ?? "public-site",
   }));
   void user;
   return { articles, comments, profiles, adRequests };
