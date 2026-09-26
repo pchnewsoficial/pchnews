@@ -154,3 +154,46 @@ export async function savePauta(pauta: any, accessToken?: string | null) {
   const { data, error } = await supabase.from("editorialPautas").upsert(payload, { onConflict: "id" }).select().single();
   if (error) throw error; return data;
 }
+
+
+export async function listPublicEvents(filters?: any) {
+  const db = await getDb(); if (!db) return [];
+  let q = db.from("events").select("*").eq("status", "approved").order("startAtMs", { ascending: true });
+  if (filters?.state) q = q.eq("state", filters.state);
+  if (filters?.city) q = q.ilike("city", filters.city);
+  if (filters?.eventType) q = q.eq("eventType", filters.eventType);
+  if (filters?.fromMs) q = q.gte("startAtMs", filters.fromMs);
+  const { data, error } = await q; if (error) throw error;
+  const rows = data || [];
+  if (filters?.nearLat === undefined || filters?.nearLng === undefined) return rows.map((e) => ({ ...e, distanceKm: null }));
+  const rad = (v: number) => v * Math.PI / 180;
+  const dist = (lat: number, lng: number) => {
+    const R = 6371, dLat = rad(lat - filters.nearLat), dLng = rad(lng - filters.nearLng);
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(rad(filters.nearLat)) * Math.cos(rad(lat)) * Math.sin(dLng / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  };
+  return rows.map((e) => ({ ...e, distanceKm: e.latitude && e.longitude ? dist(Number(e.latitude), Number(e.longitude)) : null }))
+    .filter((e) => filters?.radiusKm === undefined || (e.distanceKm !== null && e.distanceKm <= filters.radiusKm))
+    .sort((a, b) => (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity) || a.startAtMs - b.startAtMs);
+}
+export async function createEvent(input: any, accessToken?: string | null) {
+  const db = await getDb(accessToken); if (!db) throw new Error("Database unavailable");
+  const nowMs = Date.now();
+  const { data, error } = await db.from("events").insert({ ...input, status: "pending", createdAtMs: nowMs, updatedAtMs: nowMs }).select().single();
+  if (error) throw error; return data;
+}
+export async function getPublicEvent(id: string, accessToken?: string | null) {
+  const db = await getDb(accessToken); if (!db) return undefined;
+  const { data, error } = await db.from("events").select("*").eq("id", id).eq("status", "approved").maybeSingle();
+  if (error) throw error; return data ?? undefined;
+}
+export async function listEventsAdmin(accessToken?: string | null) {
+  const db = await getDb(accessToken); if (!db) return [];
+  const { data, error } = await db.from("events").select("*").order("startAtMs", { ascending: true });
+  if (error) throw error; return data ?? [];
+}
+export async function updateEventStatus(id: string, status: "pending" | "approved" | "rejected" | "cancelled", accessToken?: string | null) {
+  const db = await getDb(accessToken); if (!db) throw new Error("Database unavailable");
+  const { error } = await db.from("events").update({ status, updatedAtMs: Date.now() }).eq("id", id);
+  if (error) throw error; return { success: true };
+}

@@ -15,7 +15,7 @@ import ApiHubPanel from "@/components/ApiHubPanel";
 import ApiHubEditorialTools from "@/components/ApiHubEditorialTools";
 import { ArticleStatus, EDITORIAL_CATEGORIES, EDITORIAL_SCOPES, INITIAL_ARTICLES, MediaAsset, NewsArticle, makeArticleId, persistArticles, persistMedia, readStoredArticles, readStoredMedia, statusLabels } from "@/lib/news";
 
-type View = "overview" | "articles" | "pauta" | "media" | "settings" | "profile" | "comments" | "ads" | "stats" | "audit" | "agents" | "apiHub";
+type View = "overview" | "articles" | "pauta" | "media" | "settings" | "profile" | "comments" | "ads" | "stats" | "audit" | "agents" | "apiHub" | "events";
 type Columnist = { id: string; name: string; email: string; beat: string; active: boolean };
 type AccessUser = { id: number; openId: string; name: string | null; email: string | null; role: "user" | "admin" | "columnist"; lastSignedIn: Date };
 const LOGO_URL = "/brand/pch-news-official-20260926.svg?v=20260926";
@@ -42,6 +42,24 @@ function formatToday() {
 
 function getInitials(name: string) {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase()).join("") || "PN";
+}
+
+function EventsAdmin({ notify }: { notify: (message: string) => void }) {
+  const { data: events = [], refetch, isLoading } = trpc.events.adminList.useQuery(undefined, { retry: false });
+  const setStatus = trpc.events.setStatus.useMutation({ onSuccess: () => { void refetch(); notify("Status do evento atualizado."); }, onError: (error) => notify(error.message) });
+  const labels: Record<string,string> = { pending:"Pendente", approved:"Aprovado", rejected:"Rejeitado", cancelled:"Cancelado" };
+  return <section className="panel events-admin-panel">
+    <div className="admin-heading compact"><div><span className="admin-kicker">AGENDA PCH NEWS</span><h1>Eventos<span>.</span></h1><p>Modere os eventos enviados pelo público antes da publicação.</p></div><Link className="secondary-cta" href="/eventos"><ExternalLink size={15}/> Ver agenda pública</Link></div>
+    {isLoading ? <div className="events-empty">Carregando eventos…</div> : events.length === 0 ? <div className="events-empty"><CalendarDays size={28}/><h2>Nenhum evento recebido</h2><p>Quando alguém enviar um evento, ele aparecerá aqui para validação.</p></div> :
+      <div className="events-admin-list">{events.map((event:any) => <article className="events-admin-row" key={event.id}>
+        <div><span className="event-type">{event.eventType}</span><h3>{event.title}</h3><p>{event.description}</p><small>{event.organizer} · {event.city}/{event.state} · {new Date(Number(event.startAtMs)).toLocaleString("pt-BR")}</small></div>
+        <div className="events-admin-meta"><span className={`event-status status-${event.status}`}>{labels[event.status] || event.status}</span><div className="events-admin-actions">
+          {event.status !== "approved" && <button className="primary-cta" disabled={setStatus.isPending} onClick={() => setStatus.mutate({id:event.id,status:"approved"})}>Aprovar</button>}
+          {event.status !== "rejected" && <button className="secondary-cta" disabled={setStatus.isPending} onClick={() => setStatus.mutate({id:event.id,status:"rejected"})}>Rejeitar</button>}
+          {event.status === "approved" && <button className="ghost-button" disabled={setStatus.isPending} onClick={() => setStatus.mutate({id:event.id,status:"cancelled"})}>Cancelar</button>}
+        </div></div>
+      </article>)}</div>}
+  </section>;
 }
 
 export default function Admin() {
@@ -360,6 +378,7 @@ export default function Admin() {
     { id: "overview", label: "Visão geral", icon: LayoutDashboard },
     { id: "articles", label: "Notícias", icon: FileText },
     { id: "pauta", label: "Pauta", icon: CalendarDays },
+    ...(isAdmin ? [{ id: "events" as View, label: "Agenda de eventos", icon: CalendarDays }] : []),
     { id: "agents", label: "Agentes editoriais", icon: Sparkles },
     ...(isAdmin ? [{ id: "apiHub" as View, label: "Integrações / API Hub", icon: Settings }] : []),
     { id: "media", label: "Mídia", icon: FolderOpen },
@@ -388,7 +407,8 @@ export default function Admin() {
 
           {view === "pauta" && <Pauta isAdmin={isAdmin} currentAuthor={currentAuthor} accessUsers={accessUsers as AccessUser[]} notify={notify} />}\n\n          {view === "articles" && <><div className="admin-heading compact"><div><span className="admin-kicker">CENTRAL DE CONTEÚDO</span><h1>Notícias<span>.</span></h1><p>Crie, organize e acompanhe tudo o que vai ao ar no PCH News.</p></div><div className="heading-actions"><button className="secondary-cta" onClick={exportArticles}><Upload size={16} /> Exportar</button><button className="primary-cta" onClick={openCreate}><Plus size={17} /> Nova notícia</button></div></div><div className="article-toolbar"><div className="admin-search"><Search size={17} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar por título, autor ou editoria" /></div><select className="category-filter" value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}><option value="all">Todas as editorias</option>{Array.from(new Set(articles.map((article) => article.category))).map((category) => <option key={category}>{category}</option>)}</select><div className="filter-tabs"><button className={statusFilter === "all" ? "active" : ""} onClick={() => setStatusFilter("all")}>Todas <span>{articles.length}</span></button>{(Object.keys(statusLabels) as ArticleStatus[]).map((status) => <button key={status} className={statusFilter === status ? "active" : ""} onClick={() => setStatusFilter(status)}>{statusLabels[status]} <span>{articles.filter((article) => article.status === status).length}</span></button>)}</div></div><div className="panel table-panel"><div className="table-caption"><span>{filteredArticles.length} publicações encontradas</span><button className="sort-button">Mais recentes <ChevronDown size={14} /></button></div><div className="news-table"><div className="table-head"><span className="check-box" /><span>NOTÍCIA</span><span>EDITORIA</span><span>STATUS</span><span>ATUALIZADA</span><span /></div>{filteredArticles.map((article) => <div className="table-row" key={article.id}><span className="check-box" /><div className="article-cell"><img src={article.image} alt="" /><div><strong>{article.title}</strong><small>Por {article.author}</small></div></div><span className="category-cell">{article.category}</span><span><button disabled={!canManageArticle(article)} className={`status-pill ${statusClass[article.status]}`} onClick={() => updateStatus(article.id, nextWorkflowStatus(article.status))}><i /> {statusLabels[article.status]}</button></span><span className="updated-cell">{article.updated}</span><div className="row-actions"><button aria-label="Visualizar prévia" title="Visualizar prévia" onClick={() => setPreviewArticle(article)}><Eye size={15} /></button><button disabled={!canManageArticle(article)} aria-label="Editar" onClick={() => openEdit(article)}><Edit3 size={15} /></button><button disabled={!canManageArticle(article)} aria-label="Duplicar" onClick={() => duplicateArticle(article)}><FileText size={15} /></button><button disabled={!canManageArticle(article)} aria-label="Arquivar" onClick={() => deleteArticle(article.id)}><Archive size={15} /></button></div></div>)}</div>{filteredArticles.length === 0 && <div className="table-empty"><Search size={22} /><strong>Nenhuma notícia encontrada</strong><span>Tente outro termo ou ajuste os filtros.</span></div>}</div></>}
 
-          {view === "agents" && <EditorialAgents articles={articles} isAdmin={isAdmin} currentAuthor={currentAuthor} notify={notify} />}
+          {view === "events" && isAdmin && <EventsAdmin notify={notify} />}
+           {view === "agents" && <EditorialAgents articles={articles} isAdmin={isAdmin} currentAuthor={currentAuthor} notify={notify} />}
           {view === "apiHub" && isAdmin && <ApiHubPanel isAdmin={isAdmin} />}\n          {view === "audit" && isAdmin && <Audit entries={auditEntries as AuditEntry[]} />}
           {view === "stats" && <Stats articles={articles} comments={comments} author={currentAuthor} isAdmin={isAdmin} authors={Array.from(new Set(articles.map((article) => article.author)))} viewEvents={analytics?.events ?? []} />}
           {view === "comments" && <Comments comments={isAdmin ? comments : comments.filter((comment) => articles.find((article) => article.id === comment.articleId)?.author === currentAuthor)} articles={articles} onChange={setComments} notify={notify} currentAuthor={currentAuthor} isAdmin={isAdmin} />}

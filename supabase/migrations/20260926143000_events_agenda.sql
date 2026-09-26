@@ -24,6 +24,9 @@ create table if not exists public.events (
 create index if not exists idx_events_status_start on public.events(status,"startAtMs");
 create index if not exists idx_events_geo on public.events(country,state,city);
 alter table public.events enable row level security;
+drop policy if exists "public read approved events" on public.events;
+drop policy if exists "public submit events" on public.events;
+drop policy if exists "editorial manage events" on public.events;
 create policy "public read approved events" on public.events for select to anon,authenticated using(status='approved');
 create policy "public submit events" on public.events for insert to anon,authenticated with check(status='pending');
 create policy "editorial manage events" on public.events for update to authenticated using(private.has_editorial_role(array['admin'::text])) with check(private.has_editorial_role(array['admin'::text]));
