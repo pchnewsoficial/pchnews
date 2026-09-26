@@ -4,7 +4,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Archive, BarChart3, Bell, Check, ChevronDown, Copy, Edit3, History, Eye, ExternalLink, FileText, FolderOpen, ImagePlus, LayoutDashboard, CalendarDays, LogOut, Mail, Menu, MoreHorizontal, Pencil, Plus, Search, Settings, Smartphone, Tablet, Monitor, Bold, Italic, Underline, List, ListOrdered, Link as LinkIcon, Quote, Undo2, Redo2, Trash2, Upload, UserPlus, Users, X, MessageCircle, Megaphone, UserCircle, Sparkles } from "lucide-react";
 import { Link, useLocation } from "wouter";
-import { ProfileData, persistProfiles, readComments, readProfiles, persistComments, ReaderComment, readAdRequests } from "@/lib/editorial";
+import { ProfileData, ReaderComment } from "@/lib/editorial";
 import Ads from "./Ads";
 import Audit, { AuditEntry } from "./Audit";
 import Comments from "./Comments";
@@ -13,15 +13,12 @@ import EditorialAgents from "./EditorialAgents";
 import Pauta from "./Pauta";
 import ApiHubPanel from "@/components/ApiHubPanel";
 import ApiHubEditorialTools from "@/components/ApiHubEditorialTools";
-import { ArticleStatus, EDITORIAL_CATEGORIES, EDITORIAL_SCOPES, EDITORIAL_CONTENT_TYPES, EDITORIAL_CHECKLIST_DEFAULT, EDITORIAL_CHECKLIST_LABELS, INITIAL_ARTICLES, MediaAsset, NewsArticle, makeArticleId, persistArticles, persistMedia, readStoredArticles, readStoredMedia, statusLabels } from "@/lib/news";
+import { ArticleStatus, EDITORIAL_CATEGORIES, EDITORIAL_SCOPES, EDITORIAL_CONTENT_TYPES, EDITORIAL_CHECKLIST_DEFAULT, EDITORIAL_CHECKLIST_LABELS, MediaAsset, NewsArticle, makeArticleId, statusLabels } from "@/lib/news";
 
 type View = "overview" | "articles" | "pauta" | "media" | "settings" | "profile" | "comments" | "ads" | "stats" | "audit" | "agents" | "apiHub" | "events" | "editorialRequests";
-type Columnist = { id: string; name: string; email: string; beat: string; active: boolean };
 type AccessUser = { id: number; openId: string; name: string | null; email: string | null; role: "user" | "admin" | "editor" | "journalist" | "columnist" | "reviewer"; lastSignedIn: Date };
 const LOGO_URL = "/brand/pch-news-official-20260926.svg?v=20260927";
-const COLUMNISTS_KEY = "pch-news-columnists";
 const slugify = (value: string) => value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-const INITIAL_COLUMNISTS: Columnist[] = [{ id: "col-1", name: "Evaldo Poeta", email: "", beat: "Colunista PCH News", active: true }];
 
 type Draft = Pick<NewsArticle, "title" | "category" | "author" | "summary" | "image" | "status" | "bodyHtml" | "scope" | "region" | "state" | "country" | "language" | "featured" | "slug" | "seoTitle" | "metaDescription" | "canonicalUrl" | "focusKeyword" | "ogTitle" | "ogDescription" | "imageAlt" | "noindex"> & { contentType: NonNullable<NewsArticle["contentType"]>; editorialChecklist: NonNullable<NewsArticle["editorialChecklist"]>; editorialNotes: string; contraponto: string; keyTakeaway: string; scheduledAt: string; tagsInput: string; youtubeUrl: string; socialLinks: { instagram: string; facebook: string; x: string; linkedin: string; tiktok: string; website: string } };
 
@@ -63,7 +60,8 @@ function EventsAdmin({ notify }: { notify: (message: string) => void }) {
 }
 
 export default function Admin() {
-  const [articles, setArticles] = useState<NewsArticle[]>(readStoredArticles);
+  // Editorial content is loaded from Supabase; browser storage is not a CMS fallback.
+  const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [view, setView] = useState<View>("overview");
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<ArticleStatus | "all">("all");
@@ -76,11 +74,10 @@ export default function Admin() {
   const autosaveTimer = useRef<number | null>(null);
   const [previewArticle, setPreviewArticle] = useState<NewsArticle | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [media, setMedia] = useState<MediaAsset[]>(readStoredMedia);
+  const [media, setMedia] = useState<MediaAsset[]>([]);
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
-  const [comments, setComments] = useState<ReaderComment[]>(readComments);
-  const [profiles, setProfiles] = useState<Record<string, ProfileData>>(readProfiles);
-  const [adRequests] = useState(readAdRequests);
+  const [comments, setComments] = useState<ReaderComment[]>([]);
+  const [profiles, setProfiles] = useState<Record<string, ProfileData>>({});
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const { user, logout: oauthLogout } = useAuth();
@@ -89,8 +86,9 @@ export default function Admin() {
   const displayName = user?.name || "Redação PCH News";
   const displayInitials = getInitials(displayName);
   const { data: editorialRemote, refetch: refetchEditorial } = trpc.editorial.bootstrap.useQuery(undefined, { enabled: Boolean(user), retry: false });
+  const adRequests = editorialRemote?.adRequests ?? [];
   const pendingComments = comments.filter((comment) => comment.status === "pending").length;
-  const pendingTasks = pendingComments + (editorialRemote?.adRequests?.length ?? adRequests.length);
+  const pendingTasks = pendingComments + adRequests.length;
   const isAdmin = currentRole === "admin";
   const { data: analytics } = trpc.editorial.analytics.useQuery({ author: isAdmin ? undefined : currentAuthor }, { enabled: Boolean(user), retry: false });
   const { data: accessUsers = [], refetch: refetchAccess } = trpc.access.list.useQuery(undefined, { enabled: isAdmin, retry: false });
@@ -107,21 +105,9 @@ export default function Admin() {
   const mediaList = trpc.media.list.useQuery(undefined, { enabled: Boolean(user), retry: false });
   const mediaUpload = trpc.media.upload.useMutation();
   const canManageArticle = (article: NewsArticle) => isAdmin || (["editor", "journalist", "columnist"].includes(user?.role || "") && article.author === currentAuthor);
-  const [columnists, setColumnists] = useState<Columnist[]>(() => { try { const stored = window.localStorage.getItem(COLUMNISTS_KEY); const parsed = stored ? JSON.parse(stored) : INITIAL_COLUMNISTS; return Array.isArray(parsed) ? parsed.filter((item: Columnist) => item.name === "Evaldo Poeta") : INITIAL_COLUMNISTS; } catch { return INITIAL_COLUMNISTS; } });
   const [, navigate] = useLocation();
 
-  useEffect(() => {
-    const due = articles.filter((article) => article.status === "scheduled" && article.scheduledAt && new Date(article.scheduledAt).getTime() <= Date.now());
-    if (due.length) {
-      const nextArticles = articles.map((article) => due.some((item) => item.id === article.id) ? { ...article, status: "published" as ArticleStatus, updated: "publicado agora" } : article);
-      setArticles(nextArticles);
-      persistArticles(nextArticles);
-    }
-    
-  }, [articles]);
-
-  const saveColumnists = (next: Columnist[]) => { setColumnists(next); window.localStorage.setItem(COLUMNISTS_KEY, JSON.stringify(next)); };
-  const saveProfile = (profile: ProfileData) => { const next = { ...profiles, [profile.slug]: profile }; setProfiles(next); persistProfiles(next); profileSave.mutate(profile, { onSuccess: () => notify("Perfil atualizado e publicado no banco."), onError: () => notify("Não foi possível salvar o perfil agora.") }); };
+  const saveProfile = (profile: ProfileData) => { const next = { ...profiles, [profile.slug]: profile }; setProfiles(next); profileSave.mutate(profile, { onSuccess: () => notify("Perfil atualizado e publicado no banco."), onError: () => notify("Não foi possível salvar o perfil agora.") }); };
   const uploadProfilePhoto = async (file: File, setUrl: (url: string) => void) => { try { const bytes = new Uint8Array(await file.arrayBuffer()); let binary = ""; bytes.forEach((byte) => { binary += String.fromCharCode(byte); }); const result = await profileUpload.mutateAsync({ slug: slugify(currentAuthor), fileName: file.name, contentType: file.type as "image/png" | "image/jpeg" | "image/webp" | "image/gif", base64: btoa(binary) }); setUrl(result.url); notify("Foto enviada para o armazenamento seguro."); } catch { notify("Não foi possível enviar a foto."); } };
   const logout = async () => { await oauthLogout(); navigate("/login"); };
 
@@ -277,8 +263,6 @@ export default function Admin() {
     try {
       await saveArticleRemote.mutateAsync({ id: savedArticle.id, title: savedArticle.title, category: savedArticle.category, author: savedArticle.author, authorOpenId: savedArticle.authorOpenId ?? user?.openId ?? null, summary: savedArticle.summary, date: savedArticle.date, updated: savedArticle.updated, status: remoteStatus, views: savedArticle.views, image: savedArticle.image, bodyHtml: savedArticle.bodyHtml, scheduledAt: savedArticle.scheduledAt ? new Date(savedArticle.scheduledAt).getTime() : null, tags: JSON.stringify(savedArticle.tags || []), slug: savedArticle.slug || slugify(savedArticle.title), seoTitle: savedArticle.seoTitle || savedArticle.title, metaDescription: savedArticle.metaDescription || savedArticle.summary, canonicalUrl: savedArticle.canonicalUrl || null, focusKeyword: savedArticle.focusKeyword || null, ogTitle: savedArticle.ogTitle || savedArticle.title, ogDescription: savedArticle.ogDescription || savedArticle.summary, imageAlt: savedArticle.imageAlt || savedArticle.title, noindex: Boolean(savedArticle.noindex), youtubeUrl: savedArticle.youtubeUrl || null, socialLinks: JSON.stringify(savedArticle.socialLinks || {}), scope: savedArticle.scope || "national", region: savedArticle.region || null, state: savedArticle.state || null, country: savedArticle.country || "Brasil", language: savedArticle.language || "pt-BR", featured: Boolean(savedArticle.featured), sourceUrl: savedArticle.sourceUrl || null, sourceName: savedArticle.sourceName || null, contentType: savedArticle.contentType || "noticia", editorialChecklist: savedArticle.editorialChecklist || EDITORIAL_CHECKLIST_DEFAULT, editorialNotes: savedArticle.editorialNotes || null, contraponto: savedArticle.contraponto || null, keyTakeaway: savedArticle.keyTakeaway || null });
       setArticles(nextArticles);
-      persistArticles(nextArticles);
-      window.dispatchEvent(new Event("pch-news-data-changed"));
       setEditorOpen(false);
       notify(draft.status === "scheduled" ? `Publicação agendada para ${formatSchedule(draft.scheduledAt)}.` : editing ? "Notícia atualizada e sincronizada com o banco." : "Notícia criada e salva no banco.");
     } catch (error) {
@@ -305,7 +289,7 @@ export default function Admin() {
     const updatedArticle = nextArticles.find((article) => article.id === id);
     if (!updatedArticle) return;
     const remoteStatus = status;
-    saveArticleRemote.mutate({ id: updatedArticle.id, title: updatedArticle.title, category: updatedArticle.category, author: updatedArticle.author, authorOpenId: updatedArticle.authorOpenId ?? null, summary: updatedArticle.summary, date: updatedArticle.date, updated: updatedArticle.updated, status: remoteStatus, views: updatedArticle.views, image: updatedArticle.image, bodyHtml: updatedArticle.bodyHtml, scheduledAt: updatedArticle.scheduledAt ? new Date(updatedArticle.scheduledAt).getTime() : null, tags: JSON.stringify(updatedArticle.tags || []), youtubeUrl: updatedArticle.youtubeUrl || null, socialLinks: JSON.stringify(updatedArticle.socialLinks || {}), scope: updatedArticle.scope || "national", region: updatedArticle.region || null, state: updatedArticle.state || null, country: updatedArticle.country || "Brasil", language: updatedArticle.language || "pt-BR", featured: Boolean(updatedArticle.featured), sourceUrl: updatedArticle.sourceUrl || null, sourceName: updatedArticle.sourceName || null }, { onSuccess: () => { setArticles(nextArticles); persistArticles(nextArticles); window.dispatchEvent(new Event("pch-news-data-changed")); notify(`Notícia marcada como ${statusLabels[status].toLowerCase()}.`); }, onError: () => notify("O banco recusou a alteração de status; a publicação não foi alterada.") });
+    saveArticleRemote.mutate({ id: updatedArticle.id, title: updatedArticle.title, category: updatedArticle.category, author: updatedArticle.author, authorOpenId: updatedArticle.authorOpenId ?? null, summary: updatedArticle.summary, date: updatedArticle.date, updated: updatedArticle.updated, status: remoteStatus, views: updatedArticle.views, image: updatedArticle.image, bodyHtml: updatedArticle.bodyHtml, scheduledAt: updatedArticle.scheduledAt ? new Date(updatedArticle.scheduledAt).getTime() : null, tags: JSON.stringify(updatedArticle.tags || []), youtubeUrl: updatedArticle.youtubeUrl || null, socialLinks: JSON.stringify(updatedArticle.socialLinks || {}), scope: updatedArticle.scope || "national", region: updatedArticle.region || null, state: updatedArticle.state || null, country: updatedArticle.country || "Brasil", language: updatedArticle.language || "pt-BR", featured: Boolean(updatedArticle.featured), sourceUrl: updatedArticle.sourceUrl || null, sourceName: updatedArticle.sourceName || null }, { onSuccess: () => { setArticles(nextArticles); notify(`Notícia marcada como ${statusLabels[status].toLowerCase()}.`); }, onError: () => notify("O banco recusou a alteração de status; a publicação não foi alterada.") });
   };
 
   const deleteArticle = (id: string) => {
@@ -318,7 +302,7 @@ export default function Admin() {
     if (!canManageArticle(article)) { notify("Colunistas só podem duplicar as próprias publicações."); return; }
     const copy = { ...article, id: makeArticleId(), title: `${article.title} — cópia`, status: "draft" as ArticleStatus, views: 0, updated: "agora" };
     const nextArticles = [copy, ...articles];
-    saveArticleRemote.mutate({ id: copy.id, title: copy.title, category: copy.category, author: copy.author, authorOpenId: copy.authorOpenId ?? user?.openId ?? null, summary: copy.summary, date: copy.date, updated: copy.updated, status: "draft", views: 0, image: copy.image, bodyHtml: copy.bodyHtml, scheduledAt: null, tags: JSON.stringify(copy.tags || []), youtubeUrl: copy.youtubeUrl || null, socialLinks: JSON.stringify(copy.socialLinks || {}), scope: copy.scope || "national", region: copy.region || null, state: copy.state || null, country: copy.country || "Brasil", language: copy.language || "pt-BR", featured: Boolean(copy.featured), sourceUrl: copy.sourceUrl || null, sourceName: copy.sourceName || null }, { onSuccess: () => { setArticles(nextArticles); persistArticles(nextArticles); window.dispatchEvent(new Event("pch-news-data-changed")); notify("Cópia criada e salva como rascunho."); }, onError: () => notify("Não foi possível salvar a cópia no banco.") });
+    saveArticleRemote.mutate({ id: copy.id, title: copy.title, category: copy.category, author: copy.author, authorOpenId: copy.authorOpenId ?? user?.openId ?? null, summary: copy.summary, date: copy.date, updated: copy.updated, status: "draft", views: 0, image: copy.image, bodyHtml: copy.bodyHtml, scheduledAt: null, tags: JSON.stringify(copy.tags || []), youtubeUrl: copy.youtubeUrl || null, socialLinks: JSON.stringify(copy.socialLinks || {}), scope: copy.scope || "national", region: copy.region || null, state: copy.state || null, country: copy.country || "Brasil", language: copy.language || "pt-BR", featured: Boolean(copy.featured), sourceUrl: copy.sourceUrl || null, sourceName: copy.sourceName || null }, { onSuccess: () => { setArticles(nextArticles); notify("Cópia criada e salva como rascunho."); }, onError: () => notify("Não foi possível salvar a cópia no banco.") });
   };
 
   useEffect(() => {
@@ -421,7 +405,7 @@ export default function Admin() {
           {view === "comments" && <Comments comments={isAdmin ? comments : comments.filter((comment) => articles.find((article) => article.id === comment.articleId)?.author === currentAuthor)} articles={articles} onChange={setComments} notify={notify} currentAuthor={currentAuthor} isAdmin={isAdmin} />}
           {view === "ads" && isAdmin && <Ads notify={notify} />}
           {view === "profile" && <ProfileEditor profile={profiles[slugify(currentAuthor)] || Object.values(profiles)[0]} onSave={saveProfile} onUpload={uploadProfilePhoto} notify={notify} />}
-          {view === "media" && <MediaLibrary media={media} onUpload={uploadMedia} onDelete={(id) => { const nextMedia = media.filter((item) => item.id !== id); setMedia(nextMedia); persistMedia(nextMedia); notify("Imagem removida da galeria."); }} />}
+          {view === "media" && <MediaLibrary media={media} onUpload={uploadMedia} onDelete={() => notify("A exclusão de mídia ainda requer uma operação de armazenamento persistente.")} />}
           {view === "settings" && isAdmin && <AccessSettings users={accessUsers} onRoleChange={(openId, role) => setRole.mutate({ openId, role })} />}
         </main>
       </div>
@@ -493,6 +477,3 @@ function PlaceholderView({ icon: Icon, title, description, action, onAction }: {
   return <div className="placeholder-view"><div className="placeholder-icon"><Icon size={28} /></div><span className="admin-kicker">EM CONSTRUÇÃO</span><h1>{title}<span>.</span></h1><p>{description}</p><button className="primary-cta" onClick={onAction}><Plus size={17} /> {action}</button></div>;
 }
 
-export function resetDemoData() {
-  persistArticles(INITIAL_ARTICLES);
-}
