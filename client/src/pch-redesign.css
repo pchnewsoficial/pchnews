@@ -916,7 +916,6 @@ main { padding-top:18px !important; }
 .privacy-btn.outline { border:1px solid rgba(255,255,255,.25) !important; color:#fff !important; background:transparent !important; }
 .privacy-btn.ghost { color:#fff !important; background:rgba(255,255,255,.08) !important; }
 .privacy-close { color:#fff !important; background:transparent !important; }
-.privacy-preferences-trigger { position:fixed !important; right:16px !important; bottom:14px !important; z-index:9998 !important; display:inline-flex !important; align-items:center !important; gap:5px !important; border:1px solid #cfd7dd !important; border-radius:999px !important; padding:7px 10px !important; background:#fff !important; color:#34414b !important; font-size:10px !important; font-weight:800 !important; box-shadow:0 6px 18px rgba(0,0,0,.12) !important; }
 @media (max-width:700px) {
   .legal-layout { padding:28px 14px 50px !important; }
   .legal-document { padding:24px 20px !important; }
