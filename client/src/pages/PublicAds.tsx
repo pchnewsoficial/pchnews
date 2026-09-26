@@ -16,7 +16,7 @@ export default function PublicAds() {
   const submit=async(e:FormEvent)=>{
     e.preventDefault();
     if(!form.business.trim()||!form.contactName.trim()||!form.email.trim()||!form.phone.trim()||!form.message.trim()||!form.consent){ return; }
-    await create.mutateAsync(form);
+    await create.mutateAsync({ ...form, consent: true });
     setSent(true);
   };
   return <div className="site-shell public-module-page"><PageMeta title="Anuncie no PCH News" description="Solicite uma proposta comercial para anunciar no PCH News." canonicalPath="/anuncie" />
