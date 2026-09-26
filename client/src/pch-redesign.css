@@ -1078,3 +1078,17 @@ main { padding-top:18px !important; }
 .knowledge-grid article{padding:24px;border:1px solid #e0e6ea;background:#fff;min-height:175px}.knowledge-grid article>span{display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:#fff7df;color:#9a741f}.knowledge-grid h3{margin:17px 0 7px;color:#183247;font-size:19px}.knowledge-grid p{margin:0;color:#6d7982;font-size:12px;line-height:1.6}
 .knowledge-note{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-top:18px;padding:24px 28px;border-left:4px solid #f4b72d;background:#fffaf0}.knowledge-note h2{margin:5px 0 7px;color:#203247;font-size:23px}.knowledge-note p{margin:0;color:#687680;line-height:1.55;font-size:12px}
 @media(max-width:760px){.services-grid{grid-template-columns:1fr!important}.knowledge-hero{padding:42px 14px 44px}.knowledge-main{padding:28px 14px 54px}.knowledge-intro{grid-template-columns:1fr;padding:22px}.knowledge-mark{width:110px;height:110px;border-radius:18px}.knowledge-grid{grid-template-columns:1fr}.knowledge-note{align-items:flex-start;flex-direction:column;padding:20px}.mobile-app-nav{bottom:max(10px,env(safe-area-inset-bottom))!important}}
+
+/* Agenda promotion on the public homepage */
+.events-promo-home{margin-top:2.5rem;margin-bottom:2.5rem}
+.events-promo-rail{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
+.events-promo-card{position:relative;display:grid;grid-template-columns:78px 1fr;gap:1rem;min-height:150px;padding:1.1rem;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:rgba(255,255,255,.035);text-decoration:none}
+.events-promo-card:hover{transform:translateY(-2px)}
+.events-promo-date{display:flex;flex-direction:column;align-items:flex-start;gap:.2rem;padding-right:.8rem;border-right:1px solid rgba(255,255,255,.12)}
+.events-promo-date svg{opacity:.8}
+.events-promo-date strong{font-size:1.2rem}
+.events-promo-date span{font-size:.82rem;opacity:.75}
+.events-promo-card h3{margin:.25rem 0 .5rem;font-size:1.05rem}
+.events-promo-card p{display:flex;align-items:center;gap:.25rem;margin:0;font-size:.82rem;opacity:.75}
+.event-sponsored-label{position:absolute;right:.75rem;top:.65rem;font-size:.62rem;letter-spacing:.08em}
+@media(max-width:800px){.events-promo-rail{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:.5rem}.events-promo-card{min-width:82%;scroll-snap-align:start}}
