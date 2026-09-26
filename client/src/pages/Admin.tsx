@@ -211,7 +211,6 @@ export default function Admin() {
           region: draft.region || null, state: draft.state || null, country: draft.country || "Brasil",
           language: draft.language || "pt-BR", featured: Boolean(draft.featured), sourceUrl: editing.sourceUrl || null,
           sourceName: editing.sourceName || null,
-          contentType: draft.contentType, editorialChecklist: draft.editorialChecklist, editorialNotes: draft.editorialNotes || null, contraponto: draft.contraponto || null, keyTakeaway: draft.keyTakeaway || null,
         });
         setAutosaveState("saved");
       } catch (error) {
