@@ -3,6 +3,7 @@ import { CheckCircle2, Megaphone, Send, ShieldCheck } from "lucide-react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import PublicFooter from "@/components/PublicFooter";
+import PageMeta from "@/components/PageMeta";
 
 const LOGO_URL = "/brand/pch-news-official-20260926.svg?v=20260926";
 const formats = ["Publicidade na home", "Patrocínio de editoria", "Campanha institucional", "Projeto especial", "Outro"];
@@ -18,7 +19,7 @@ export default function PublicAds() {
     await create.mutateAsync(form);
     setSent(true);
   };
-  return <div className="site-shell public-module-page">
+  return <div className="site-shell public-module-page"><PageMeta title="Anuncie no PCH News" description="Solicite uma proposta comercial para anunciar no PCH News." canonicalPath="/anuncie" />
     <header className="public-module-header"><div className="container public-module-header-inner"><Link href="/" className="public-module-brand"><img src={LOGO_URL} alt="PCH News"/><span>Informação para <strong>libertar a mente.</strong></span></Link><nav><Link href="/">Notícias</Link><Link href="/institucional">Institucional</Link><Link href="/lei">Lei &amp; Justiça</Link></nav></div></header>
     <main>
       <section className="container public-hero ad-public-hero"><div><span className="eyebrow gold">PCH NEWS ADS · COMERCIAL</span><h1>Sua marca pode ocupar <em>um espaço claro.</em></h1><p>Apresente sua empresa, produto ou serviço ao PCH News. Envie seu briefing e a equipe comercial retornará para avaliar o formato adequado.</p></div><div className="ad-hero-mark"><Megaphone size={44}/><span>PUBLICIDADE<br/><strong>IDENTIFICADA</strong></span></div></section>
