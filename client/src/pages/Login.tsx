@@ -5,7 +5,7 @@ import { startLogin } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 
-const LOGO_URL = "/brand/logo.jpg?v=20260926";
+const LOGO_URL = "/brand/logo-fixed.svg?v=20260926";
 const OWNER_EMAIL = "pchnews.oficial@gmail.com";
 
 export default function Login() {
