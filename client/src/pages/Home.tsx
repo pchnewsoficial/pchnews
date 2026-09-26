@@ -79,21 +79,6 @@ export default function Home() {
   const eventCarousel = trpc.events.carousel.useQuery({ limit: 6 }, { retry: false, staleTime: 60 * 1000 });
   const weatherTemperature = (headerWeather.data as { current?: { temperature_2m?: number } } | undefined)?.current?.temperature_2m;
 
-  if (editorialError && articles.length === 0) {
-    return (
-      <div className="site-shell">
-        <main className="article-placeholder" role="alert">
-          <span className="admin-kicker">PCH NEWS</span>
-          <h1>Não foi possível carregar as notícias agora.</h1>
-          <p>{editorialError.message || "A conexão com a redação está temporariamente indisponível."}</p>
-          <button className="primary-cta" onClick={() => void refetchEditorial()} disabled={editorialLoading}>
-            {editorialLoading ? "Tentando novamente…" : "Tentar novamente"}
-          </button>
-        </main>
-      </div>
-    );
-  }
-
   const published = useMemo(() => articles.filter((article) => {
     if (!["published", "updated"].includes(article.status)) return false;
     if (!article.scheduledAt) return true;
@@ -168,8 +153,20 @@ export default function Home() {
     stories: published.filter((article) => article.category === category).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime() || b.views - a.views).slice(0, 4),
   })).filter((section) => section.stories.length > 0).slice(0, 6);
 
+  const publicContentError = editorialError && articles.length === 0 ? (
+    <main className="article-placeholder" role="alert">
+      <span className="admin-kicker">PCH NEWS</span>
+      <h1>Não foi possível carregar as notícias agora.</h1>
+      <p>{editorialError.message || "A conexão com a redação está temporariamente indisponível."}</p>
+      <button className="primary-cta" onClick={() => void refetchEditorial()} disabled={editorialLoading}>
+        {editorialLoading ? "Tentando novamente…" : "Tentar novamente"}
+      </button>
+    </main>
+  ) : null;
+
   return (
     <div className="site-shell">
+      {publicContentError}
       <div className="breaking-bar">
         <div className="container breaking-inner">
           <span className="breaking-label"><span className="breaking-dot" /> URGENTE</span>
