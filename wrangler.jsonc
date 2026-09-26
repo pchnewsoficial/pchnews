@@ -3,6 +3,7 @@
   "name": "pch-news",
   "main": "./worker/index.ts",
   "compatibility_date": "2026-09-24",
+  "triggers": { "crons": ["*/5 * * * *"] },
   "compatibility_flags": [
     "nodejs_compat",
     "nodejs_compat_populate_process_env",
