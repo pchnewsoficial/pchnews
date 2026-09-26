@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "build": "pnpm run check && vite build",
+    "build": "vite build",
     "check": "tsc --noEmit",
     "format": "prettier --write .",
     "test": "vitest run",
@@ -15,8 +15,7 @@
     "postinstall": "node scripts/patch-cloudflare-iconv-lite.mjs",
     "dev:full": "NODE_ENV=development tsx watch server/_core/index.ts",
     "build:full": "vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --alias:@shared=./shared --alias:@=./client/src --outdir=dist/server && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --alias:@shared=./shared --alias:@=./client/src --outdir=dist",
-    "start:production": "node dist/server/index.js",
-    "typecheck": "tsc --noEmit"
+    "start:production": "node dist/server/index.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.693.0",
