@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 
 const LOGO_URL = "/brand/pch-news-official-20260926.svg?v=20260927";
 const OWNER_EMAIL = "pchnews.oficial@gmail.com";
+const ADMIN_APP_ORIGIN = "https://pch-news.pchnews-oficial.workers.dev";
 
 export default function Login() {
   const [email, setEmail] = useState(OWNER_EMAIL);
@@ -59,7 +60,7 @@ export default function Login() {
     if (normalized !== OWNER_EMAIL) { setMessage("Use o e-mail administrativo cadastrado no PCH News."); return; }
     setSending(true); setMessage("");
     const redirectTo = typeof window !== "undefined"
-      ? window.location.origin + "/admin?reset=1"
+      ? ADMIN_APP_ORIGIN + "/admin?reset=1"
       : undefined;
     const { error } = await supabase.auth.resetPasswordForEmail(
       normalized,
@@ -96,7 +97,7 @@ export default function Login() {
     // Keep the magic-link callback on the exact host where the login started.
     // This avoids sending production users to the Lovable preview/published host.
     const redirectTo = typeof window !== "undefined"
-      ? window.location.origin + "/admin"
+      ? ADMIN_APP_ORIGIN + "/admin"
       : undefined;
     const { error } = await supabase.auth.signInWithOtp({
       email: normalized,
