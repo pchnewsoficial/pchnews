@@ -84,7 +84,7 @@ export default function Admin() {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const { user, logout: oauthLogout } = useAuth();
-  const currentRole = user?.role === "admin" ? "admin" : "columnist";
+  const currentRole = user?.role || "user";
   const currentAuthor = user?.name || "Colunista";
   const displayName = user?.name || "Redação PCH News";
   const displayInitials = getInitials(displayName);
@@ -106,7 +106,7 @@ export default function Admin() {
   const profileUpload = trpc.profiles.uploadPhoto.useMutation();
   const mediaList = trpc.media.list.useQuery(undefined, { enabled: Boolean(user), retry: false });
   const mediaUpload = trpc.media.upload.useMutation();
-  const canManageArticle = (article: NewsArticle) => isAdmin || article.author === currentAuthor;
+  const canManageArticle = (article: NewsArticle) => isAdmin || (["editor", "journalist", "columnist"].includes(user?.role || "") && article.author === currentAuthor);
   const [columnists, setColumnists] = useState<Columnist[]>(() => { try { const stored = window.localStorage.getItem(COLUMNISTS_KEY); return stored ? JSON.parse(stored) : INITIAL_COLUMNISTS; } catch { return INITIAL_COLUMNISTS; } });
   const [, navigate] = useLocation();
 
