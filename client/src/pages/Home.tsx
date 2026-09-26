@@ -4,6 +4,7 @@ import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { EDITORIAL_CATEGORIES, EDITORIAL_SUBTHEMES, NewsArticle, readStoredArticles } from "@/lib/news";
 import "@/pch-redesign.css";
+import PublicFooter from "@/components/PublicFooter";
 
 const LOGO_URL = "/brand/pch-news-official-20260926.svg?v=20260926";
 const LOGO_FALLBACK_URL = "/brand/pch-news-official-20260926.svg?v=20260926";
@@ -175,7 +176,7 @@ export default function Home() {
 
       <main>
         <section className="container ad-banner" id="anuncie">
-          <div className="ad-copy"><span className="ad-tag">PUBLICIDADE</span><span className="eyebrow gold">PCH NEWS • MÍDIA ESTRATÉGICA</span><h1>Sua marca pode ser<br /><em>a próxima notícia.</em></h1><p>Apresente sua empresa, produto ou serviço para uma audiência que busca informação.</p><a className="gold-button" href="#anuncie">ANUNCIE NO PCH NEWS <ArrowRight size={16} /></a></div>
+          <div className="ad-copy"><span className="ad-tag">PUBLICIDADE</span><span className="eyebrow gold">PCH NEWS • MÍDIA ESTRATÉGICA</span><h1>Sua marca pode ser<br /><em>a próxima notícia.</em></h1><p>Apresente sua empresa, produto ou serviço para uma audiência que busca informação.</p><Link className="gold-button" href="/anuncie">ANUNCIE NO PCH NEWS <ArrowRight size={16} /></Link></div>
           <div className="ad-device"><div className="device-top"><span /><span /><span /></div><div className="device-content"><div className="device-logo">PCH<br /><small>NEWS</small></div><div className="device-lines"><i /><i /><i /><i /></div><div className="device-cards"><b /><b /><b /></div></div></div>
           <div className="ad-side">Sua marca não precisa interromper a notícia.<strong>Ela pode ser<br />a notícia.</strong><span>◉</span></div>
         </section>
@@ -275,23 +276,8 @@ export default function Home() {
           </div>
         </section>
 
-      <footer className="site-footer">
-        <div className="container footer-inner">
-          <div className="footer-brand-block">
-            <img className="footer-logo" src={LOGO_URL} alt="PCH News" />
-            <div><strong>PCH News</strong><p>Jornalismo nacional, pensamento amplo.</p><small>Notícias, colunas e perspectivas para libertar a mente.</small></div>
-          </div>
-          <div className="footer-column"><span>EDITORIAS</span><Link href="/">Brasil</Link><Link href="/">Política</Link><Link href="/">Economia</Link><Link href="/">Cultura</Link><Link href="/">Mundo</Link></div>
-          <div className="footer-column"><span>PCH NEWS</span><Link href="/#ultimas">Últimas notícias</Link><Link href="/#parceiros">Parceiros</Link><Link href="/colunista/evaldo-poeta">Coluna do Evaldo</Link><a href="/?admin=1">Painel editorial</a><Link href="/">Anuncie</Link></div>
-          <div className="footer-column"><span>INSTITUCIONAL</span><Link href="/">Expediente</Link><Link href="/">Política editorial</Link><Link href="/">Privacidade</Link><Link href="/">Contato</Link></div>
-          <div className="footer-signature">
-            <span>INFORMAÇÃO PARA</span><strong>LIBERTAR A MENTE.</strong>
-            <div className="footer-socials"><a href="https://www.instagram.com/" target="_blank" rel="noreferrer">Instagram</a><a href="https://www.facebook.com/" target="_blank" rel="noreferrer">Facebook</a><a href="https://www.youtube.com/" target="_blank" rel="noreferrer">YouTube</a></div>
-            <small>© 2026 PCH News · Responsabilidade editorial PCH News</small>
-          </div>
-        </div>
-        <div className="container footer-bottom"><span>PCH News · Brasil e mundo</span><span>Conteúdo editorial, colunas e distribuição digital.</span></div>
-      </footer>
+      <PublicFooter />
+
     </div>
   );
 }
