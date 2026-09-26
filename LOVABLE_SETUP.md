@@ -6,7 +6,7 @@ O projeto foi adaptado no GitHub para facilitar a importação como React + Vite
 
 O repositório oficial e atual do PCH News é:
 
-`pchnewsoficial/pch-news`
+`pchnewsoficial/pchnews`
 
 Branch de produção:
 
@@ -32,11 +32,11 @@ O projeto ainda contém backend, autenticação, tRPC e banco de dados. A adapta
 
 ## Lovable
 
-O projeto PCH News Hub no Lovable deve permanecer alinhado ao repositório oficial `pchnewsoficial/pch-news`, branch `main`.
+O projeto PCH News Hub no Lovable deve permanecer alinhado ao repositório oficial `pchnewsoficial/pchnews`, branch `main`.
 
 Ao configurar ou reconectar o GitHub no Lovable, selecionar exclusivamente:
 
-- Repositório: `pchnewsoficial/pch-news`
+- Repositório: `pchnewsoficial/pchnews`
 - Branch: `main`
 
 Não usar `pchnewsoficial/pchnews.oficial`.
