@@ -31,9 +31,11 @@ export default function Login() {
       return;
     }
 
-    const redirectTo = typeof window !== "undefined" && window.location.hostname === "localhost"
+    // Keep the magic-link callback on the exact host where the login started.
+    // This avoids sending production users to the Lovable preview/published host.
+    const redirectTo = typeof window !== "undefined"
       ? window.location.origin + "/?admin=1"
-      : "https://pch-news.lovable.app/?admin=1";
+      : undefined;
     const { error } = await supabase.auth.signInWithOtp({
       email: normalized,
       options: {
