@@ -1,4 +1,4 @@
-import { ArrowRight, LockKeyhole, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ArrowRight, KeyRound, LockKeyhole, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -12,6 +12,9 @@ export default function Login() {
   const { user, loading, error: authError } = useAuth();
   const [email, setEmail] = useState(OWNER_EMAIL);
   const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [resetMode, setResetMode] = useState(false);
+  const [resetPasswordMode, setResetPasswordMode] = useState(false);
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -36,6 +39,32 @@ export default function Login() {
     setSending(false);
     if (error) { setMessage("Não foi possível entrar com essas credenciais."); return; }
     window.location.assign("/?admin=1");
+  };
+
+  const handleForgotPassword = async () => {
+    const normalized = email.trim().toLowerCase();
+    if (normalized !== OWNER_EMAIL) { setMessage("Use o e-mail administrativo cadastrado no PCH News."); return; }
+    setSending(true); setMessage("");
+    const redirectTo = typeof window !== "undefined" ? window.location.origin + "/login?reset=1" : undefined;
+    const { error } = await supabase.auth.resetPasswordForEmail(normalized, redirectTo ? { redirectTo } : undefined);
+    setSending(false);
+    setMessage(error ? "Não foi possível enviar o e-mail de recuperação." : "E-mail de recuperação enviado. Abra o link recebido para definir uma nova senha.");
+  };
+
+  const handleSetNewPassword = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (newPassword.length < 8) { setMessage("A nova senha precisa ter pelo menos 8 caracteres."); return; }
+    setSending(true); setMessage("");
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setSending(false);
+    if (error) { setMessage("Não foi possível alterar a senha. Solicite um novo link de recuperação."); return; }
+    setMessage("Senha alterada com sucesso. Entrando no painel editorial…");
+    window.setTimeout(() => window.location.assign("/?admin=1"), 700);
+  };
+
+  const returnToLogin = () => {
+    setResetMode(false); setResetPasswordMode(false); setMessage(""); setNewPassword("");
+    window.history.replaceState({}, "", "/login");
   };
 
   const handleMagicLink = async () => {
@@ -64,7 +93,7 @@ export default function Login() {
     );
   };
 
-  if (loading && !user) {
+  if (loading && !user && !resetPasswordMode) {
     return (
       <main className="login-shell" aria-busy="true">
         <section className="login-card login-loading-card">
@@ -92,7 +121,7 @@ export default function Login() {
 
         <div className="login-intro">
           <span className="admin-kicker">ÁREA ADMINISTRATIVA</span>
-          <h1 id="login-title">Bem-vindo à<br /><em>redação.</em></h1>
+          <h1 id="login-title">Bem-vindo à<br /><em>{resetPasswordMode ? "nova senha." : "redação."}</em></h1>
           <p>Acesse o painel para publicar, revisar e administrar o PCH News.</p>
         </div>
 
@@ -144,4 +173,4 @@ export default function Login() {
       <footer className="login-footer">© 2026 PCH News · Notícias para libertar a mente.</footer>
     </main>
   );
-}
+}        <div className="login-actions"><button className="login-forgot-button" type="button" onClick={() => { setResetMode(true); setMessage(""); }}>Esqueci minha senha</button></div>\n
