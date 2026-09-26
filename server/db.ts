@@ -158,7 +158,12 @@ export async function savePauta(pauta: any, accessToken?: string | null) {
 
 export async function listPublicEvents(filters?: any) {
   const db = await getDb(); if (!db) return [];
-  let q = db.from("events").select("*").eq("status", "approved").order("startAtMs", { ascending: true });
+  const nowMs = Date.now();
+  // Public agenda is always future-facing. An event disappears automatically
+  // after its end time; when no end time exists, its start time is the expiry.
+  let q = db.from("events").select("*").eq("status", "approved")
+    .or("and(endAtMs.not.is.null,endAtMs.gte." + nowMs + "),and(endAtMs.is.null,startAtMs.gte." + nowMs + ")")
+    .order("startAtMs", { ascending: true });
   if (filters?.state) q = q.eq("state", filters.state);
   if (filters?.city) q = q.ilike("city", filters.city);
   if (filters?.eventType) q = q.eq("eventType", filters.eventType);
@@ -179,7 +184,16 @@ export async function listPublicEvents(filters?: any) {
 export async function createEvent(input: any, accessToken?: string | null) {
   const db = await getDb(accessToken); if (!db) throw new Error("Database unavailable");
   const nowMs = Date.now();
-  const { data, error } = await db.from("events").insert({ ...input, status: "pending", createdAtMs: nowMs, updatedAtMs: nowMs }).select().single();
+  const { data, error } = await db.from("events").insert({
+    ...input,
+    sourceType: input.sourceType ?? "public_submission",
+    sourceName: input.sourceName ?? null,
+    sourceUrl: input.sourceUrl ?? null,
+    importedAtMs: input.sourceType && input.sourceType !== "public_submission" ? nowMs : null,
+    status: "pending",
+    createdAtMs: nowMs,
+    updatedAtMs: nowMs
+  }).select().single();
   if (error) throw error; return data;
 }
 export async function getPublicEvent(id: string, accessToken?: string | null) {
