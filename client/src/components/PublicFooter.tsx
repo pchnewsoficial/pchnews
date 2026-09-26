@@ -36,7 +36,7 @@ export default function PublicFooter() {
           <Link href="/institucional">Publicidade</Link>
           <Link href="/privacidade">Privacidade</Link>
           <Link href="/termos">Termos de uso</Link>
-          <Link href="/cookies">Cookies</Link>
+          <Link href="/cookies">Cookies</Link><button type="button" className="footer-privacy-button" onClick={() => window.dispatchEvent(new CustomEvent("pch-open-privacy-settings"))}>Preferências de privacidade</button>
         </div>
         <div className="footer-signature">
           <span>INFORMAÇÃO PARA</span>

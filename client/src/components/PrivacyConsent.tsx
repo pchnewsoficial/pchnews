@@ -30,8 +30,8 @@ export default function PrivacyConsent() {
       setAnalytics(next?.analytics ?? false);
       setAdvertising(next?.advertising ?? false);
     };
-    window.addEventListener("pch-privacy-consent", onConsent);
-    return () => window.removeEventListener("pch-privacy-consent", onConsent);
+    window.addEventListener("pch-privacy-consent", onConsent); const openSettings = () => setSettingsOpen(true); window.addEventListener("pch-open-privacy-settings", openSettings);
+    return () => { window.removeEventListener("pch-privacy-consent", onConsent); window.removeEventListener("pch-open-privacy-settings", openSettings); };
   }, []);
 
   const commit = (nextAnalytics: boolean, nextAdvertising: boolean) => {
@@ -40,10 +40,6 @@ export default function PrivacyConsent() {
     setSettingsOpen(false);
     applyClarityConsent(next);
   };
-
-  if (consent && !settingsOpen) {
-    return <button className="privacy-preferences-trigger" type="button" onClick={() => setSettingsOpen(true)}><Settings2 size={14} /> Preferências de privacidade</button>;
-  }
 
   return (
     <div className="privacy-consent" role="dialog" aria-label="Preferências de privacidade">
