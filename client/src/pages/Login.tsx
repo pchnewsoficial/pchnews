@@ -1,7 +1,6 @@
 import { ArrowLeft, ArrowRight, KeyRound, LockKeyhole, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
-import { useAuth } from "@/_core/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 
 const LOGO_URL = "/brand/pch-news-official-20260926.svg?v=20260927";
@@ -9,7 +8,6 @@ const OWNER_EMAIL = "pchnews.oficial@gmail.com";
 
 export default function Login() {
   const [, navigate] = useLocation();
-  const { user, loading, error: authError } = useAuth();
   const [email, setEmail] = useState(OWNER_EMAIL);
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -19,10 +17,6 @@ export default function Login() {
   );
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState("");
-
-  useEffect(() => {
-    if (!loading && user && !resetPasswordMode) window.location.assign("/?admin=1");
-  }, [loading, user, resetPasswordMode, navigate]);
 
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {
@@ -80,7 +74,7 @@ export default function Login() {
     setSending(false);
     if (error) { setMessage("Não foi possível alterar a senha. Solicite um novo link de recuperação."); return; }
     setMessage("Senha alterada com sucesso. Entrando no painel editorial…");
-    window.setTimeout(() => window.location.assign("/admin"), 700);
+    window.setTimeout(() => window.location.assign("/?admin=1"), 700);
   };
 
   const returnToLogin = () => {
@@ -185,9 +179,6 @@ export default function Login() {
           </>
         )}
 
-        {authError && (
-          <div className="login-error" role="alert">{authError.message}</div>
-        )}
         {message && <div className="login-message" role="status">{message}</div>}
 
         <div className="login-security">
