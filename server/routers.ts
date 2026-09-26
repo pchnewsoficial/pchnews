@@ -193,7 +193,7 @@ export const appRouter = router({
       return data;
     }),
   }),
-  access: router({ list: adminProcedure.query(async ({ ctx }) => { return listUsers(ctx.accessToken); }), setRole: adminProcedure.input(z.object({ openId: z.string(), role: z.enum(["user", "admin", "columnist"]) })).mutation(async ({ input, ctx }) => { return setUserRole(input.openId,input.role,ctx.accessToken); }) }),
+  access: router({ list: adminProcedure.query(async ({ ctx }) => { return listUsers(ctx.accessToken); }), setRole: adminProcedure.input(z.object({ openId: z.string(), role: z.enum(["user", "admin", "editor", "journalist", "columnist", "reviewer"]) })).mutation(async ({ input, ctx }) => { return setUserRole(input.openId,input.role,ctx.accessToken); }) }),
   pilulas: router({ sync: adminProcedure.mutation(({ ctx }) => syncHostingPressPilulas(ctx.accessToken)) }),
   invites: router({
     list: adminProcedure.query(({ ctx }) => listInvites(ctx.accessToken)),
