@@ -18,7 +18,7 @@ export default function Login() {
   const [showGoogle, setShowGoogle] = useState(false);
 
   useEffect(() => {
-    if (!loading && user) window.location.assign("/?admin=1");
+    if (!loading && user) window.location.assign("/admin");
   }, [loading, user, navigate]);
 
   const handleGoogle = async () => {
@@ -41,7 +41,7 @@ export default function Login() {
       return;
     }
 
-    const redirectTo = typeof window !== "undefined" ? window.location.origin + "/?admin=1" : undefined;
+    const redirectTo = typeof window !== "undefined" ? window.location.origin + "/admin" : undefined;
     const { error } = await supabase.auth.signInWithOtp({
       email: normalized,
       options: {
