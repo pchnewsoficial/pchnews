@@ -6,7 +6,7 @@ import { NewsArticle } from "@/lib/news";
 import PublicFooter from "@/components/PublicFooter";
 import PageMeta from "@/components/PageMeta";
 
-const LOGO_URL = "/brand/pch-news-official-20260926.svg?v=20260927";
+const LOGO_URL = "/brand/pch-news-official-current.svg?v=20260927";
 const legalTerms = ["lei","legislação","legislacao","justiça","justica","tribunal","direito","direitos","judiciário","judiciario","decisão judicial","decisao judicial"];
 
 export default function LawNews() {
