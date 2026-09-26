@@ -14,13 +14,27 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [resetMode, setResetMode] = useState(false);
-  const [resetPasswordMode, setResetPasswordMode] = useState(false);
+  const [resetPasswordMode, setResetPasswordMode] = useState(() =>
+    typeof window !== "undefined" && new URLSearchParams(window.location.search).get("reset") === "1",
+  );
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    if (!loading && user) window.location.assign("/?admin=1");
-  }, [loading, user, navigate]);
+    if (!loading && user && !resetPasswordMode) window.location.assign("/admin");
+  }, [loading, user, resetPasswordMode, navigate]);
+
+  useEffect(() => {
+    const { data } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setResetMode(false);
+        setResetPasswordMode(true);
+        setMessage("");
+      }
+    });
+
+    return () => data.subscription.unsubscribe();
+  }, []);
 
   const handlePasswordLogin = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -37,8 +51,15 @@ export default function Login() {
 
     const { error } = await supabase.auth.signInWithPassword({ email: normalized, password });
     setSending(false);
-    if (error) { setMessage("Não foi possível entrar com essas credenciais."); return; }
-    window.location.assign("/?admin=1");
+    if (error) {
+      setMessage(
+        error.message === "Invalid login credentials"
+          ? "E-mail ou senha incorretos. Se você não lembrar da senha, use “Esqueci minha senha”."
+          : "Não foi possível entrar. Verifique o e-mail e tente novamente.",
+      );
+      return;
+    }
+    window.location.assign("/admin");
   };
 
   const handleForgotPassword = async () => {
@@ -59,12 +80,14 @@ export default function Login() {
     setSending(false);
     if (error) { setMessage("Não foi possível alterar a senha. Solicite um novo link de recuperação."); return; }
     setMessage("Senha alterada com sucesso. Entrando no painel editorial…");
-    window.setTimeout(() => window.location.assign("/?admin=1"), 700);
+    window.setTimeout(() => window.location.assign("/admin"), 700);
   };
 
   const returnToLogin = () => {
     setResetMode(false); setResetPasswordMode(false); setMessage(""); setNewPassword("");
     window.history.replaceState({}, "", "/login");
+    setEmail(OWNER_EMAIL);
+    setPassword("");
   };
 
   const handleMagicLink = async () => {
@@ -76,7 +99,7 @@ export default function Login() {
     // Keep the magic-link callback on the exact host where the login started.
     // This avoids sending production users to the Lovable preview/published host.
     const redirectTo = typeof window !== "undefined"
-      ? window.location.origin + "/?admin=1"
+      ? window.location.origin + "/admin"
       : undefined;
     const { error } = await supabase.auth.signInWithOtp({
       email: normalized,
