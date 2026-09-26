@@ -27,7 +27,8 @@ function slugify(value: string) {
 }
 
 export default function Home() {
-  // Supabase is the only source of editorial content. Do not seed or read articles from browser storage.\n  const [articles, setArticles] = useState<NewsArticle[]>([]);
+  // Supabase is the only source of editorial content. Do not seed or read articles from browser storage.
+  const [articles, setArticles] = useState<NewsArticle[]>([]);
   const { data: remoteEditorial } = trpc.editorial.bootstrap.useQuery(undefined, { retry: false });
   const [activeCategory, setActiveCategory] = useState("Todas");
   const [activeTopic, setActiveTopic] = useState<string | null>(null);
