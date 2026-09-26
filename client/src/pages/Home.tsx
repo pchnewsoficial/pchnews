@@ -178,7 +178,7 @@ export default function Home() {
           <div className="header-actions">
             <button className="icon-button" aria-label="Buscar" onClick={() => setSearchOpen((open) => !open)}><Search size={18} /></button>
             <Link className="profile-link" href="/"><Bookmark size={15} /> Salvos</Link>
-            <a className="admin-link" href="/admin">Painel editorial <ArrowRight size={14} /></a>
+            <a className="admin-link" href="/painel-editorial">Painel editorial <ArrowRight size={14} /></a>
           </div>
         </div>
         <div className={`nav-wrap ${menuOpen ? "is-open" : ""}`}>
