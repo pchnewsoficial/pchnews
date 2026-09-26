@@ -1,7 +1,7 @@
 type Env = { SUPABASE_URL: string; SUPABASE_SERVICE_ROLE_KEY?: string; SUPABASE_SECRET_KEY?: string };
 export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
   const origin = new URL(request.url).origin;
-  const urls = [`${origin}/`];
+  const urls = [`${origin}/`, `${origin}/institucional`, `${origin}/anuncie`, `${origin}/lei`];
   const key = env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SECRET_KEY;
   if (env.SUPABASE_URL && key) {
     const res = await fetch(`${env.SUPABASE_URL}/rest/v1/articles?select=id,status,updatedAt,slug&status=eq.published&order=updatedAt.desc&limit=5000`, { headers: { apikey: key, Authorization: `Bearer ${key}` } });
