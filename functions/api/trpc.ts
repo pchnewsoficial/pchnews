@@ -77,6 +77,7 @@ async function handleProcedure(path: string, request: Request, env: Env, input: 
   const db = createClient(env.SUPABASE_URL, adminKey, { auth: { persistSession: false, autoRefreshToken: false } });
   const STAFF_ROLES = ["admin", "editor", "journalist", "columnist", "reviewer"] as const;
   const CONTENT_EDIT_ROLES = ["admin", "editor", "journalist", "columnist"] as const;
+  const user = await currentUser(request, env);
 
   if (path === "apiHub.weather") {
     const latitude = Number(input.latitude);
@@ -267,7 +268,7 @@ async function handleProcedure(path: string, request: Request, env: Env, input: 
   if (path === "media.upload") {
     if (!user || !STAFF_ROLES.includes(user.role as typeof STAFF_ROLES[number])) throw new Error("FORBIDDEN");
     const fileName = String(input.fileName || "upload.jpg").replace(/[^a-zA-Z0-9._-]/g, "-");
-    const raw = String(input.base64 || "").replace(/^data:[^;]+;base64,", "");
+    const raw = String(input.base64 || "").replace(/^data:[^;]+;base64,/, "");
     if (!raw) throw new Error("Arquivo inválido.");
     const bytes = Uint8Array.from(atob(raw), (ch) => ch.charCodeAt(0));
     if (bytes.length > 5 * 1024 * 1024) throw new Error("A imagem deve ter no máximo 5 MB.");
@@ -380,8 +381,8 @@ async function handleProcedure(path: string, request: Request, env: Env, input: 
     return { success: true, views: Number(current?.views || 0) };
   }
 
-  const user = await currentUser(request, env, true);
-  if (!user || !STAFF_ROLES.includes(user.role as typeof STAFF_ROLES[number])) throw new Error("FORBIDDEN");
+  if (!user) throw new Error("UNAUTHORIZED");
+  if (!STAFF_ROLES.includes(user.role as typeof STAFF_ROLES[number])) throw new Error("FORBIDDEN");
 
   if (path === "editorialAgents.run") {
     const allowed = ["story-editor","fact-checker","seo-optimization-specialist","publication-readiness","ethics-advisor","multi-platform-distributor","liberdade-editorial","journalism-master-orchestrator"];
