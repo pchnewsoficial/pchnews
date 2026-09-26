@@ -7,9 +7,12 @@ import superjson from "superjson";
 import App from "./App";
 import { supabase } from "./lib/supabase";
 import "./index.css";
-import { initClarity } from "./lib/clarity";
+import { initClarity, applyClarityConsent } from "./lib/clarity";
+import { readPrivacyConsent } from "./lib/privacyConsent";
 
-initClarity();
+const privacyConsent = readPrivacyConsent();
+initClarity(privacyConsent?.analytics ?? false, privacyConsent?.advertising ?? false);
+applyClarityConsent(privacyConsent?.analytics ?? false, privacyConsent?.advertising ?? false);
 
 const queryClient = new QueryClient();
 
