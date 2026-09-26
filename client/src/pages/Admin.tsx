@@ -70,11 +70,11 @@ export default function Admin() {
   const currentAuthor = user?.name || "Colunista";
   const displayName = user?.name || "Redação PCH News";
   const displayInitials = getInitials(displayName);
+  const { data: editorialRemote } = trpc.editorial.bootstrap.useQuery(undefined, { enabled: Boolean(user), retry: false });
   const pendingComments = comments.filter((comment) => comment.status === "pending").length;
   const pendingTasks = pendingComments + (editorialRemote?.adRequests?.length ?? adRequests.length);
   const isAdmin = currentRole === "admin";
   const { data: analytics } = trpc.editorial.analytics.useQuery({ author: isAdmin ? undefined : currentAuthor }, { enabled: Boolean(user), retry: false });
-  const { data: editorialRemote } = trpc.editorial.bootstrap.useQuery(undefined, { enabled: Boolean(user), retry: false });
   const { data: accessUsers = [], refetch: refetchAccess } = trpc.access.list.useQuery(undefined, { enabled: isAdmin, retry: false });
   const { data: auditEntries = [] } = trpc.editorial.audit.useQuery({}, { enabled: isAdmin, retry: false });
   const { data: articleHistory = [] } = trpc.editorial.history.useQuery({ articleId: editing?.id || "" }, { enabled: Boolean(user && editing), retry: false });
