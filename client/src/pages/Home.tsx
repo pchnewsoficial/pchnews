@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, Bookmark, ChevronDown, Clock3, Eye, MapPin, Menu, Search, Thermometer, UserRound, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bookmark, CalendarDays, ChevronDown, Clock3, Eye, MapPin, Menu, Search, Thermometer, UserRound, X } from "lucide-react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { EDITORIAL_CATEGORIES, EDITORIAL_SUBTHEMES, NewsArticle, readStoredArticles } from "@/lib/news";
@@ -9,7 +9,7 @@ import PublicFooter from "@/components/PublicFooter";
 const LOGO_URL = "/brand/pch-news-official-current.svg?v=20260926";
 const LOGO_FALLBACK_URL = "/brand/pch-news-official-current.svg?v=20260926";
 const imageUrl = (article: NewsArticle) => article.sourceUrl ? `https://pch-news.pchnews-oficial.workers.dev/legacy-image/${encodeURIComponent(article.sourceUrl)}` : article.image || LOGO_URL;
-const categories = ["Todas", "Brasil", "Política", "Economia", "Mundo"];
+const categories = ["Todas", "Brasil", "Regiões", "Política", "Economia", "Internacional"];
 const moreCategories = EDITORIAL_CATEGORIES.filter((category) => !categories.includes(category));
 
 function Meta({ article }: { article: NewsArticle }) {
@@ -82,7 +82,10 @@ export default function Home() {
       const topicMatches = !activeTopic || (article.tags || []).some((tag) => tag.trim().toLowerCase() === activeTopic.toLowerCase());
       const categoryMatches = activeTopic
         ? topicMatches
-        : activeCategory === "Todas" || (activeCategory === "Colunas" ? article.author !== "Redação PCH News" : article.category === activeCategory);
+        : activeCategory === "Todas"
+          || (activeCategory === "Colunas" ? article.author !== "Redação PCH News" : article.category === activeCategory)
+          || (activeCategory === "Regiões" && article.scope === "regional")
+          || (activeCategory === "Internacional" && article.scope === "international");
       const queryMatches = !normalized || `${article.title} ${article.category} ${article.author} ${(article.tags || []).join(" ")}`.toLowerCase().includes(normalized);
       return categoryMatches && queryMatches;
     });
@@ -285,6 +288,10 @@ export default function Home() {
         </section>}
       </main>
 
+
+        <section className="container services-section" id="servicos"><div className="section-heading large-heading"><div><span className="eyebrow">UTILIDADE PÚBLICA</span><h2>Serviços PCH News</h2></div><div className="heading-rule"><span>Informação que ajuda no dia a dia</span></div></div><div className="services-grid"><Link href="/eventos" className="service-card"><CalendarDays size={24}/><div><strong>Agenda de eventos</strong><p>Encontre eventos por cidade, estado e proximidade.</p></div><ArrowRight size={16}/></Link><Link href="/lei" className="service-card"><span className="service-icon">§</span><div><strong>Lei & Justiça</strong><p>Conteúdo sobre legislação, direitos e cidadania.</p></div><ArrowRight size={16}/></Link><Link href="/institucional" className="service-card"><span className="service-icon">PCH</span><div><strong>Conheça o PCH News</strong><p>Missão, princípios editoriais e transparência.</p></div><ArrowRight size={16}/></Link><Link href="/anuncie" className="service-card"><span className="service-icon">ADS</span><div><strong>Anuncie</strong><p>Formatos comerciais com identificação clara.</p></div><ArrowRight size={16}/></Link></div></section>
+
+        {(published.some((article) => article.youtubeUrl) || published.some((article) => (article.tags || []).some((tag) => /podcast/i.test(tag)))) && <section className="container media-hub-section" id="midia"><div className="section-heading large-heading"><div><span className="eyebrow">PCH NEWS · VÍDEOS E PODCASTS</span><h2>Programas e conversas</h2></div><div className="heading-rule"><span>Conteúdo audiovisual</span></div></div><div className="media-hub-grid">{published.filter((article) => article.youtubeUrl || (article.tags || []).some((tag) => /podcast/i.test(tag))).slice(0,6).map((article) => <Link key={article.id} href={`/materia/${article.id}`} className="media-hub-card"><div className="media-hub-label">{article.youtubeUrl ? "VÍDEO" : "PODCAST"}</div><h3>{article.title}</h3><p>{article.summary}</p><span>Assistir / ouvir <ArrowRight size={14}/></span></Link>)}</div></section>}
         <section className="container partners-section" id="parceiros">
           <div className="section-heading large-heading">
             <div><span className="eyebrow">REDE PCH NEWS</span><h2>Parceiros</h2></div>

@@ -28,7 +28,7 @@ export type NewsArticle = {
   slug?: string | null; seoTitle?: string | null; metaDescription?: string | null; canonicalUrl?: string | null; focusKeyword?: string | null; ogTitle?: string | null; ogDescription?: string | null; imageAlt?: string | null; noindex?: boolean;
 };
 
-export const EDITORIAL_CATEGORIES = ["Brasil", "Política", "Economia", "Mundo", "Cultura", "Esportes", "Saúde", "Educação", "Ciência & Tecnologia", "Meio ambiente", "Cidades", "Lei & Justiça", "Colunas"] as const;
+export const EDITORIAL_CATEGORIES = ["Brasil", "Regiões", "Internacional", "Política", "Economia", "Saúde & Beleza", "Desenvolvimento Humano", "Ciência & Tecnologia", "Cultura", "Esportes", "Direitos e Cidadania", "Lei & Justiça", "Cidades", "Colunas", "Investigação", "Especiais"] as const;
 
 export type EditorialContentType = "noticia" | "reportagem" | "analise" | "coluna" | "pilula" | "entrevista" | "patrocinado";
 export const EDITORIAL_CONTENT_TYPES: Array<{ id: EditorialContentType; label: string }> = [
@@ -47,9 +47,12 @@ export const EDITORIAL_CHECKLIST_LABELS: Array<[keyof EditorialChecklist,string]
  * newsroom can classify more specific coverage through tags.
  */
 export const EDITORIAL_SUBTHEMES = [
-  { label: "Saúde e Beleza", parent: "Saúde" },
-  { label: "Desenvolvimento Humano", parent: "Colunas" },
-  { label: "Terapia e Bem-Estar", parent: "Saúde" },
+  { label: "Saúde e Beleza", parent: "Saúde & Beleza" },
+  { label: "Desenvolvimento Humano", parent: "Desenvolvimento Humano" },
+  { label: "Terapia e Bem-Estar", parent: "Saúde & Beleza" },
+  { label: "Direitos e Cidadania", parent: "Direitos e Cidadania" },
+  { label: "Notícias da Lei", parent: "Lei & Justiça" },
+  { label: "Investigação", parent: "Investigação" },
 ] as const;
 
 export type EditorialSubtheme = typeof EDITORIAL_SUBTHEMES[number]["label"];
