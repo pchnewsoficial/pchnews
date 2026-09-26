@@ -75,7 +75,7 @@ Se alguma delas não estiver definida, certos fluxos do app podem ficar em modo 
 
 ## Publicação no Render
 
-1. Conecte o repositório GitHub `pchnewsoficial/pch-news`.
+1. Conecte o repositório GitHub `pchnewsoficial/pchnews`.
 2. Escolha o serviço `Web Service` com `Docker`.
 3. Use a branch `main`.
 4. Defina `Build Command` como vazio, pois o Dockerfile já faz build.
