@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, Bookmark, ChevronDown, Clock3, Eye, Menu, Search, UserRound, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bookmark, ChevronDown, Clock3, Eye, MapPin, Menu, Search, Thermometer, UserRound, X } from "lucide-react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { EDITORIAL_CATEGORIES, NewsArticle, readStoredArticles } from "@/lib/news";
@@ -32,6 +32,27 @@ export default function Home() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [activeSlide, setActiveSlide] = useState(0);
+  const [now, setNow] = useState(() => new Date());
+  const [coordinates, setCoordinates] = useState<{ latitude: number; longitude: number } | null>(null);
+
+  const headerWeather = trpc.apiHub.weather.useQuery(
+    { latitude: coordinates?.latitude ?? 0, longitude: coordinates?.longitude ?? 0 },
+    { enabled: Boolean(coordinates), retry: false, refetchInterval: 15 * 60 * 1000, staleTime: 10 * 60 * 1000 },
+  );
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(new Date()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => setCoordinates({ latitude: coords.latitude, longitude: coords.longitude }),
+      () => setCoordinates(null),
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 15 * 60 * 1000 },
+    );
+  }, []);
 
   useEffect(() => {
     const remoteArticles = Array.isArray(remoteEditorial?.articles) ? remoteEditorial.articles : [];
@@ -110,6 +131,16 @@ export default function Home() {
             <span className="brand-caption">Informação para<br /><strong>libertar a mente.</strong></span>
           </Link>
           <div className="header-motto">Jornalismo nacional, pensamento amplo <span>●</span></div>
+          <div className="header-live-info" aria-label="Informações locais">
+            <div className="header-live-item">
+              <Clock3 size={15} aria-hidden="true" />
+              <span>{new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2-digit" }).format(now)}</span>
+            </div>
+            <div className="header-live-item" title={coordinates ? "Clima da sua localização" : "Autorize a localização para consultar o clima"}>
+              {coordinates ? <Thermometer size={15} aria-hidden="true" /> : <MapPin size={15} aria-hidden="true" />}
+              <span>{headerWeather.data?.current?.temperature_2m != null ? `${Math.round(Number(headerWeather.data.current.temperature_2m))}°C` : coordinates ? "Clima..." : "Localização"}</span>
+            </div>
+          </div>
           <div className="header-actions">
             <button className="icon-button" aria-label="Buscar" onClick={() => setSearchOpen((open) => !open)}><Search size={18} /></button>
             <Link className="profile-link" href="/"><Bookmark size={15} /> Salvos</Link>
