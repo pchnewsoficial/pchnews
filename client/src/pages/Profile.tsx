@@ -47,7 +47,7 @@ export default function Profile() {
         <div className="profile-role"><ShieldCheck size={16} /> {roleLabel}</div>
         <div className="profile-actions">
           {(user.role === "admin" || user.role === "columnist") && (
-            <a className="primary-cta" href="/?admin=1">Painel editorial <ArrowRight size={16} /></a>
+            <a className="primary-cta" href="/admin">Painel editorial <ArrowRight size={16} /></a>
           )}
           <button className="secondary-cta" type="button" onClick={handleLogout}><LogOut size={16} /> Sair</button>
         </div>
