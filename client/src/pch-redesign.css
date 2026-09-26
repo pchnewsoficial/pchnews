@@ -1056,3 +1056,25 @@ main { padding-top:18px !important; }
   .service-card-knowledge{min-height:128px!important}.service-card-knowledge .service-icon-pch{width:48px!important;height:48px!important;flex-basis:48px!important}.service-card-knowledge .service-eyebrow{font-size:6px!important}.service-card-knowledge p{font-size:10px!important}
   .footer-privacy-link{font-size:10px!important}
 }
+
+
+/* PCH News — services separation, Knowledge page and mobile app polish */
+.service-card-advertise{background:linear-gradient(135deg,#fff,#f7f9fb)!important}
+.service-card-lgpd{background:linear-gradient(135deg,#f8fbfd,#fff)!important;border-color:#d9e2e8!important}
+.service-card-lgpd .service-icon{font-size:8px!important;letter-spacing:-.03em!important}
+.footer-freedom-highlight{display:inline-block!important;margin-top:3px!important;color:#f4b72d!important;font-size:clamp(18px,2vw,24px)!important;letter-spacing:.04em!important;text-shadow:0 1px 14px rgba(244,183,45,.12)!important}
+.knowledge-hero{position:relative;overflow:hidden;padding:54px 0 58px;background:linear-gradient(135deg,#071a2d 0%,#0d2b43 62%,#153c56 100%);color:#fff}
+.knowledge-hero:after{content:"";position:absolute;right:-90px;top:-140px;width:420px;height:420px;border:1px solid rgba(244,183,45,.18);border-radius:50%;pointer-events:none}
+.knowledge-back{display:inline-flex;margin-bottom:28px;color:#d9e2e8;font-size:11px;font-weight:800;text-decoration:none}
+.knowledge-hero h1{position:relative;margin:8px 0 12px;font-size:clamp(42px,6vw,72px);letter-spacing:-.045em;line-height:.98;z-index:1}
+.knowledge-hero p{position:relative;max-width:680px;margin:0;color:#c6d1d9;font-size:16px;line-height:1.7;z-index:1}
+.knowledge-main{padding-top:42px;padding-bottom:68px}
+.knowledge-intro{display:grid;grid-template-columns:minmax(0,1fr) 170px;gap:30px;align-items:center;padding:30px;border:1px solid #e0e6ea;background:#fff;box-shadow:0 14px 35px rgba(7,26,45,.06)}
+.knowledge-intro h2{margin:7px 0 10px;color:#172d40;font-size:32px;line-height:1.1}
+.knowledge-intro p{max-width:720px;margin:0;color:#687680;line-height:1.7}
+.knowledge-mark{display:grid;place-items:center;gap:4px;width:150px;height:150px;border-radius:24px;background:#071a2d;color:#f4b72d;box-shadow:0 14px 28px rgba(7,26,45,.16)}
+.knowledge-mark strong{font-size:30px;line-height:1}.knowledge-mark small{font-size:7px;letter-spacing:.12em;color:#fff;opacity:.75}
+.knowledge-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:18px}
+.knowledge-grid article{padding:24px;border:1px solid #e0e6ea;background:#fff;min-height:175px}.knowledge-grid article>span{display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:#fff7df;color:#9a741f}.knowledge-grid h3{margin:17px 0 7px;color:#183247;font-size:19px}.knowledge-grid p{margin:0;color:#6d7982;font-size:12px;line-height:1.6}
+.knowledge-note{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-top:18px;padding:24px 28px;border-left:4px solid #f4b72d;background:#fffaf0}.knowledge-note h2{margin:5px 0 7px;color:#203247;font-size:23px}.knowledge-note p{margin:0;color:#687680;line-height:1.55;font-size:12px}
+@media(max-width:760px){.services-grid{grid-template-columns:1fr!important}.knowledge-hero{padding:42px 14px 44px}.knowledge-main{padding:28px 14px 54px}.knowledge-intro{grid-template-columns:1fr;padding:22px}.knowledge-mark{width:110px;height:110px;border-radius:18px}.knowledge-grid{grid-template-columns:1fr}.knowledge-note{align-items:flex-start;flex-direction:column;padding:20px}.mobile-app-nav{bottom:max(10px,env(safe-area-inset-bottom))!important}}
