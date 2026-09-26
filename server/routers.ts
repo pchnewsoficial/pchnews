@@ -137,8 +137,60 @@ export const appRouter = router({
   editorial: router({
     bootstrap: publicProcedure.query(({ ctx }) => getEditorialSnapshot(Boolean(ctx.user && ["admin","editor","journalist","columnist","reviewer"].includes(ctx.user.role)), ctx.accessToken)),
     sync: adminProcedure.input(z.object({ articles: z.array(articleSchema), comments: z.array(commentSchema), profiles: z.array(profileSchema), adRequests: z.array(adSchema) })).mutation(async ({ input, ctx }) => { const db = await getDb(ctx.accessToken); if (!db) throw new Error("Database unavailable"); if (ctx.user.role !== "admin") { const snapshot = await getEditorialSnapshot(true, ctx.accessToken); const byId = new Map(snapshot.articles.map((row:any) => [row.id, row.authorOpenId])); for (const item of input.articles) { const owner = byId.get(item.id); const claimed = item.authorOpenId ?? (item.author === ctx.user.name ? ctx.user.openId : null); if (claimed !== ctx.user.openId || (owner !== undefined && owner !== ctx.user.openId)) throw new Error("Sincronização recusada: a publicação não pertence ao seu openId."); } } return syncEditorial({ ...input, articles: input.articles.map((item) => ({ ...item, authorOpenId: item.authorOpenId ?? (item.author === ctx.user.name ? ctx.user.openId : null), youtubeUrl: item.youtubeUrl ?? null, socialLinks: item.socialLinks ?? null, createdAt: item.createdAt ?? new Date(), updatedAt: item.updatedAt ?? new Date() })), profiles: input.profiles.map((item) => ({ ...item, updatedAt: item.updatedAt ?? new Date() })) }, ctx.accessToken); }),
-    saveArticle: columnistProcedure.input(articleInput).mutation(async ({ input, ctx }) => { const existing = await getArticle(input.id, ctx.accessToken); const owner = existing?.authorOpenId ?? (existing?.author === ctx.user.name ? ctx.user.openId : null); const nextOwner = input.authorOpenId ?? owner ?? (ctx.user.role === "columnist" ? ctx.user.openId : null); if (ctx.user.role !== "admin" && owner !== ctx.user.openId && !(owner === null && !existing)) throw new Error("Você só pode editar publicações vinculadas ao seu openId."); if ((input.status === "published" || input.status === "scheduled") && !Object.values(input.editorialChecklist || {}).every(Boolean)) throw new Error("Publicação bloqueada: complete o checklist editorial do Manual PCH News antes de publicar ou agendar.");
-      const before = existing ? { ...existing } : null; await saveArticle({ ...input, authorOpenId: nextOwner, createdAt: existing?.createdAt ?? new Date() }, ctx.accessToken); await recordArticleAudit({ id: `audit-${Date.now()}-${randomBytes(4).toString("hex")}`, articleId: input.id, actorOpenId: ctx.user.openId, actorName: ctx.user.name || ctx.user.email || "Usuário", action: before ? "updated" : "created", beforeJson: before ? JSON.stringify(before) : null, afterJson: JSON.stringify(input) }, ctx.accessToken); return { success: true }; }),
+    saveArticle: columnistProcedure.input(articleInput).mutation(async ({ input, ctx }) => { if (input.status === "scheduled" && !input.scheduledAt) throw new Error("Agendamento exige data e hora de publicação."); const existing = await getArticle(input.id, ctx.accessToken); const owner = existing?.authorOpenId ?? (existing?.author === ctx.user.name ? ctx.user.openId : null); const nextOwner = input.authorOpenId ?? owner ?? (ctx.user.role === "columnist" ? ctx.user.openId : null); if (ctx.user.role !== "admin" && owner !== ctx.user.openId && !(owner === null && !existing)) throw new Error("Você só pode editar publicações vinculadas ao seu openId."); if ((input.status === "published" || input.status === "scheduled") && !Object.values(input.editorialChecklist || {}).every(Boolean)) throw new Error("Publicação bloqueada: complete o checklist editorial do Manual PCH News antes de publicar ou agendar.");
+      const before = existing ? { ...existing } : null;
+      const nowMs = Date.now();
+      await saveArticle({ ...input, authorOpenId: nextOwner, createdAt: existing?.createdAt ?? new Date() }, ctx.accessToken);
+      await recordArticleAudit({ id: `audit-${nowMs}-${randomBytes(4).toString("hex")}`, articleId: input.id, actorOpenId: ctx.user.openId, actorName: ctx.user.name || ctx.user.email || "Usuário", action: before ? "updated" : "created", beforeJson: before ? JSON.stringify(before) : null, afterJson: JSON.stringify(input) }, ctx.accessToken);
+      const workflowDb = await getDb(ctx.accessToken);
+      if (workflowDb) {
+        await workflowDb.from("editorialWorkflowEvents").insert({
+          id: `workflow-${nowMs}-${randomBytes(4).toString("hex")}`,
+          articleId: input.id,
+          pautaId: null,
+          actorOpenId: ctx.user.openId,
+          actorName: ctx.user.name || ctx.user.email || "Usuário",
+          fromStatus: before?.status ?? null,
+          toStatus: input.status,
+          action: before ? "status_changed" : "created",
+          note: input.editorialNotes ?? null,
+          createdAtMs: nowMs
+        });
+        const { data: queued } = await workflowDb.from("editorialPublicationQueue").select("id").eq("articleId", input.id).in("status", ["pending","approved","scheduled"]).maybeSingle();
+        if (input.status === "scheduled" || input.status === "approved") {
+          const queueRow = {
+            id: queued?.id ?? `publication-${nowMs}-${randomBytes(4).toString("hex")}`,
+            articleId: input.id,
+            status: input.status === "approved" ? "approved" : "scheduled",
+            requestedByOpenId: ctx.user.openId,
+            approvedByOpenId: input.status === "approved" ? ctx.user.openId : null,
+            scheduledAtMs: input.status === "scheduled" ? input.scheduledAt : null,
+            publishedAtMs: null,
+            note: input.editorialNotes ?? null,
+            createdAtMs: nowMs,
+            updatedAtMs: nowMs
+          };
+          await workflowDb.from("editorialPublicationQueue").upsert(queueRow, { onConflict: "id" });
+        } else if (input.status === "published" || input.status === "updated") {
+          if (queued?.id) {
+            await workflowDb.from("editorialPublicationQueue").update({ status: "published", publishedAtMs: nowMs, updatedAtMs: nowMs }).eq("id", queued.id);
+          } else {
+            await workflowDb.from("editorialPublicationQueue").insert({
+              id: `publication-${nowMs}-${randomBytes(4).toString("hex")}`,
+              articleId: input.id,
+              status: "published",
+              requestedByOpenId: ctx.user.openId,
+              approvedByOpenId: ctx.user.openId,
+              scheduledAtMs: null,
+              publishedAtMs: nowMs,
+              note: input.editorialNotes ?? null,
+              createdAtMs: nowMs,
+              updatedAtMs: nowMs
+            });
+          }
+        }
+      }
+      return { success: true }; }),
     recordView: publicProcedure.input(z.object({ articleId: z.string().min(1), visitorId: z.string().min(8).max(128) })).mutation(({ input }) => recordArticleView(input.articleId, input.visitorId)),
     analytics: protectedProcedure.input(z.object({ author: z.string().optional(), authorOpenId: z.string().optional(), fromMs: z.number().optional(), toMs: z.number().optional() })).query(({ input, ctx }) => getViewAnalytics(ctx.user.role === "admin" ? input.author : ctx.user.name ?? undefined, ctx.user.role === "admin" ? input.authorOpenId : ctx.user.openId, input.fromMs, input.toMs, ctx.accessToken)),
     audit: adminProcedure.input(z.object({ articleId: z.string().optional() })).query(({ input, ctx }) => listArticleAudit(input.articleId, ctx.accessToken)),
