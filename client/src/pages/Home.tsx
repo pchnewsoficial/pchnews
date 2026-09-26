@@ -153,13 +153,6 @@ export default function Home() {
             <button className="more-trigger">+ MAIS <ChevronDown size={14} /></button>
           </nav>
         </div>
-        <div className="network-strip">
-          <div className="container network-strip-inner">
-            <span>REDE PCH NEWS</span>
-            {EDITORIAL_CATEGORIES.slice(0, 8).map((category) => <button key={category} onClick={() => { setActiveCategory(category); setMenuOpen(false); }}>{category}</button>)}
-            <button className="network-more" onClick={() => setActiveCategory("Colunas")}>Colunas</button>
-          </div>
-        </div>
         {searchOpen && <div className="search-row container"><Search size={17} /><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar no PCH News..." aria-label="Buscar no PCH News" />{query && <button onClick={() => setQuery("")} aria-label="Limpar busca"><X size={16} /></button>}<span>{visible.length} resultados</span></div>}
       </header>
 
