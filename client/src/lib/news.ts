@@ -30,6 +30,17 @@ export type NewsArticle = {
 
 export const EDITORIAL_CATEGORIES = ["Brasil", "Política", "Economia", "Mundo", "Cultura", "Esportes", "Saúde", "Educação", "Ciência & Tecnologia", "Meio ambiente", "Cidades", "Lei & Justiça", "Colunas"] as const;
 
+export type EditorialContentType = "noticia" | "reportagem" | "analise" | "coluna" | "pilula" | "entrevista" | "patrocinado";
+export const EDITORIAL_CONTENT_TYPES: Array<{ id: EditorialContentType; label: string }> = [
+  { id: "noticia", label: "Notícia" }, { id: "reportagem", label: "Reportagem" }, { id: "analise", label: "Análise" },
+  { id: "coluna", label: "Coluna" }, { id: "pilula", label: "Pílula do Poeta" }, { id: "entrevista", label: "Entrevista" }, { id: "patrocinado", label: "Patrocinado" },
+];
+export type EditorialChecklist = { fatoConfirmado: boolean; fontesIdentificadas: boolean; dadosConferidos: boolean; contraditorioQuandoNecessario: boolean; fatoOpiniaoSeparados: boolean; tituloCorresponde: boolean; aberturaEntregaRelevancia: boolean; leitorLeigoEntende: boolean; pchAcrescentaCompreensao: boolean; chaveFinal: boolean; comercialIdentificado: boolean; imagemDireitoCredito: boolean; revisaoFinal: boolean };
+export const EDITORIAL_CHECKLIST_DEFAULT: EditorialChecklist = { fatoConfirmado:false, fontesIdentificadas:false, dadosConferidos:false, contraditorioQuandoNecessario:false, fatoOpiniaoSeparados:false, tituloCorresponde:false, aberturaEntregaRelevancia:false, leitorLeigoEntende:false, pchAcrescentaCompreensao:false, chaveFinal:false, comercialIdentificado:false, imagemDireitoCredito:false, revisaoFinal:false };
+export const EDITORIAL_CHECKLIST_LABELS: Array<[keyof EditorialChecklist,string]> = [
+  ["fatoConfirmado","Fato confirmado"],["fontesIdentificadas","Fontes identificadas"],["dadosConferidos","Nomes, datas e números conferidos"],["contraditorioQuandoNecessario","Contraditório quando necessário"],["fatoOpiniaoSeparados","Fato e opinião separados"],["tituloCorresponde","Título corresponde ao conteúdo"],["aberturaEntregaRelevancia","Abertura entrega a relevância"],["leitorLeigoEntende","Leitor leigo entenderia"],["pchAcrescentaCompreensao","PCH acrescenta compreensão"],["chaveFinal","Há uma chave final"],["comercialIdentificado","Conteúdo comercial identificado"],["imagemDireitoCredito","Imagem com direito/crédito"],["revisaoFinal","Revisão final concluída"]
+];
+
 /**
  * Secondary editorial taxonomy. These are intentionally subthemes, not new
  * top-level categories, so the main navigation stays compact while the
