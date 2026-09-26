@@ -178,4 +178,4 @@ export default function Login() {
       <footer className="login-footer">© 2026 PCH News · Notícias para libertar a mente.</footer>
     </main>
   );
-}        <div className="login-actions"><button className="login-forgot-button" type="button" onClick={() => { setResetMode(true); setMessage(""); }}>Esqueci minha senha</button></div>\n
+}
