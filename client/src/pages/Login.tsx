@@ -1,7 +1,6 @@
 import { ArrowRight, LockKeyhole, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
-import { startLogin } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 
@@ -13,19 +12,11 @@ export default function Login() {
   const { user, loading, error: authError } = useAuth();
   const [email, setEmail] = useState(OWNER_EMAIL);
   const [sending, setSending] = useState(false);
-  const [googleError, setGoogleError] = useState("");
   const [message, setMessage] = useState("");
-  const [showGoogle, setShowGoogle] = useState(false);
 
   useEffect(() => {
     if (!loading && user) window.location.assign("/?admin=1");
   }, [loading, user, navigate]);
-
-  const handleGoogle = async () => {
-    setGoogleError("");
-    const error = await startLogin();
-    if (error) setGoogleError("O login com Google ainda não está habilitado no Supabase. Use o link seguro por e-mail.");
-  };
 
   const handleMagicLink = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -33,7 +24,6 @@ export default function Login() {
     if (!normalized) return;
     setSending(true);
     setMessage("");
-    setGoogleError("");
 
     if (normalized !== OWNER_EMAIL) {
       setSending(false);
@@ -114,26 +104,8 @@ export default function Login() {
 
         <div className="login-divider"><span>acesso sem senha</span></div>
 
-        <button
-          className="login-email-toggle"
-          type="button"
-          onClick={() => setShowGoogle((value) => !value)}
-          aria-expanded={showGoogle}
-        >
-          <span>{showGoogle ? "Ocultar opções secundárias" : "Outras opções de acesso"}</span>
-          <ArrowRight size={15} />
-        </button>
-
-        {showGoogle && (
-          <button className="login-google" type="button" onClick={handleGoogle}>
-            <span className="google-mark" aria-hidden="true">G</span>
-            <span>Entrar com Google</span>
-            <ArrowRight size={17} />
-          </button>
-        )}
-
-        {(googleError || authError) && (
-          <div className="login-error" role="alert">{googleError || authError?.message}</div>
+        {authError && (
+          <div className="login-error" role="alert">{authError.message}</div>
         )}
         {message && <div className="login-message" role="status">{message}</div>}
 
