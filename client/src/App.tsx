@@ -17,7 +17,6 @@ import NotFound from "./pages/NotFound";
 import Institutional from "./pages/Institutional";
 import PublicAds from "./pages/PublicAds";
 import LawNews from "./pages/LawNews";
-import PrivacyConsent from "./components/PrivacyConsent";
 import { PrivacyPage, TermsPage, CookiesPage, PartnersPage } from "./pages/LegalPages";
 import EditorialRequests from "./pages/EditorialRequests";
 import EditorialDataBridge from "./components/EditorialDataBridge";
@@ -39,4 +38,4 @@ function Router() { return <Switch><Route path="/" component={HomeOrAdmin} /><Ro
     <Route path="/termos" component={TermsPage} /><Route path="/termos/" component={TermsPage} />
     <Route path="/cookies" component={CookiesPage} /><Route path="/cookies/" component={CookiesPage} />
     <Route path="/parceiros" component={PartnersPage} /><Route path="/parceiros/" component={PartnersPage} /><Route path="/correcoes" component={EditorialRequests} /><Route path="/correcoes/" component={EditorialRequests} /><Route path="/404" component={NotFound} /><Route component={NotFound} /></Switch>; }
-export default function App() { return <ErrorBoundary><EditorialDataBridge /><ClarityRouteTracker /><TooltipProvider><Toaster /><PrivacyConsent /><Router /></TooltipProvider></ErrorBoundary>; }
+export default function App() { return <ErrorBoundary><EditorialDataBridge /><ClarityRouteTracker /><TooltipProvider><Toaster /><Router /></TooltipProvider></ErrorBoundary>; }
