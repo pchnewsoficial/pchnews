@@ -13,7 +13,7 @@ import EditorialAgents from "./EditorialAgents";
 import Pauta from "./Pauta";
 import ApiHubPanel from "@/components/ApiHubPanel";
 import ApiHubEditorialTools from "@/components/ApiHubEditorialTools";
-import { ArticleStatus, EDITORIAL_CATEGORIES, EDITORIAL_SCOPES, INITIAL_ARTICLES, MediaAsset, NewsArticle, makeArticleId, persistArticles, persistMedia, readStoredArticles, readStoredMedia, statusLabels } from "@/lib/news";
+import { ArticleStatus, EDITORIAL_CATEGORIES, EDITORIAL_SCOPES, EDITORIAL_CONTENT_TYPES, EDITORIAL_CHECKLIST_DEFAULT, EDITORIAL_CHECKLIST_LABELS, INITIAL_ARTICLES, MediaAsset, NewsArticle, makeArticleId, persistArticles, persistMedia, readStoredArticles, readStoredMedia, statusLabels } from "@/lib/news";
 
 type View = "overview" | "articles" | "pauta" | "media" | "settings" | "profile" | "comments" | "ads" | "stats" | "audit" | "agents" | "apiHub" | "events";
 type Columnist = { id: string; name: string; email: string; beat: string; active: boolean };
