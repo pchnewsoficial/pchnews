@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 const LOGO_URL = "/brand/pch-news-official-20260926.svg?v=20260927";
-const OWNER_EMAIL = "pchnews.oficial@gmail.com";\nconst PUBLIC_APP_ORIGIN = "https://pchnews.lovable.app";
+const OWNER_EMAIL = "pchnews.oficial@gmail.com";
+const PUBLIC_APP_ORIGIN = "https://pchnews.lovable.app";
 
 export default function Login() {
   const [email, setEmail] = useState(OWNER_EMAIL);
