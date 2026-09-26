@@ -94,7 +94,7 @@ export const INITIAL_ARTICLES: NewsArticle[] = [
     "updated": "acervo PCH News",
     "status": "published",
     "views": 0,
-    "image": "/brand/media/pch-lave-os-olhos.svg",
+    "image": "/media/pch-lave-os-olhos.svg",
     "bodyHtml": "<p class=\"article-subtitle\"></p><div class=\"pilula-poeta\">Há quem queira falar muito,<br />mas ainda não aprendeu a escutar.<br />Há quem queira ensinar caminhos,<br />mas ainda não parou para olhar.<br />A humildade não diminui ninguém.<br />Ela abre espaço para aprender.<br />Quem escuta com o coração<br />enxerga aquilo que o orgulho não deixa ver.<br />Talvez você não precise de uma resposta nova.<br />Talvez precise de olhos novos.<br />Um olhar disposto a perceber<br />o que antes passava despercebido.<br />Porque quem aprende a enxergar diferente<br />também começa a caminhar diferente.</div><hr /><p><strong>Reflexão:</strong> O que você precisa enxergar de outro jeito hoje?</p><p><strong>Chamada para ação:</strong> Leia, reflita e compartilhe com alguém que precisa desta palavra hoje.</p>",
     "tags": [
       "Pílula do Poeta",
@@ -148,7 +148,7 @@ export const INITIAL_ARTICLES: NewsArticle[] = [
     "updated": "acervo PCH News",
     "status": "published",
     "views": 0,
-    "image": "/brand/media/pch-pegue-o-interruptor.svg",
+    "image": "/media/pch-pegue-o-interruptor.svg",
     "bodyHtml": "<p class=\"article-subtitle\"></p><div class=\"pilula-poeta\">A vida pode apagar algumas luzes,<br />mas não precisa levar o interruptor.<br />Há coisas que aconteceram com você<br />que não precisam decidir quem você será.<br />Alguém pode ter ferido,<br />rejeitado ou diminuído você.<br />Mas o passado explica algumas marcas;<br />não precisa escrever todas as próximas páginas.<br />Retomar o comando não é negar o que aconteceu.<br />É reconhecer o que aconteceu<br />sem entregar a ele o volante.<br />Talvez hoje seja o dia<br />de acender novamente uma luz.<br />Não porque tudo ficou fácil,<br />mas porque você decidiu voltar a participar da própria história.</div><hr /><p><strong>Reflexão:</strong> Que decisão você precisa voltar a assumir?</p><p><strong>Chamada para ação:</strong> Leia, reflita e compartilhe com alguém que precisa desta palavra hoje.</p>",
     "tags": [
       "Pílula do Poeta",
@@ -175,7 +175,7 @@ export const INITIAL_ARTICLES: NewsArticle[] = [
     "updated": "acervo PCH News",
     "status": "published",
     "views": 0,
-    "image": "/brand/media/pch-de-voz-a-fe.svg",
+    "image": "/media/pch-de-voz-a-fe.svg",
     "bodyHtml": "<p class=\"article-subtitle\"></p><div class=\"pilula-poeta\">No meio da multidão,<br />uma voz pode parecer pequena.<br />Mas quem sabe o que procura<br />não precisa gritar para impressionar.<br />Às vezes, você sabe o que precisa pedir,<br />mas o medo manda ficar calado.<br />A vergonha segura a palavra,<br />e a dúvida tenta convencer você a desistir.<br />Bartimeu nos lembra de uma atitude:<br />há momentos em que a fé precisa ser expressa.<br />Não para provar algo aos outros,<br />mas para reconhecer diante de Deus aquilo que o coração deseja.<br />Talvez sua próxima mudança comece<br />quando aquilo que você sente<br />finalmente encontrar uma voz.</div><hr /><p><strong>Reflexão:</strong> O que você precisa ter coragem de colocar em palavras?</p><p><strong>Chamada para ação:</strong> Leia, reflita e compartilhe com alguém que precisa desta palavra hoje.</p>",
     "tags": [
       "Pílula do Poeta",
@@ -202,7 +202,7 @@ export const INITIAL_ARTICLES: NewsArticle[] = [
     "updated": "acervo PCH News",
     "status": "published",
     "views": 0,
-    "image": "/brand/media/pch-dom-sem-amor.svg",
+    "image": "/media/pch-dom-sem-amor.svg",
     "bodyHtml": "<p class=\"article-subtitle\"></p><div class=\"pilula-poeta\">Você pode ter voz,<br />habilidade, inteligência e força.<br />Pode fazer muito,<br />ser reconhecido e chegar longe.<br />Mas todo dom carrega uma pergunta:<br />para quê?<br />Porque talento sem propósito<br />pode virar apenas barulho.<br />Quando o conhecimento encontra o amor,<br />o que você sabe começa a servir.<br />Quando a capacidade encontra cuidado,<br />o talento deixa de ser vitrine<br />e se transforma em presença.<br />Não é apenas sobre o que você consegue fazer.<br />É sobre o bem que pode nascer<br />quando você decide fazer com amor.</div><hr /><p><strong>Reflexão:</strong> Seu talento está servindo apenas a você ou também a alguém?</p><p><strong>Chamada para ação:</strong> Leia, reflita e compartilhe com alguém que precisa desta palavra hoje.</p>",
     "tags": [
       "Pílula do Poeta",
