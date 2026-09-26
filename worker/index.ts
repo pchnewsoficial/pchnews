@@ -111,7 +111,8 @@ export default {
       url.pathname === "/404" ||
       url.pathname.startsWith("/materia/") ||
       url.pathname.startsWith("/colunista/") ||
-      url.pathname.startsWith("/convite/");
+      url.pathname.startsWith("/convite/") ||
+      url.pathname === "/institucional" || url.pathname === "/anuncie" || url.pathname === "/lei";
     const spaPath = isSpaRoute ? "/index.html" : url.pathname;
     if (spaPath !== url.pathname) return env.ASSETS.fetch(new Request(new URL("/", request.url), request));
     return env.ASSETS.fetch(request);
