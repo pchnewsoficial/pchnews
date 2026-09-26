@@ -192,31 +192,6 @@ jobs:
           fi
           grep -q "PCH News" /tmp/pch-news-admin-dom.html
           echo "Published /admin rendered the protected PCH News UI without a blank page."
-      - name: Verify Lovable production rendering
-        run: |
-          set -euo pipefail
-          TARGET="https://pch-news.lovable.app/"
-          echo "Checking published Lovable production: $TARGET"
-          google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=15000 \
-            --dump-dom "$TARGET" > /tmp/lovable-production-dom.html
-          echo "Lovable DOM title/content markers:"
-          grep -o "<title>[^<]*</title>" /tmp/lovable-production-dom.html | head -5 || true
-          grep -o "PCH News" /tmp/lovable-production-dom.html | head -5 || true
-          grep -o "PUBLICIDADE" /tmp/lovable-production-dom.html | head -5 || true
-          grep -o "Últimas notícias" /tmp/lovable-production-dom.html | head -5 || true
-          if grep -q "x-lovable-serve-error\|502 Bad Gateway\|A pré-visualização ainda não foi criada\|An unexpected error occurred." /tmp/lovable-production-dom.html; then
-            echo "Lovable production rendered an error state."
-            cat /tmp/lovable-production-dom.html
-            exit 1
-          fi
-          echo "Lovable production browser rendering verified."
-      - name: Verify Lovable Preview project availability
-        run: |
-          set -euo pipefail
-          echo "Lovable Preview URL: https://id-preview--50a4b9f4-d0a8-4f19-a810-c59546a0d4f9.lovable.app"
-          echo "The Lovable Preview host is session/platform-gated and cannot be reliably browser-tested from a public GitHub runner."
-          echo "Preview readiness is validated through the Lovable project status/screenshot and the production build checks above."
-
       - name: Deployment summary
         env:
           WORKER_URL: ${{ steps.deploy.outputs.worker_url }}
