@@ -10,7 +10,7 @@ Esta é a rota de produção do PCH News: **Cloudflare Workers + Static Assets**
 - **Banco de produção:** **Supabase Postgres**
 - **Autenticação:** Supabase Auth
 - **Storage:** Supabase Storage quando usado pelos fluxos do projeto
-- **Fonte oficial do código:** `pchnewsoficial/pch-news` / `main`
+- **Fonte oficial do código:** `pchnewsoficial/pchnews` / `main`
 
 O código ainda contém artefatos legados de Drizzle/mysql2 para compatibilidade e tipos. Eles não devem ser tratados como a fonte do banco de produção sem validação explícita.
 
