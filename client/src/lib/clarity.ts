@@ -1,7 +1,5 @@
-type ClarityCommand = "event" | "set" | "identify" | "consentv2" | "consent";
-
 declare global {
-  interface Window { clarity?: (command: ClarityCommand, ...args: string[]) => void; }
+  interface Window { clarity?: (command: string, ...args: any[]) => void; }
 }
 
 let initialized = false;
