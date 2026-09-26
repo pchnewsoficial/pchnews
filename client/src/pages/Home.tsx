@@ -2,13 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, Bookmark, ChevronDown, Clock3, Eye, MapPin, Menu, Search, Thermometer, UserRound, X } from "lucide-react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { EDITORIAL_CATEGORIES, NewsArticle, readStoredArticles } from "@/lib/news";
+import { EDITORIAL_CATEGORIES, EDITORIAL_SUBTHEMES, NewsArticle, readStoredArticles } from "@/lib/news";
 import "@/pch-redesign.css";
 
 const LOGO_URL = "/brand/pch-news-official-20260926.svg?v=20260926";
 const LOGO_FALLBACK_URL = "/brand/pch-news-official-20260926.svg?v=20260926";
 const imageUrl = (article: NewsArticle) => article.sourceUrl ? `https://pch-news.pchnews-oficial.workers.dev/legacy-image/${encodeURIComponent(article.sourceUrl)}` : article.image || LOGO_URL;
-const categories = ["Todas", ...EDITORIAL_CATEGORIES];
+const categories = ["Todas", "Brasil", "Política", "Economia", "Mundo"];\nconst moreCategories = EDITORIAL_CATEGORIES.filter((category) => !categories.includes(category));
 
 function Meta({ article }: { article: NewsArticle }) {
   return (
@@ -71,11 +71,14 @@ export default function Home() {
   const visible = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     return published.filter((article) => {
-      const categoryMatches = activeCategory === "Todas" || (activeCategory === "Colunas" ? article.author !== "Redação PCH News" : article.category === activeCategory);
+      const topicMatches = !activeTopic || (article.tags || []).some((tag) => tag.trim().toLowerCase() === activeTopic.toLowerCase());
+      const categoryMatches = activeTopic
+        ? topicMatches
+        : activeCategory === "Todas" || (activeCategory === "Colunas" ? article.author !== "Redação PCH News" : article.category === activeCategory);
       const queryMatches = !normalized || `${article.title} ${article.category} ${article.author} ${(article.tags || []).join(" ")}`.toLowerCase().includes(normalized);
       return categoryMatches && queryMatches;
     });
-  }, [activeCategory, published, query]);
+  }, [activeCategory, activeTopic, published, query]);
 
   const mostRead = useMemo(() => [...published].sort((a, b) => b.views - a.views).slice(0, 5), [published]);
   const editorialOrder = (a: NewsArticle, b: NewsArticle) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)) || b.views - a.views;
@@ -149,8 +152,16 @@ export default function Home() {
         </div>
         <div className={`nav-wrap ${menuOpen ? "is-open" : ""}`}>
           <nav className="container primary-nav" aria-label="Navegação principal">
-            {categories.map((category) => <button key={category} className={activeCategory === category ? "active" : ""} onClick={() => { setActiveCategory(category); setMenuOpen(false); }}>{category.toUpperCase()}</button>)}
-            <button className="more-trigger">+ MAIS <ChevronDown size={14} /></button>
+            {categories.map((category) => <button key={category} className={activeCategory === category && !activeTopic ? "active" : ""} onClick={() => { setActiveCategory(category); setActiveTopic(null); setMenuOpen(false); setMoreOpen(false); }}>{category.toUpperCase()}</button>)}
+            <button className={`more-trigger ${moreOpen ? "active" : ""}`} type="button" aria-expanded={moreOpen} aria-haspopup="menu" onClick={() => setMoreOpen((open) => !open)}>+ MAIS <ChevronDown size={14} /></button>
+            {moreOpen && <div className="more-menu" role="menu">
+              <div className="more-menu-section"><span className="more-menu-label">EDITORIAS</span><div className="more-menu-grid">
+                {moreCategories.map((category) => <button key={category} type="button" role="menuitem" className={activeCategory === category && !activeTopic ? "is-selected" : ""} onClick={() => { setActiveCategory(category); setActiveTopic(null); setMoreOpen(false); setMenuOpen(false); }}>{category}</button>)}
+              </div></div>
+              <div className="more-menu-section"><span className="more-menu-label">TEMAS ESPECÍFICOS</span><div className="more-menu-grid">
+                {EDITORIAL_SUBTHEMES.map((topic) => <button key={topic.label} type="button" role="menuitem" className={activeTopic === topic.label ? "is-selected" : ""} onClick={() => { setActiveTopic(topic.label); setActiveCategory(topic.parent); setMoreOpen(false); setMenuOpen(false); }}>{topic.label}</button>)}
+              </div></div>
+            </div>}
           </nav>
         </div>
         {searchOpen && <div className="search-row container"><Search size={17} /><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar no PCH News..." aria-label="Buscar no PCH News" />{query && <button onClick={() => setQuery("")} aria-label="Limpar busca"><X size={16} /></button>}<span>{visible.length} resultados</span></div>}
@@ -199,7 +210,7 @@ export default function Home() {
           </aside>
         </section>
         ) : (
-          <div className="container empty-state"><Search size={24} /><h3>Nada encontrado por aqui</h3><p>Tente outra busca ou escolha uma editoria no menu.</p><button onClick={() => { setQuery(""); setActiveCategory("Todas"); }}>Limpar filtros</button></div>
+          <div className="container empty-state"><Search size={24} /><h3>Nada encontrado por aqui</h3><p>Tente outra busca ou escolha uma editoria no menu.</p><button onClick={() => { setQuery(""); setActiveCategory("Todas"); setActiveTopic(null); }}>Limpar filtros</button></div>
         )}
 
         <section className="quote-strip"><div className="container quote-inner"><span className="quote-mark">“</span><p>Conteúdo e interação com responsabilidade, ética e entretenimento.</p><span className="quote-sign">PCH <i>NEWS</i></span></div></section>
