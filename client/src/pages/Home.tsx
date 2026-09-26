@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, Bookmark, CalendarDays, ChevronDown, Clock3, Eye, MapPin, Menu, Search, Thermometer, UserRound, X } from "lucide-react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { EDITORIAL_CATEGORIES, EDITORIAL_SUBTHEMES, NewsArticle, readStoredArticles } from "@/lib/news";
+import { EDITORIAL_CATEGORIES, EDITORIAL_SUBTHEMES, NewsArticle } from "@/lib/news";
 import "@/pch-redesign.css";
 import PublicFooter from "@/components/PublicFooter";
 
@@ -27,7 +27,7 @@ function slugify(value: string) {
 }
 
 export default function Home() {
-  const [articles, setArticles] = useState<NewsArticle[]>(() => readStoredArticles());
+  // Supabase is the only source of editorial content. Do not seed or read articles from browser storage.\n  const [articles, setArticles] = useState<NewsArticle[]>([]);
   const { data: remoteEditorial } = trpc.editorial.bootstrap.useQuery(undefined, { retry: false });
   const [activeCategory, setActiveCategory] = useState("Todas");
   const [activeTopic, setActiveTopic] = useState<string | null>(null);
