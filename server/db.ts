@@ -258,7 +258,8 @@ export async function createEvent(input: any, accessToken?: string | null) {
     createdAtMs: nowMs,
     updatedAtMs: nowMs
   });
-  if (error) throw error; return data;
+  if (error) throw error;
+  return { ...input, status: "pending", createdAtMs: nowMs, updatedAtMs: nowMs };
 }
 export async function getPublicEvent(id: string, accessToken?: string | null) {
   const db = await getDb(accessToken); if (!db) return undefined;
