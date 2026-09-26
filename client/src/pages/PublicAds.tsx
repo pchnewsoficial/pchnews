@@ -5,7 +5,7 @@ import { trpc } from "@/lib/trpc";
 import PublicFooter from "@/components/PublicFooter";
 import PageMeta from "@/components/PageMeta";
 
-const LOGO_URL = "/brand/pch-news-official-20260926.svg?v=20260926";
+const LOGO_URL = "/brand/pch-news-official-20260926.svg?v=20260927";
 const formats = ["Publicidade na home", "Patrocínio de editoria", "Campanha institucional", "Projeto especial", "Outro"];
 
 export default function PublicAds() {
