@@ -28,7 +28,7 @@ export default function Profile() {
   }
 
   const displayName = user.name || user.email || "Usuário PCH News";
-  const roleLabel = user.role === "admin" ? "Administrador editorial" : user.role === "columnist" ? "Colunista" : "Leitor";
+  const roleLabel = user.role === "admin" ? "Administrador editorial" : user.role === "editor" ? "Editor" : user.role === "journalist" ? "Jornalista" : user.role === "columnist" ? "Colunista" : user.role === "reviewer" ? "Revisor" : "Leitor";
 
   const handleLogout = async () => {
     await logout();
