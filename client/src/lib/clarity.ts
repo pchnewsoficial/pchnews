@@ -1,4 +1,4 @@
-type ClarityCommand = "event" | "set" | "identify";
+type ClarityCommand = "event" | "set" | "identify" | "consentv2" | "consent";
 
 declare global {
   interface Window { clarity?: (command: ClarityCommand, ...args: string[]) => void; }
@@ -6,7 +6,7 @@ declare global {
 
 let initialized = false;
 
-export function initClarity() {
+export function initClarity(analytics = false, advertising = false) {
   if (initialized || typeof window === 'undefined') return;
   const projectId = import.meta.env.VITE_CLARITY_PROJECT_ID as string | undefined;
   if (!projectId) return;
@@ -25,6 +25,16 @@ export function initClarity() {
   script.dataset.pchClarity = 'true';
   document.head.appendChild(script);
   initialized = true;
+  applyClarityConsent(analytics, advertising);
+}
+
+export function applyClarityConsent(analytics: boolean, advertising: boolean) {
+  if (typeof window !== "undefined" && window.clarity) {
+    window.clarity("consentv2", {
+      ad_Storage: advertising ? "granted" : "denied",
+      analytics_Storage: analytics ? "granted" : "denied",
+    } as any);
+  }
 }
 
 export function clarityEvent(name: string) {
