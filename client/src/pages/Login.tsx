@@ -1,13 +1,11 @@
 import { ArrowLeft, ArrowRight, KeyRound, LockKeyhole, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useLocation } from "wouter";
 import { supabase } from "@/lib/supabase";
 
 const LOGO_URL = "/brand/pch-news-official-20260926.svg?v=20260927";
 const OWNER_EMAIL = "pchnews.oficial@gmail.com";
 
 export default function Login() {
-  const [, navigate] = useLocation();
   const [email, setEmail] = useState(OWNER_EMAIL);
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
