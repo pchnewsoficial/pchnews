@@ -4,7 +4,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, columnistProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { acceptInvite, createComment, createInvite, findInvite, getArticle, getDb, getEditorialSnapshot, getViewAnalytics, listArticleAudit, listInvites, listUsers, recordArticleAudit, recordArticleView, renewInvite, revokeInvite, saveArticle, setUserRole, syncEditorial, updateColumnistProfile, recordEditorialAgentRun, listEditorialAgentRuns, recordEditorialFindingDecision, listEditorialFindingDecisions, listPautas, getPauta, savePauta, recordEditorialResearchContext, listEditorialResearchContexts } from "./db";
+import { acceptInvite, createAdRequest, createComment, createInvite, findInvite, getArticle, getDb, getEditorialSnapshot, getViewAnalytics, listArticleAudit, listInvites, listUsers, recordArticleAudit, recordArticleView, renewInvite, revokeInvite, saveArticle, setUserRole, syncEditorial, updateColumnistProfile, recordEditorialAgentRun, listEditorialAgentRuns, recordEditorialFindingDecision, listEditorialFindingDecisions, listPautas, getPauta, savePauta, recordEditorialResearchContext, listEditorialResearchContexts } from "./db";
 import { storagePut, storageList } from "./storage";
 import { sendInviteEmail, smtpConfigured } from "./email";
 import { ENV } from "./_core/env";
@@ -112,6 +112,28 @@ export const appRouter = router({
       const now = Date.now();
       return recordEditorialFindingDecision({ ...input, note: input.note ?? null, actorOpenId: ctx.user.openId, createdAtMs: now, updatedAtMs: now }, ctx.accessToken);
     }),
+  }),
+  adRequests: router({
+    create: publicProcedure.input(z.object({
+      business: z.string().trim().min(2).max(180),
+      contactName: z.string().trim().min(2).max(120),
+      email: z.string().trim().email().max(180),
+      phone: z.string().trim().min(8).max(40),
+      city: z.string().trim().max(120).optional().default(""),
+      website: z.string().trim().max(300).optional().default(""),
+      socials: z.string().trim().max(500).optional().default(""),
+      adType: z.string().trim().min(2).max(120),
+      budget: z.string().trim().max(120).optional().default(""),
+      period: z.string().trim().max(120).optional().default(""),
+      message: z.string().trim().min(10).max(5000),
+      consent: z.literal(true),
+    })).mutation(async ({ input }) => createAdRequest({
+      id: `ad-${Date.now()}-${randomBytes(6).toString("hex")}`,
+      business: input.business, contactName: input.contactName, email: input.email.toLowerCase(),
+      phone: input.phone, city: input.city || null, website: input.website || null, socials: input.socials || null,
+      adType: input.adType, budget: input.budget || null, period: input.period || null, message: input.message,
+      consentAtMs: Date.now(), status: "received", createdAtMs: Date.now(),
+    })),
   }),
   editorial: router({
     bootstrap: publicProcedure.query(({ ctx }) => getEditorialSnapshot(Boolean(ctx.user && ["admin","columnist"].includes(ctx.user.role)), ctx.accessToken)),
