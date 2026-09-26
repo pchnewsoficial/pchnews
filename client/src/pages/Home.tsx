@@ -6,8 +6,8 @@ import { EDITORIAL_CATEGORIES, EDITORIAL_SUBTHEMES, NewsArticle, readStoredArtic
 import "@/pch-redesign.css";
 import PublicFooter from "@/components/PublicFooter";
 
-const LOGO_URL = "/brand/pch-news-official-20260926.svg?v=20260926";
-const LOGO_FALLBACK_URL = "/brand/pch-news-official-20260926.svg?v=20260926";
+const LOGO_URL = "/brand/pch-news-official-current.svg?v=20260926";
+const LOGO_FALLBACK_URL = "/brand/pch-news-official-current.svg?v=20260926";
 const imageUrl = (article: NewsArticle) => article.sourceUrl ? `https://pch-news.pchnews-oficial.workers.dev/legacy-image/${encodeURIComponent(article.sourceUrl)}` : article.image || LOGO_URL;
 const categories = ["Todas", "Brasil", "Política", "Economia", "Mundo"];
 const moreCategories = EDITORIAL_CATEGORIES.filter((category) => !categories.includes(category));
@@ -249,7 +249,7 @@ export default function Home() {
               <div className="editorial-category-heading"><h3>{category}</h3><button onClick={() => setActiveCategory(category)}>Ver tudo <ArrowRight size={14} /></button></div>
               <div className="editorial-category-grid">
                 {stories.map((article) => <Link href={`/materia/${article.id}`} className="editorial-category-card" key={article.id}>
-                  <div className="editorial-category-image"><img src={imageUrl(article)} alt="" onError={(event) => { event.currentTarget.src = article.image || "/brand/favicon.svg"; }} /></div>
+                  <div className="editorial-category-image"><img src={imageUrl(article)} alt="" onError={(event) => { event.currentTarget.src = article.image || "/brand/pch-news-official-current.svg?v=20260926"; }} /></div>
                   <div><span>{article.category}</span><h4>{article.title}</h4><Meta article={article} /></div>
                 </Link>)}
               </div>
