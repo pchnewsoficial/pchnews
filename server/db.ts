@@ -41,15 +41,9 @@ export async function getUserByOpenId(openId:string, accessToken?: string | null
 }
 export async function getEditorialSnapshot(includePrivate=false, accessToken?: string | null) {
   const db=await getDb(accessToken); if(!db) return {articles:[],comments:[],profiles:[],adRequests:[]};
-  // Promote due scheduled stories server-side so publication does not depend on an open Admin tab.
-  const nowMs = Date.now();
-  // Public readers must never perform editorial writes with the anonymous key.
-  // Scheduled publication is handled by the Worker cron (and, for staff views,
-  // may also be promoted here using the authenticated editorial client).
-  if (includePrivate) {
-    const { error: scheduleError } = await db.from("articles").update({ status: "published", updated: "publicado automaticamente" }).eq("status", "scheduled").not("scheduledAt", "is", null).lte("scheduledAt", nowMs);
-    if (scheduleError) throw scheduleError;
-  }
+  // Scheduled publication is owned by the Cloudflare Worker cron. This read path
+  // must never perform implicit editorial writes, especially for authenticated
+  // columnists/reviewers whose RLS role does not grant publication writes.
   const articlesQ=includePrivate?db.from("articles").select("*"):db.from("articles").select("*").in("status",["published","updated"]);
   const commentsQ=includePrivate?db.from("comments").select("*"):db.from("comments").select("*").eq("status","approved");
   const [a,c,p,ads]=await Promise.all([
@@ -67,7 +61,12 @@ export async function saveArticle(article:any, accessToken?: string | null){
   const payload={...article,createdAt:article.createdAt??now(),updatedAt:now(),youtubeUrl:article.youtubeUrl??null,socialLinks:article.socialLinks??null,slug:article.slug??null,seoTitle:article.seoTitle??null,metaDescription:article.metaDescription??null,canonicalUrl:article.canonicalUrl??null,focusKeyword:article.focusKeyword??null,ogTitle:article.ogTitle??null,ogDescription:article.ogDescription??null,imageAlt:article.imageAlt??null,noindex:Boolean(article.noindex),contentType:article.contentType??"noticia",editorialChecklist:article.editorialChecklist??{},editorialNotes:article.editorialNotes??null,contraponto:article.contraponto??null,keyTakeaway:article.keyTakeaway??null};
   const {data,error}=await db.from("articles").upsert(payload,{onConflict:"id"}).select().single();if(error)throw error;return data;
 }
-export async function recordArticleView(articleId:string,visitorId:string,_accessToken?:string|null){const db=getSupabaseAdmin();const {data,error}=await db.rpc("increment_article_view",{p_article_id:articleId,p_visitor_id:visitorId});if(error)throw error;return data as {counted:boolean;views:number};}
+export async function recordArticleView(articleId:string,visitorId:string,_accessToken?:string|null){
+  const db = getSupabasePublic();
+  const { data, error } = await db.rpc("increment_article_view", { p_article_id: articleId, p_visitor_id: visitorId });
+  if (error) throw error;
+  return data as { counted: boolean; views: number };
+}
 export async function getViewAnalytics(author?:string,authorOpenId?:string,fromMs?:number,toMs?:number,accessToken?:string|null){
   const db=await getDb(accessToken);if(!db)return {events:[],totals:[]};
   let q=db.from("articles").select("id,views,author,authorOpenId"); if(author)q=q.eq("author",author);if(authorOpenId)q=q.eq("authorOpenId",authorOpenId);
@@ -130,16 +129,17 @@ export async function createAdRequest(input:{
   website?:string|null; socials?:string|null; adType:string; budget?:string|null; period?:string|null;
   message:string; consentAtMs:number; status:"received"; createdAtMs:number;
 }) {
-  const db = getSupabaseAdmin();
-  const { data, error } = await db.from("adRequests").insert({
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const { error } = await db.from("adRequests").insert({
     id: input.id, business: input.business, contact: input.phone || input.email,
     packageName: input.adType, message: input.message, status: input.status, createdAtMs: input.createdAtMs,
     contactName: input.contactName, email: input.email, phone: input.phone, city: input.city || null,
     website: input.website || null, socials: input.socials || null, adType: input.adType,
     budget: input.budget || null, period: input.period || null, consentAtMs: input.consentAtMs, source: "public-site",
-  }).select("*").single();
+  });
   if (error) throw error;
-  return data;
+  return { ...input };
 }
 
 export async function listPautas(accessToken?: string | null) {
