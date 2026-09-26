@@ -41,7 +41,7 @@ export default function PublicFooter() {
         </div>
         <div className="footer-signature">
           <span>INFORMAÇÃO PARA</span>
-          <strong>LIBERTAR A MENTE.</strong>
+          <strong className="footer-freedom-highlight">LIBERTAR A MENTE.</strong>
           <Link className="footer-cta-link" href="/anuncie">Fale com o comercial <ArrowRight size={14} /></Link>
           <small>© 2026 PCH News · Responsabilidade editorial PCH News</small>
         </div>
