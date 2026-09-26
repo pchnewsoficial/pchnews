@@ -6,6 +6,7 @@ import { registerStorageProxy } from "../server/_core/storageProxy";
 import { appRouter } from "../server/routers";
 import { createContext } from "../server/_core/context";
 import { getApiHealth } from "../server/apiHub";
+import { getSupabaseAdmin } from "../server/_core/supabase";
 
 const app = express();
 
@@ -52,6 +53,37 @@ app.use(
 app.listen(3000);
 
 export default {
+  async scheduled(_controller: ScheduledController, _env: unknown, _ctx: ExecutionContext) {
+    const db = getSupabaseAdmin();
+    const nowMs = Date.now();
+    const { data: due, error } = await db.from("articles").select("id,scheduledAt,status").eq("status", "scheduled").lte("scheduledAt", nowMs).limit(100);
+    if (error) throw error;
+    for (const article of due || []) {
+      const { error: updateError } = await db.from("articles").update({
+        status: "published",
+        updated: "publicado agora",
+        updatedAt: new Date(nowMs).toISOString()
+      }).eq("id", article.id).eq("status", "scheduled");
+      if (updateError) throw updateError;
+      const { data: queue } = await db.from("editorialPublicationQueue").select("id").eq("articleId", article.id).in("status", ["pending","approved","scheduled"]).maybeSingle();
+      if (queue?.id) {
+        await db.from("editorialPublicationQueue").update({ status: "published", publishedAtMs: nowMs, updatedAtMs: nowMs }).eq("id", queue.id);
+      }
+      await db.from("editorialWorkflowEvents").insert({
+        id: `workflow-cron-${nowMs}-${crypto.randomUUID()}`,
+        articleId: article.id,
+        pautaId: null,
+        actorOpenId: "system:cloudflare-cron",
+        actorName: "PCH News Scheduler",
+        fromStatus: "scheduled",
+        toStatus: "published",
+        action: "scheduled_publish",
+        note: "Publicação automática pelo agendador do Worker.",
+        createdAtMs: nowMs
+      });
+    }
+  },
+
   async fetch(request: Request, env: { ASSETS: Fetcher }) {
     const url = new URL(request.url);
 
