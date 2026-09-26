@@ -405,7 +405,7 @@ export default function Admin() {
           {view === "comments" && <Comments comments={isAdmin ? comments : comments.filter((comment) => articles.find((article) => article.id === comment.articleId)?.author === currentAuthor)} articles={articles} onChange={setComments} notify={notify} currentAuthor={currentAuthor} isAdmin={isAdmin} />}
           {view === "ads" && isAdmin && <Ads notify={notify} />}
           {view === "profile" && <ProfileEditor profile={profiles[slugify(currentAuthor)] || Object.values(profiles)[0]} onSave={saveProfile} onUpload={uploadProfilePhoto} notify={notify} />}
-          {view === "media" && <MediaLibrary media={media} onUpload={uploadMedia} onDelete={(id) => { const nextMedia = media.filter((item) => item.id !== id); setMedia(nextMedia); persistMedia(nextMedia); notify("Imagem removida da galeria."); }} />}
+          {view === "media" && <MediaLibrary media={media} onUpload={uploadMedia} onDelete={() => notify("A exclusão de mídia ainda requer uma operação de armazenamento persistente.")} />}
           {view === "settings" && isAdmin && <AccessSettings users={accessUsers} onRoleChange={(openId, role) => setRole.mutate({ openId, role })} />}
         </main>
       </div>
