@@ -14,7 +14,7 @@ type Pauta = {
   tags: string; sourcesJson: Source[]; checklistJson: ChecklistItem[]; articleId: string | null;
   createdByOpenId: string; createdByName: string | null; createdAtMs: number; updatedAtMs: number;
 };
-type AccessUser = { id: number; openId: string; name: string | null; email: string | null; role: "user" | "admin" | "columnist" };
+type AccessUser = { id: number; openId: string; name: string | null; email: string | null; role: "user" | "admin" | "editor" | "journalist" | "columnist" | "reviewer" };
 
 const columns: Array<{ id: PautaStatus; label: string }> = [
   { id: "idea", label: "Ideias" }, { id: "planned", label: "Planejadas" }, { id: "assigned", label: "Atribuídas" },
