@@ -156,6 +156,20 @@ export async function savePauta(pauta: any, accessToken?: string | null) {
 }
 
 
+export async function getAgendaMonetizationSettings(accessToken?: string | null) {
+  const db = await getDb(accessToken); if (!db) return { enabled: false, provider: "stripe", currency: "BRL", featuredPriceCents: null, sponsoredPriceCents: null };
+  const { data, error } = await db.from("agenda_monetization_settings").select("*").eq("id", 1).maybeSingle();
+  if (error) throw error;
+  return data ?? { enabled: false, provider: "stripe", currency: "BRL", featuredPriceCents: null, sponsoredPriceCents: null };
+}
+
+export async function listEventPromotions(accessToken?: string | null) {
+  const db = await getDb(accessToken); if (!db) return [];
+  const { data, error } = await db.from("event_promotions").select("*, events(title,startAtMs,city,state)").order("createdAtMs", { ascending: false });
+  if (error) throw error;
+  return data ?? [];
+}
+
 export async function listEventCarousel(filters?: { state?: string; city?: string; region?: string; limit?: number }) {
   const db = await getDb(); if (!db) return [];
   const nowMs = Date.now();
