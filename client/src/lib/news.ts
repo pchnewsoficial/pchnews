@@ -28,7 +28,7 @@ export type NewsArticle = {
   slug?: string | null; seoTitle?: string | null; metaDescription?: string | null; canonicalUrl?: string | null; focusKeyword?: string | null; ogTitle?: string | null; ogDescription?: string | null; imageAlt?: string | null; noindex?: boolean;
 };
 
-export const EDITORIAL_CATEGORIES = ["Brasil", "Política", "Economia", "Mundo", "Cultura", "Esportes", "Saúde", "Educação", "Ciência & Tecnologia", "Meio ambiente", "Cidades", "Colunas"] as const;
+export const EDITORIAL_CATEGORIES = ["Brasil", "Política", "Economia", "Mundo", "Cultura", "Esportes", "Saúde", "Educação", "Ciência & Tecnologia", "Meio ambiente", "Cidades", "Lei & Justiça", "Colunas"] as const;
 
 /**
  * Secondary editorial taxonomy. These are intentionally subthemes, not new
