@@ -7,7 +7,8 @@ import "@/pch-redesign.css";
 const TYPES=["Todos","Feira","Show","Palestra","Encontro","Conferência","Curso","Esporte","Cultura","Religioso","Outros"];
 const STATES=["Todos","SP","RJ","MG","PR","SC","RS","BA","DF","PE","CE"];
 
-function toMs(value:number|string|null|undefined){const n=Number(value);return Number.isFinite(n)?n:0;}\nfunction formatDate(ms:number|string){return new Intl.DateTimeFormat("pt-BR",{weekday:"short",day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}).format(new Date(toMs(ms)));}
+function toMs(value:number|string|null|undefined){const n=Number(value);return Number.isFinite(n)?n:0;}
+function formatDate(ms:number|string){return new Intl.DateTimeFormat("pt-BR",{weekday:"short",day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}).format(new Date(toMs(ms)));}
 function monthLabel(date:Date){return new Intl.DateTimeFormat("pt-BR",{month:"long",year:"numeric"}).format(date);}
 function sameDay(a:number|string,b:Date){const d=new Date(toMs(a));return d.getFullYear()===b.getFullYear()&&d.getMonth()===b.getMonth()&&d.getDate()===b.getDate();}
 function mapEmbed(events:any[],selectedId:string){
