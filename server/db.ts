@@ -120,6 +120,22 @@ export async function recordFreedomReview(entry:any,accessToken?:string|null){co
 export async function listUsers(accessToken?:string|null){const db=await getDb(accessToken);if(!db)return [];const {data,error}=await db.from("users").select("id,openId,name,email,role,lastSignedIn").order("lastSignedIn",{ascending:false});if(error)throw error;return data??[];}
 export async function setUserRole(openId:string,role:string,accessToken?:string|null){const db=await getDb(accessToken);if(!db)throw new Error("Database unavailable");const {error}=await db.from("users").update({role}).eq("openId",openId);if(error)throw error;return {success:true};}
 export async function createComment(row:Comment,accessToken?:string|null){const db=await getDb(accessToken);if(!db)throw new Error("Database unavailable");const {error}=await db.from("comments").insert(row);if(error)throw error;return row;}
+export async function createAdRequest(input:{
+  id:string; business:string; contactName:string; email:string; phone:string; city?:string|null;
+  website?:string|null; socials?:string|null; adType:string; budget?:string|null; period?:string|null;
+  message:string; consentAtMs:number; status:"received"; createdAtMs:number;
+}) {
+  const db = getSupabaseAdmin();
+  const { data, error } = await db.from("adRequests").insert({
+    id: input.id, business: input.business, contact: input.phone || input.email,
+    packageName: input.adType, message: input.message, status: input.status, createdAtMs: input.createdAtMs,
+    contactName: input.contactName, email: input.email, phone: input.phone, city: input.city || null,
+    website: input.website || null, socials: input.socials || null, adType: input.adType,
+    budget: input.budget || null, period: input.period || null, consentAtMs: input.consentAtMs, source: "public-site",
+  }).select("*").single();
+  if (error) throw error;
+  return data;
+}
 
 export async function listPautas(accessToken?: string | null) {
   const supabase = await getDb(accessToken); if (!supabase) return [];
