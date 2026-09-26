@@ -1032,3 +1032,27 @@ main { padding-top:18px !important; }
   .events-hero-actions{flex-direction:column!important;align-items:stretch!important}
   .events-hero-actions button{width:100%!important;justify-content:center!important}
 }
+
+
+/* PCH News — mobile app navigation + Knowledge/Agenda polish */
+.service-card-knowledge{position:relative!important;overflow:hidden!important;min-height:118px!important;background:linear-gradient(135deg,#fffdf7 0%,#fff8e7 58%,#fffdf7 100%)!important;border-color:#dfc477!important;box-shadow:0 8px 22px rgba(132,94,16,.08)!important}
+.service-card-knowledge:before{content:"";position:absolute;right:-34px;top:-48px;width:130px;height:130px;border-radius:50%;border:1px solid rgba(211,169,70,.25)!important}
+.service-card-knowledge>svg{color:#8e691c!important}
+.service-card-knowledge .service-icon-pch{width:54px!important;height:54px!important;border:0!important;border-radius:12px!important;background:#071a2d!important;color:#f4b72d!important;display:grid!important;place-items:center!important;align-content:center!important;gap:1px!important;box-shadow:0 8px 18px rgba(7,26,45,.16)!important;flex:0 0 54px!important}
+.service-card-knowledge .service-icon-pch strong{font-size:13px!important;line-height:1!important;letter-spacing:.02em!important}.service-card-knowledge .service-icon-pch small{font-size:6px!important;letter-spacing:.1em!important;color:#fff!important;opacity:.72!important}
+.service-card-knowledge .service-eyebrow{display:block!important;margin-bottom:4px!important;color:#9a741f!important;font-size:7px!important;font-weight:900!important;letter-spacing:.1em!important}
+.service-card-knowledge strong{font-size:16px!important}.service-card-knowledge p{max-width:360px!important}
+.agenda-stats{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important;margin:0 0 28px!important}
+.agenda-stats>div{display:flex!important;align-items:center!important;gap:10px!important;min-height:62px!important;padding:12px 15px!important;border:1px solid #e2e7ec!important;border-radius:12px!important;background:linear-gradient(180deg,#fff,#f8fafb)!important;box-shadow:0 5px 16px rgba(7,26,45,.035)!important}
+.agenda-stats strong{color:#102a40!important;font-size:17px!important;line-height:1!important}.agenda-stats span{color:#74808a!important;font-size:9px!important;font-weight:800!important;letter-spacing:.06em!important;text-transform:uppercase!important}
+.mobile-app-nav{display:none!important}
+.footer-privacy-link{display:block!important;width:max-content!important;padding:0!important;border:0!important;background:transparent!important;color:#b8c2c8!important;font:inherit!important;font-size:11px!important;cursor:pointer!important;text-align:left!important}.footer-privacy-link:hover{color:#f4b72d!important}
+@media(max-width:700px){
+  body{padding-bottom:72px!important}
+  .mobile-app-nav{position:fixed!important;display:grid!important;grid-template-columns:repeat(5,1fr)!important;left:10px!important;right:10px!important;bottom:10px!important;z-index:90!important;height:62px!important;padding:5px!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:18px!important;background:rgba(7,26,45,.96)!important;box-shadow:0 14px 34px rgba(0,0,0,.24)!important;backdrop-filter:blur(12px)!important}
+  .mobile-app-item{display:grid!important;place-items:center!important;align-content:center!important;gap:3px!important;border:0!important;background:transparent!important;color:#cbd5dc!important;text-decoration:none!important;font:inherit!important;min-width:0!important}
+  .mobile-app-item span{display:grid!important;place-items:center!important;width:32px!important;height:30px!important;border-radius:10px!important}.mobile-app-item small{font-size:8px!important;font-weight:800!important;letter-spacing:.02em!important}.mobile-app-item:hover span,.mobile-app-item:focus-visible span{background:rgba(244,183,45,.14)!important;color:#f4b72d!important}.mobile-app-item:first-child{color:#f4b72d!important}
+  .agenda-stats{grid-template-columns:1fr!important;gap:8px!important;margin-bottom:20px!important}.agenda-stats>div{min-height:52px!important}.agenda-stats strong{font-size:15px!important}
+  .service-card-knowledge{min-height:128px!important}.service-card-knowledge .service-icon-pch{width:48px!important;height:48px!important;flex-basis:48px!important}.service-card-knowledge .service-eyebrow{font-size:6px!important}.service-card-knowledge p{font-size:10px!important}
+  .footer-privacy-link{font-size:10px!important}
+}
