@@ -21,6 +21,7 @@ export default function PublicFooter() {
           <Link href="/institucional">Institucional</Link>
           <Link href="/lei">Lei &amp; Justiça</Link>
           <Link href="/anuncie">Anuncie</Link>
+          <Link href="/parceiros">Parceiros</Link>
         </div>
         <div className="footer-column">
           <span>EDITORIAL</span>
@@ -33,6 +34,9 @@ export default function PublicFooter() {
           <Link href="/institucional">Missão e princípios</Link>
           <Link href="/institucional">Política editorial</Link>
           <Link href="/institucional">Publicidade</Link>
+          <Link href="/privacidade">Privacidade</Link>
+          <Link href="/termos">Termos de uso</Link>
+          <Link href="/cookies">Cookies</Link>
         </div>
         <div className="footer-signature">
           <span>INFORMAÇÃO PARA</span>
