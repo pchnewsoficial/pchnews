@@ -78,7 +78,7 @@ export default function Login() {
     setSending(false);
     if (error) { setMessage("Não foi possível alterar a senha. Solicite um novo link de recuperação."); return; }
     setMessage("Senha alterada com sucesso. Entrando no painel editorial…");
-    window.setTimeout(() => window.location.assign("/admin"), 700);
+    window.setTimeout(() => window.location.assign("/painel-editorial"), 700);
   };
 
   const returnToLogin = () => {
