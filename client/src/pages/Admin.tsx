@@ -88,7 +88,6 @@ export default function Admin() {
   const profileUpload = trpc.profiles.uploadPhoto.useMutation();
   const mediaList = trpc.media.list.useQuery(undefined, { enabled: Boolean(user), retry: false });
   const mediaUpload = trpc.media.upload.useMutation();
-  const syncPilulas = trpc.pilulas.sync.useMutation({ onSuccess: (result) => { void refetchEditorial(); notify(`Pílulas atualizadas: ${result.count} importada(s).`); }, onError: (error) => notify(error.message) });
   const canManageArticle = (article: NewsArticle) => isAdmin || article.author === currentAuthor;
   const [columnists, setColumnists] = useState<Columnist[]>(() => { try { const stored = window.localStorage.getItem(COLUMNISTS_KEY); return stored ? JSON.parse(stored) : INITIAL_COLUMNISTS; } catch { return INITIAL_COLUMNISTS; } });
   const [, navigate] = useLocation();
@@ -152,6 +151,7 @@ export default function Admin() {
     setToast(message);
     window.setTimeout(() => setToast(""), 2800);
   };
+  const syncPilulas = trpc.pilulas.sync.useMutation({ onSuccess: (result) => { void refetchEditorial(); notify(`Pílulas atualizadas: ${result.count} importada(s).`); }, onError: (error) => notify(error.message) });
 
   const openCreate = () => {
     setEditing(null);
