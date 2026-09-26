@@ -25,7 +25,7 @@ export const appRouter = router({
   system: systemRouter,
   apiHub: router({
     health: adminProcedure.query(() => ({ providers: getApiHealth() })),
-    weather: columnistProcedure.input(z.object({ latitude: z.number().min(-90).max(90), longitude: z.number().min(-180).max(180) })).query(({ input }) => getWeather(input.latitude, input.longitude)),
+    weather: publicProcedure.input(z.object({ latitude: z.number().min(-90).max(90), longitude: z.number().min(-180).max(180) })).query(({ input }) => getWeather(input.latitude, input.longitude)),
     bcbSeries: columnistProcedure.input(z.object({ seriesId: z.number().int().positive(), startDate: z.string().optional(), endDate: z.string().optional() })).query(({ input }) => getBcbSeries(input.seriesId, input.startDate, input.endDate)),
     geocodeBrazil: columnistProcedure.input(z.object({ query: z.string().min(2).max(160) })).query(({ input }) => geocodeBrazil(input.query)),
     ibgeMunicipalities: columnistProcedure.input(z.object({ query: z.string().min(2).max(100) })).query(({ input }) => getIbgeMunicipalities(input.query)),
