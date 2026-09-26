@@ -2,7 +2,7 @@ import { ArrowLeft, ArrowRight, KeyRound, LockKeyhole, ShieldCheck } from "lucid
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
-const LOGO_URL = "/brand/pch-news-official-20260926.svg?v=20260927";
+const LOGO_URL = "/brand/pch-news-official-current.svg?v=20260927";
 const OWNER_EMAIL = "pchnews.oficial@gmail.com";
 const ADMIN_APP_ORIGIN = "https://pch-news.pchnews-oficial.workers.dev";
 
