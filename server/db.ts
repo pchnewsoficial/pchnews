@@ -1,4 +1,4 @@
-import { getSupabaseAdmin, getSupabaseServer } from "./_core/supabase";
+import { getSupabaseAdmin, getSupabasePublic, getSupabaseServer } from "./_core/supabase";
 import { ENV } from "./_core/env";
 import type { AdRequest, Article, ArticleAudit, ColumnistInvite, ColumnistProfile, Comment, InsertUser, User } from "../drizzle/schema";
 
