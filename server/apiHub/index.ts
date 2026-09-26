@@ -69,8 +69,8 @@ export async function getChamberPropositions(query: string): Promise<NormalizedC
   const terms = query
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\\u0300-\\u036f]/g, "")
-    .split(/\\W+/)
+    .replace(/[\u0300-\u036f]/g, "")
+    .split(/\W+/)
     .filter((term) => term.length >= 4);
   if (!terms.length) return [];
 
@@ -89,7 +89,7 @@ export async function getChamberPropositions(query: string): Promise<NormalizedC
       const haystack = `${item.ementa || ""} ${item.keywords || ""} ${item.siglaTipo || ""}`
         .toLowerCase()
         .normalize("NFD")
-        .replace(/[\\u0300-\\u036f]/g, "");
+        .replace(/[\u0300-\u036f]/g, "");
       const score = terms.reduce((total, term) => total + (haystack.includes(term) ? 1 : 0), 0);
       return { item, score };
     })
