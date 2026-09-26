@@ -1,12 +1,13 @@
 import { Link } from "wouter";
 import { ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
 import PublicFooter from "@/components/PublicFooter";
+import PageMeta from "@/components/PageMeta";
 
 const LOGO_URL = "/brand/pch-news-official-20260926.svg?v=20260926";
 
 export default function Institutional() {
   return (
-    <div className="site-shell public-module-page">
+    <div className="site-shell public-module-page"><PageMeta title="Institucional — PCH News" description="Missão, visão, objetivo e princípios editoriais do PCH News." canonicalPath="/institucional" />
       <header className="public-module-header">
         <div className="container public-module-header-inner">
           <Link href="/" className="public-module-brand"><img src={LOGO_URL} alt="PCH News" /><span>Informação para <strong>libertar a mente.</strong></span></Link>
