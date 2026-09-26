@@ -257,7 +257,7 @@ export async function createEvent(input: any, accessToken?: string | null) {
     status: "pending",
     createdAtMs: nowMs,
     updatedAtMs: nowMs
-  }).select().single();
+  });
   if (error) throw error; return data;
 }
 export async function getPublicEvent(id: string, accessToken?: string | null) {
