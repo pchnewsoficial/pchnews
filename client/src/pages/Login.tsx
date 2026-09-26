@@ -121,41 +121,46 @@ export default function Login() {
 
         <div className="login-intro">
           <span className="admin-kicker">ÁREA ADMINISTRATIVA</span>
-          <h1 id="login-title">Bem-vindo à<br /><em>{resetPasswordMode ? "nova senha." : "redação."}</em></h1>
-          <p>Acesse o painel para publicar, revisar e administrar o PCH News.</p>
+          <h1 id="login-title">Bem-vindo à<br /><em>{resetPasswordMode ? "nova senha." : resetMode ? "recuperação." : "redação."}</em></h1>
+          <p>{resetPasswordMode ? "Defina uma nova senha para recuperar o acesso ao painel editorial." : resetMode ? "Informe o e-mail administrativo para receber o link de recuperação." : "Acesse o painel para publicar, revisar e administrar o PCH News."}</p>
         </div>
 
-        <form className="login-form" onSubmit={handlePasswordLogin}>
-          <label>
-            <span>E-MAIL ADMINISTRATIVO</span>
-            <div className="login-input">
-              <LockKeyhole size={16} aria-hidden="true" />
-              <input
-                aria-label="E-mail administrativo"
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="seu e-mail"
-                autoComplete="email"
-                autoFocus
-                required
-              />
+        {resetPasswordMode ? (
+          <form className="login-form" onSubmit={handleSetNewPassword}>
+            <label><span>NOVA SENHA</span><div className="login-input"><KeyRound size={16} aria-hidden="true" /><input aria-label="Nova senha" type="password" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} autoComplete="new-password" minLength={8} autoFocus required /></div></label>
+            <button className="login-submit" type="submit" disabled={sending}><span>{sending ? "Salvando…" : "Salvar nova senha"}</span><ArrowRight size={16} /></button>
+            <button className="login-back-button" type="button" onClick={returnToLogin}><ArrowLeft size={15} /> Voltar para o acesso</button>
+          </form>
+        ) : resetMode ? (
+          <form className="login-form" onSubmit={(event) => { event.preventDefault(); handleForgotPassword(); }}>
+            <label><span>E-MAIL ADMINISTRATIVO</span><div className="login-input"><LockKeyhole size={16} aria-hidden="true" /><input aria-label="E-mail administrativo" type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" autoFocus required /></div></label>
+            <button className="login-submit" type="submit" disabled={sending}><span>{sending ? "Enviando…" : "Enviar recuperação"}</span><ArrowRight size={16} /></button>
+            <button className="login-back-button" type="button" onClick={returnToLogin}><ArrowLeft size={15} /> Voltar para o acesso</button>
+          </form>
+        ) : (
+          <>
+            <form className="login-form" onSubmit={handlePasswordLogin}>
+              <label>
+                <span>E-MAIL ADMINISTRATIVO</span>
+                <div className="login-input"><LockKeyhole size={16} aria-hidden="true" />
+                  <input aria-label="E-mail administrativo" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="seu e-mail" autoComplete="email" autoFocus required />
+                </div>
+              </label>
+              <label>
+                <span>SENHA</span>
+                <div className="login-input"><LockKeyhole size={16} aria-hidden="true" />
+                  <input aria-label="Senha administrativa" type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="current-password" required />
+                </div>
+              </label>
+              <button className="login-submit" type="submit" disabled={sending}><span>{sending ? "Entrando…" : "Entrar no painel editorial"}</span><ArrowRight size={16} /></button>
+            </form>
+            <div className="login-actions">
+              <button className="login-forgot-button" type="button" onClick={() => { setResetMode(true); setMessage(""); }}>Esqueci minha senha</button>
             </div>
-          </label>
-          <label>
-            <span>SENHA</span>
-            <div className="login-input">
-              <LockKeyhole size={16} aria-hidden="true" />
-              <input aria-label="Senha administrativa" type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="current-password" required />
-            </div>
-          </label>
-          <button className="login-submit" type="submit" disabled={sending}>
-            <span>{sending ? "Entrando…" : "Entrar no painel editorial"}</span>
-            <ArrowRight size={16} />
-          </button>
-        </form>
-
-        <div className="login-divider"><span>ou acesso por link seguro</span></div>
+            <div className="login-divider"><span>ou acesso por link seguro</span></div>
+            <button className="login-magic-button" type="button" onClick={handleMagicLink} disabled={sending}>Enviar link seguro de acesso</button>
+          </>
+        )}
 
         {authError && (
           <div className="login-error" role="alert">{authError.message}</div>
