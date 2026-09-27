@@ -133,6 +133,8 @@ export default {
       url.pathname.startsWith("/admin/") ||
       url.pathname === "/eventos" ||
       url.pathname.startsWith("/eventos/") ||
+      url.pathname === "/agenda" ||
+      url.pathname.startsWith("/agenda/") ||
       url.pathname === "/login" ||
       url.pathname === "/perfil" ||
       url.pathname === "/404" ||
