@@ -2,7 +2,8 @@
 -- Keeps the public counter callable by readers while hardening its inputs and
 -- preventing view increments on non-published content.
 
-revoke all on function public.is_admin() from anon, authenticated;
+revoke all on function public.is_admin() from anon;
+grant execute on function public.is_admin() to authenticated;
 
 revoke all on function public.sync_authenticated_user(text, text, text) from anon;
 grant execute on function public.sync_authenticated_user(text, text, text) to authenticated;
