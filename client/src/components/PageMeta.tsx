@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 type Props = { title: string; description: string; canonicalPath: string; imageUrl?: string; type?: "website" | "article" };
 
-export default function PageMeta({ title, description, canonicalPath }: Props) {
+export default function PageMeta({ title, description, canonicalPath, imageUrl, type = "website" }: Props) {
   useEffect(() => {
     const previousTitle = document.title;
     document.title = title;
@@ -32,7 +32,7 @@ export default function PageMeta({ title, description, canonicalPath }: Props) {
     return () => {
       document.title = previousTitle;
     };
-  }, [title, description, canonicalPath]);
+  }, [title, description, canonicalPath, imageUrl, type]);
 
   return null;
 }
