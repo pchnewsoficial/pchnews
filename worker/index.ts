@@ -91,10 +91,6 @@ export default {
   async fetch(request: Request, env: { ASSETS: Fetcher }) {
     const url = new URL(request.url);
 
-    // Legacy PCH News image bridge: the editorial database keeps the original
-    // HostingPRESS article URL, while the public site serves the discovered
-    // OpenGraph image from the same origin. This removes cross-origin image
-    // failures and lets Cloudflare cache the migrated artwork.
     if (url.pathname.startsWith("/legacy-image/")) {
       const encodedSource = url.pathname.slice("/legacy-image/".length);
       let sourceUrl = "";
@@ -127,7 +123,6 @@ export default {
       }
     }
 
-    // Backend routes stay on the Node/Express Worker.
     if (
       url.pathname === "/healthz" ||
       url.pathname.startsWith("/api/") ||
@@ -136,9 +131,6 @@ export default {
       return handleAsNodeRequest(3000, request);
     }
 
-    // The React/Vite production build is published through Cloudflare Assets.
-    // not_found_handling=single-page-application in wrangler.jsonc makes
-    // client-side routes (e.g. /admin and /materia/:slug) resolve to index.html.
     const isSpaRoute =
       url.pathname === "/admin" ||
       url.pathname.startsWith("/admin/") ||
@@ -153,13 +145,15 @@ export default {
       url.pathname.startsWith("/colunista/") ||
       url.pathname.startsWith("/convite/") ||
       url.pathname === "/institucional" || url.pathname === "/anuncie" || url.pathname === "/lei" || url.pathname === "/privacidade" || url.pathname === "/termos" || url.pathname === "/cookies" || url.pathname === "/parceiros";
-    // /admin must never fall through to a public route such as /eventos.
-    // Redirect to the app's explicit admin entry query so HomeOrAdmin()
-    // deterministically renders the protected admin guard.
+
+    // Keep /admin as the real browser URL. Serve only the SPA entrypoint so
+    // wouter sees /admin and renders ProtectedAdmin instead of any public page.
     if (url.pathname === "/admin" || url.pathname === "/admin/") {
-      const adminUrl = new URL("/", request.url);
-      adminUrl.searchParams.set("admin", "1");
-      return Response.redirect(adminUrl.toString(), 302);
+      const response = await env.ASSETS.fetch(new Request(new URL("/index.html", request.url), request));
+      const headers = new Headers(response.headers);
+      headers.set("Cache-Control", "no-store");
+      headers.set("X-PCH-Route", "admin-protected");
+      return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
     }
 
     const spaPath = isSpaRoute ? "/index.html" : url.pathname;
