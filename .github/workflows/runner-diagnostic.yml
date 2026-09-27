@@ -1,0 +1,20 @@
+name: PCH Runner Diagnostic
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  runner-diagnostic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Confirm hosted runner
+        run: |
+          echo "PCH_ACTIONS_RUNNER_OK"
+          uname -a
+          node --version || true
