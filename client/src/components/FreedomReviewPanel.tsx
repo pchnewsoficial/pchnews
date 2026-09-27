@@ -3,7 +3,7 @@ import { CheckCircle2, AlertTriangle, Info } from "lucide-react";
 type Check = { ruleId: string; label: string; severity: "ok" | "info" | "warning" | "block"; message: string; evidence: string[]; action?: string };
 type Report = { rulesetVersion: string; mission: string; contentType: "fato" | "opinião"; score: number; checks: Check[]; autonomy: { question: string; answer: string; blockingRules: string[] } };
 
-export function TolerajornalMark({ compact = false }: { compact?: boolean }) {
+export function PchNewsFreedomMark({ compact = false }: { compact?: boolean }) {
   return <div className={compact ? "tj-mark compact" : "tj-mark"}><strong>PCH News</strong><span>informação para pensar por si mesmo</span></div>;
 }
 
