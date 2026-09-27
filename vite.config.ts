@@ -6,8 +6,7 @@ const ROOT = process.cwd();
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), {
-    // Static hosting (Lovable) has no SPA fallback: emit index.html copies for
-    // client-side routes so deep links like /painel-editorial don't 404.
+    // Static hosting (Lovable) has no SPA fallback: emit index.html copies for client-side routes.
     name: "pch-spa-fallback",
     apply: "build",
     async closeBundle() {
@@ -17,7 +16,7 @@ export default defineConfig({
       if (!fs.existsSync(index)) return;
       const html = fs.readFileSync(index);
       fs.writeFileSync(path.join(out, "404.html"), html);
-      for (const r of ["login", "painel-editorial", "admin", "admin/integracoes", "perfil", "institucional", "anuncie", "conhecimento-pch", "eventos", "lei", "privacidade", "termos", "cookies", "parceiros", "correcoes"]) {
+      for (const r of ["login", "admin", "admin/integracoes", "perfil", "institucional", "anuncie", "conhecimento-pch", "eventos", "lei", "privacidade", "termos", "cookies", "parceiros", "correcoes"]) {
         fs.mkdirSync(path.join(out, r), { recursive: true });
         fs.writeFileSync(path.join(out, r, "index.html"), html);
       }
