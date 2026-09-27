@@ -193,7 +193,7 @@ function liberdadeEditorial(article: EditorialArticleInput): AgentResult {
     code: "freedom-" + c.ruleId.toLowerCase(), ruleId: c.ruleId, evidence: c.evidence,
     message: `[${c.ruleId}] ${c.message}`, suggestion: c.action
   }));
-  return { agentId: "liberdade-editorial", agentName: "Liberdade Editorial — Tolerajornal", status: findings.some((f) => f.severity === "warning") ? "review" : "pass", findings, output: report as unknown as Record<string, unknown> };
+  return { agentId: "liberdade-editorial", agentName: "Liberdade Editorial — PCH News", status: findings.some((f) => f.severity === "warning") ? "review" : "pass", findings, output: report as unknown as Record<string, unknown> };
 }
 
 export function runEditorialAgent(agentId: EditorialAgentId, article: EditorialArticleInput, researchContext?: EditorialResearchContext): AgentResult {
