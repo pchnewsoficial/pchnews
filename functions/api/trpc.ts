@@ -3,6 +3,8 @@ import { runEditorialAgent, type EditorialAgentId } from "../../server/editorial
 
 type Env = {
   SUPABASE_URL: string;
+  SUPABASE_PUBLISHABLE_KEY?: string;
+  SUPABASE_ANON_KEY?: string;
   SUPABASE_SERVICE_ROLE_KEY?: string;
   SUPABASE_SECRET_KEY?: string;
   PCH_ADMIN_EMAILS?: string;
@@ -61,37 +63,75 @@ function trpcError(message: string, code = "INTERNAL_SERVER_ERROR") {
   return { error: { json: { message, code, data: { code } } } };
 }
 
-async function currentUser(request: Request, env: Env, required = false) {
+function getBearerToken(request: Request) {
   const auth = request.headers.get("Authorization");
-  const token = auth?.startsWith("Bearer ") ? auth.slice(7) : "";
+  return auth?.startsWith("Bearer ") ? auth.slice(7) : "";
+}
+
+function createPublicUserClient(env: Env, token: string) {
+  const key = env.SUPABASE_PUBLISHABLE_KEY || env.SUPABASE_ANON_KEY;
+  if (!env.SUPABASE_URL || !key) return null;
+  return createClient(env.SUPABASE_URL, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+    global: { headers: { Authorization: `Bearer ${token}` } },
+  });
+}
+
+async function currentUser(request: Request, env: Env, required = false) {
+  const token = getBearerToken(request);
   if (!token) { if (required) throw new Error("UNAUTHORIZED"); return null; }
-  const adminKey = env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SECRET_KEY;
-  if (!env.SUPABASE_URL || !adminKey) throw new Error("Supabase server secrets are not configured.");
-  const admin = createClient(env.SUPABASE_URL, adminKey, { auth: { persistSession: false, autoRefreshToken: false } });
-  const { data: authData, error: authError } = await admin.auth.getUser(token);
+
+  const serverKey = env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SECRET_KEY;
+  const db = serverKey
+    ? createClient(env.SUPABASE_URL, serverKey, { auth: { persistSession: false, autoRefreshToken: false } })
+    : createPublicUserClient(env, token);
+
+  if (!db) {
+    if (required) throw new Error("UNAUTHORIZED");
+    return null;
+  }
+
+  const { data: authData, error: authError } = await db.auth.getUser(token);
   if (authError || !authData.user) { if (required) throw new Error("UNAUTHORIZED"); return null; }
+
   const openId = authData.user.id;
-  const { data: row } = await admin.from("users").select("*").eq("openId", openId).maybeSingle();
+  const { data: row, error: rowError } = await db.from("users").select("*").eq("openId", openId).maybeSingle();
+  if (rowError) throw new Error(rowError.message);
+
+  // Existing editorial accounts must work even when the optional Worker
+  // service secret is absent. New-user provisioning still requires the
+  // server key because normal RLS does not permit arbitrary user creation.
   if (!row) {
+    if (!serverKey) {
+      if (required) throw new Error("UNAUTHORIZED");
+      return null;
+    }
     const name = authData.user.user_metadata?.full_name || authData.user.user_metadata?.name || authData.user.email?.split("@")[0] || "Usuário";
-    const { data: created } = await admin.from("users").upsert({
+    const { data: created } = await db.from("users").upsert({
       openId, name, email: authData.user.email ?? null,
       loginMethod: authData.user.app_metadata?.provider ?? "supabase",
       lastSignedIn: new Date().toISOString()
     }, { onConflict: "openId" }).select("*").single();
     const adminEmails = (env.PCH_ADMIN_EMAILS || "").split(",").map((email) => email.trim().toLowerCase()).filter(Boolean);
     const role = authData.user.email && adminEmails.includes(authData.user.email.toLowerCase()) ? "admin" : "user";
-    if (created && role === "admin") await admin.from("users").update({ role }).eq("openId", openId);
+    if (created && role === "admin") await db.from("users").update({ role }).eq("openId", openId);
     return created ? { ...created, role } : { openId, name, email: authData.user.email ?? null, role };
   }
-  await admin.from("users").update({ lastSignedIn: new Date().toISOString() }).eq("openId", openId);
+
+  // Do not make successful login depend on this non-essential timestamp update.
+  if (serverKey) {
+    await db.from("users").update({ lastSignedIn: new Date().toISOString() }).eq("openId", openId);
+  }
   return row;
 }
 
 async function handleProcedure(path: string, request: Request, env: Env, input: any) {
-  const adminKey = env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SECRET_KEY;
-  if (!env.SUPABASE_URL || !adminKey) throw new Error("Supabase server secrets are not configured.");
-  const db = createClient(env.SUPABASE_URL, adminKey, { auth: { persistSession: false, autoRefreshToken: false } });
+  const token = getBearerToken(request);
+  const serverKey = env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SECRET_KEY;
+  const db = serverKey
+    ? createClient(env.SUPABASE_URL, serverKey, { auth: { persistSession: false, autoRefreshToken: false } })
+    : (token ? createPublicUserClient(env, token) : null);
+  if (!db) throw new Error("Supabase is not configured for this request.");
   const STAFF_ROLES = ["admin", "editor", "journalist", "columnist", "reviewer"] as const;
   const CONTENT_EDIT_ROLES = ["admin", "editor", "journalist", "columnist"] as const;
 
