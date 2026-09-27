@@ -33,6 +33,16 @@ export async function authenticateSupabaseRequest(req: Request): Promise<Authent
     authUser.email?.split("@")[0] ??
     "Usuário";
 
+  // The editorial owner record already exists in public.users and is protected by RLS.
+  // Do not make the entire authentication flow depend on the optional server-only
+  // service-role secret: an existing authenticated user can be loaded safely with
+  // the user's own Bearer token. This is especially important on Cloudflare Worker
+  // deployments where only the publishable Supabase key may be configured.
+  const existingUser = await db.getUserByOpenId(openId, token);
+  if (existingUser) return existingUser;
+
+  // New-account provisioning still uses the server-side sync path. Existing users
+  // never need the service-role key just to sign in and reach the editorial panel.
   await db.upsertUser({
     openId,
     name,
