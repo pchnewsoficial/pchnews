@@ -23,7 +23,6 @@ function corsHeaders(request: Request) {
     origin === "https://pchnews-oficial.pages.dev" ||
     origin === "https://pchnews.com.br" ||
     origin === "https://www.pchnews.com.br" ||
-    origin.endsWith(".lovable.app") ||
     origin.endsWith(".pages.dev");
   return {
     "access-control-allow-origin": allowed ? origin : "https://pchnews-oficial.pages.dev",
