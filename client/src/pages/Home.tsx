@@ -10,13 +10,7 @@ import { editorialImageUrl } from "@/lib/editorialImage";
 
 const LOGO_URL = officialLogoUrl;
 const LOGO_FALLBACK_URL = officialLogoUrl;
-const imageUrl = (article: NewsArticle) => {
-  if (article.image) return article.image;
-  if (article.sourceUrl?.startsWith("https://pchnews.hostingpress.com.br/materia/")) {
-    return `https://pch-news.pchnews-oficial.workers.dev/legacy-image/${encodeURIComponent(article.sourceUrl)}`;
-  }
-  return LOGO_URL;
-};
+const imageUrl = (article: NewsArticle) => editorialImageUrl(article);
 const categories = ["Todas", "Brasil", "Regiões", "Política", "Economia", "Internacional"];
 const moreCategories = EDITORIAL_CATEGORIES.filter((category) => !categories.includes(category));
 
@@ -348,7 +342,7 @@ export default function Home() {
 
         <section className="container latest-section" id="ultimas">
           <div className="section-heading large-heading"><div><span className="eyebrow">CURADORIA PCH NEWS</span><h2>{activeCategory === "Todas" ? "Últimas notícias" : activeCategory}</h2></div><div className="heading-rule"><span>{visible.length} histórias</span></div></div>
-          <div className="latest-grid">{gridStories.map((article) => <article className="news-card" key={article.id}><Link href={`/materia/${article.id}`}><div className="news-image"><img src={imageUrl(article)} alt={article.title} onError={(event) => { event.currentTarget.src = article.image || LOGO_URL; }} /><span className="category-tag">{article.category}</span></div><div className="news-copy"><h3>{article.title}</h3><p>{article.summary}</p><div className="tag-row">{(article.tags || []).slice(0, 3).map((tag) => <span key={tag}>#{tag}</span>)}</div><Meta article={article} /><span className="read-more">Ler matéria <ArrowRight size={14} /></span></div></Link></article>)}</div>
+          <div className="latest-grid">{gridStories.map((article) => <article className="news-card" key={article.id}><Link href={`/materia/${article.id}`}><div className="news-image"><img src={imageUrl(article)} alt={article.title} onError={(event) => { event.currentTarget.src = LOGO_URL; }} /><span className="category-tag">{article.category}</span></div><div className="news-copy"><h3>{article.title}</h3><p>{article.summary}</p><div className="tag-row">{(article.tags || []).slice(0, 3).map((tag) => <span key={tag}>#{tag}</span>)}</div><Meta article={article} /><span className="read-more">Ler matéria <ArrowRight size={14} /></span></div></Link></article>)}</div>
         </section>
 
         <section className="container most-read-section">
