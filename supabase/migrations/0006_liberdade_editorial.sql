@@ -1,4 +1,4 @@
--- Liberdade Editorial — Tolerajornal: resultado e histórico auditável
+-- Liberdade Editorial — PCH News: resultado e histórico auditável
 alter table public.articles add column if not exists "freedomStatus" text check ("freedomStatus" in ('pass','review','block'));
 alter table public.articles add column if not exists "freedomScore" integer;
 alter table public.articles add column if not exists "freedomReviewedAtMs" bigint;
