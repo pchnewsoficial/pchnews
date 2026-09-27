@@ -6,6 +6,7 @@ import { trpc } from "@/lib/trpc";
 import { EDITORIAL_CATEGORIES, EDITORIAL_SUBTHEMES, NewsArticle } from "@/lib/news";
 import "@/pch-redesign.css";
 import PublicFooter from "@/components/PublicFooter";
+import { editorialImageUrl } from "@/lib/editorialImage";
 
 const LOGO_URL = officialLogoUrl;
 const LOGO_FALLBACK_URL = officialLogoUrl;
