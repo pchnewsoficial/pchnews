@@ -38,7 +38,7 @@ export function editorialImageUrl(article: {
     return `${WORKER_IMAGE_ORIGIN}/legacy-image/${encodeURIComponent(legacySource)}`;
   }
 
-  if (image && (/^https?:\\/\\//i.test(image) || image.startsWith("/assets/") || image.startsWith("/storage/"))) {
+  if (image && ((image.startsWith("http://") || image.startsWith("https://")) || image.startsWith("/assets/") || image.startsWith("/storage/"))) {
     return image;
   }
 
