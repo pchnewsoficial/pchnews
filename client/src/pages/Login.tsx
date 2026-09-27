@@ -2,6 +2,7 @@ import { ArrowLeft, ArrowRight, KeyRound, LockKeyhole, ShieldCheck } from "lucid
 import officialLogoUrl from "@/assets/pch-news-official-current.svg";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import PageMeta from "@/components/PageMeta";
 
 const LOGO_URL = officialLogoUrl;
 const OWNER_EMAIL = "pchnews.oficial@gmail.com";
@@ -110,7 +111,7 @@ export default function Login() {
   };
 
   return (
-    <main className="login-shell">
+    <main className="login-shell"><PageMeta title="Acesso administrativo — PCH News" description="Acesso seguro ao painel editorial do PCH News." canonicalPath="/login" />
       <div className="login-glow login-glow-one" aria-hidden="true" />
       <div className="login-glow login-glow-two" aria-hidden="true" />
 
