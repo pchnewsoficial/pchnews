@@ -5,7 +5,24 @@ import { defineConfig } from "vite";
 const ROOT = process.cwd();
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), {
+    // Static hosting (Lovable) has no SPA fallback: emit index.html copies for
+    // client-side routes so deep links like /painel-editorial don't 404.
+    name: "pch-spa-fallback",
+    apply: "build",
+    async closeBundle() {
+      const fs = await import("node:fs");
+      const out = path.resolve(ROOT, "dist");
+      const index = path.join(out, "index.html");
+      if (!fs.existsSync(index)) return;
+      const html = fs.readFileSync(index);
+      fs.writeFileSync(path.join(out, "404.html"), html);
+      for (const r of ["login", "painel-editorial", "admin", "admin/integracoes", "perfil", "institucional", "anuncie", "conhecimento-pch", "eventos", "lei", "privacidade", "termos", "cookies", "parceiros", "correcoes"]) {
+        fs.mkdirSync(path.join(out, r), { recursive: true });
+        fs.writeFileSync(path.join(out, r, "index.html"), html);
+      }
+    },
+  }],
   resolve: {
     alias: {
       "@": path.resolve(ROOT, "client", "src"),
