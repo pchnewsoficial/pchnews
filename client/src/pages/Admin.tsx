@@ -351,7 +351,7 @@ export default function Admin() {
   useEffect(() => {
     if (!mediaList.data) return;
     const remoteMedia = (mediaList.data as any[]).map((item) => ({
-      id: item.id,
+      id: item.key || item.id,
       name: item.name,
       src: item.url,
       size: item.size ? `${Math.round(Number(item.size) / 1024)} KB` : "",
