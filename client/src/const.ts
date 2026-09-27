@@ -2,7 +2,7 @@ import { supabase } from "@/lib/supabase";
 
 export { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 
-const ADMIN_APP_ORIGIN = "https://pch-news.pchnews-oficial.workers.dev";
+const ADMIN_APP_ORIGIN = typeof window !== "undefined" ? window.location.origin : "";
 
 export const startLogin = async () => {
   const redirectTo = typeof window !== "undefined" ? ADMIN_APP_ORIGIN + "/admin" : undefined;
