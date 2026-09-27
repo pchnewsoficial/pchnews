@@ -274,7 +274,7 @@ export default function Home() {
           <div className="lead-column">
             <div className="lead-carousel" aria-roledescription="carousel" aria-label="Notícias em destaque">
               <Link className="lead-story" href={`/materia/${lead.id}`} key={lead.id}>
-                <img src={imageUrl(lead)} alt={lead.title} onError={(event) => { event.currentTarget.src = lead.image || LOGO_URL; }} />
+                <img src={imageUrl(lead)} alt={lead.title} onError={(event) => { event.currentTarget.src = LOGO_URL; }} />
                 <div className="story-overlay">
                   <span className="category-tag">{lead.category}</span>
                   <span className="featured-kicker"><Eye size={12} /> {lead.views.toLocaleString("pt-BR")} visualizações</span>
