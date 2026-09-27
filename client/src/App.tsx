@@ -37,5 +37,24 @@ function HomeOrAdmin() {
   if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("admin") === "1") return <ProtectedAdmin />;
   return <Home />;
 }
-function Router() {\n  const [location] = useLocation();\n  // Use the browser pathname as the canonical route identity. Wouter remains the\n  // navigation layer, but protected/public route families are separated explicitly\n  // so /admin can never fall through to the Agenda route.\n  const browserPath = typeof window !== "undefined" ? window.location.pathname : location;\n  const normalizedPath = browserPath.replace(/\\/+$/, "") || "/";\n\n  if (normalizedPath === "/admin" || normalizedPath === "/painel-editorial") return <ProtectedAdmin />;\n  if (normalizedPath === "/admin/integracoes") return <ProtectedAdmin />;\n  if (normalizedPath === "/eventos") return <EventsAgenda />;\n  if (normalizedPath.startsWith("/eventos/")) return <EventDetail />;\n\n  return <Switch><Route path="/" component={HomeOrAdmin} /><Route path="/login" component={Login} />\n    <Route path="/perfil" component={Profile} /><Route path="/perfil/" component={Profile} /><Route path="/painel-editorial/" component={ProtectedAdmin} /><Route path="/admin/integracoes/" component={ProtectedAdmin} /><Route path="/materia/:slug" component={ArticlePage} /><Route path="/colunista/:slug" component={ColumnistProfile} /><Route path="/convite/:token" component={InviteAccept} /><Route path="/institucional" component={Institutional} /><Route path="/institucional/" component={Institutional} /><Route path="/anuncie" component={PublicAds} /><Route path="/anuncie/" component={PublicAds} /><Route path="/conhecimento-pch" component={KnowledgePage} /><Route path="/conhecimento-pch/" component={KnowledgePage} /><Route path="/lei" component={LawNews} /><Route path="/lei/" component={LawNews} />\n    <Route path="/privacidade" component={PrivacyPage} /><Route path="/privacidade/" component={PrivacyPage} />\n    <Route path="/termos" component={TermsPage} /><Route path="/termos/" component={TermsPage} />\n    <Route path="/cookies" component={CookiesPage} /><Route path="/cookies/" component={CookiesPage} />\n    <Route path="/parceiros" component={PartnersPage} /><Route path="/parceiros/" component={PartnersPage} /><Route path="/correcoes" component={EditorialRequests} /><Route path="/correcoes/" component={EditorialRequests} /><Route path="/404" component={NotFound} /><Route component={NotFound} /></Switch>;\n}
+function Router() {
+  const [location] = useLocation();
+  // Use the browser pathname as the canonical route identity. Wouter remains the
+  // navigation layer, but protected/public route families are separated explicitly
+  // so /admin can never fall through to the Agenda route.
+  const browserPath = typeof window !== "undefined" ? window.location.pathname : location;
+  const normalizedPath = browserPath.replace(/\/+$/, "") || "/";
+
+  if (normalizedPath === "/admin" || normalizedPath === "/painel-editorial") return <ProtectedAdmin />;
+  if (normalizedPath === "/admin/integracoes") return <ProtectedAdmin />;
+  if (normalizedPath === "/eventos") return <EventsAgenda />;
+  if (normalizedPath.startsWith("/eventos/")) return <EventDetail />;
+
+  return <Switch><Route path="/" component={HomeOrAdmin} /><Route path="/login" component={Login} />
+    <Route path="/perfil" component={Profile} /><Route path="/perfil/" component={Profile} /><Route path="/painel-editorial/" component={ProtectedAdmin} /><Route path="/admin/integracoes/" component={ProtectedAdmin} /><Route path="/materia/:slug" component={ArticlePage} /><Route path="/colunista/:slug" component={ColumnistProfile} /><Route path="/convite/:token" component={InviteAccept} /><Route path="/institucional" component={Institutional} /><Route path="/institucional/" component={Institutional} /><Route path="/anuncie" component={PublicAds} /><Route path="/anuncie/" component={PublicAds} /><Route path="/conhecimento-pch" component={KnowledgePage} /><Route path="/conhecimento-pch/" component={KnowledgePage} /><Route path="/lei" component={LawNews} /><Route path="/lei/" component={LawNews} />
+    <Route path="/privacidade" component={PrivacyPage} /><Route path="/privacidade/" component={PrivacyPage} />
+    <Route path="/termos" component={TermsPage} /><Route path="/termos/" component={TermsPage} />
+    <Route path="/cookies" component={CookiesPage} /><Route path="/cookies/" component={CookiesPage} />
+    <Route path="/parceiros" component={PartnersPage} /><Route path="/parceiros/" component={PartnersPage} /><Route path="/correcoes" component={EditorialRequests} /><Route path="/correcoes/" component={EditorialRequests} /><Route path="/404" component={NotFound} /><Route component={NotFound} /></Switch>;
+}
 export default function App() { return <ErrorBoundary><EditorialDataBridge /><ClarityRouteTracker /><TooltipProvider><Toaster /><Router /></TooltipProvider><PrivacyConsent /></ErrorBoundary>; }
