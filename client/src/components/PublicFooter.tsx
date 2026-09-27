@@ -1,7 +1,8 @@
 import { Link } from "wouter";
+import officialLogoUrl from "@/assets/pch-news-official-current.svg";
 import { ArrowRight } from "lucide-react";
 
-const LOGO_URL = "/brand/pch-news-official-current.svg?v=20260927";
+const LOGO_URL = officialLogoUrl;
 
 export default function PublicFooter() {
   return (
