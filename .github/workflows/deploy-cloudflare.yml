@@ -15,9 +15,8 @@ concurrency:
 
 jobs:
   deploy:
-    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     name: Build and deploy production Worker
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
 
     steps:
