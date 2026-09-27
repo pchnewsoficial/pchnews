@@ -44,7 +44,7 @@ function Router() {
   if (normalizedPath === "/admin") return <ProtectedAdmin />;
   if (normalizedPath === "/admin/integracoes") return <ProtectedAdmin />;
   if (normalizedPath === "/eventos" || normalizedPath === "/agenda") return <EventsAgenda />;
-  if (normalizedPath.startsWith("/eventos/")) return <EventDetail />;
+  if (normalizedPath.startsWith("/eventos/") || normalizedPath.startsWith("/agenda/")) return <EventDetail />;
 
   return <Switch><Route path="/" component={HomeOrAdmin} /><Route path="/login" component={Login} />
     <Route path="/perfil" component={Profile} /><Route path="/perfil/" component={Profile} /><Route path="/admin/integracoes/" component={ProtectedAdmin} /><Route path="/materia/:slug" component={ArticlePage} /><Route path="/colunista/:slug" component={ColumnistProfile} /><Route path="/convite/:token" component={InviteAccept} /><Route path="/institucional" component={Institutional} /><Route path="/institucional/" component={Institutional} /><Route path="/anuncie" component={PublicAds} /><Route path="/anuncie/" component={PublicAds} /><Route path="/conhecimento-pch" component={KnowledgePage} /><Route path="/conhecimento-pch/" component={KnowledgePage} /><Route path="/lei" component={LawNews} /><Route path="/lei/" component={LawNews} />
