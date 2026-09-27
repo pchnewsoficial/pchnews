@@ -66,7 +66,7 @@ export default function EditorialAgents({ articles, isAdmin, currentAuthor, noti
     <section className="panel agent-control-panel">
       <div className="panel-heading"><div><span className="admin-kicker">MATÉRIA EM ANÁLISE</span><h2>Escolha a publicação</h2></div></div>
       <select className="agent-article-select" value={article.id} onChange={(event) => { setArticleId(event.target.value); setResult(null); }}>
-        {visible.map((item) => <option key={item.id} value={item.id}>{item.title} — {item.status}</option>)}
+        {visible.map((item) => <option key={item.id} value={item.id}>{item.title} — {statusLabels[item.status] || item.status}</option>)}
       </select>
       <div className="agent-grid">
         {AGENTS.map((agent) => { const Icon = agent.icon; return <button type="button" key={agent.id} className={selectedAgent === agent.id ? "agent-card active" : "agent-card"} onClick={() => execute(agent.id)} disabled={run.isPending}>
