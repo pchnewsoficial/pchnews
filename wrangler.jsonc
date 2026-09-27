@@ -9,6 +9,10 @@
     "nodejs_compat_populate_process_env",
     "assets_navigation_has_no_effect"
   ],
+  "routes": [
+    { "pattern": "pchnews.com.br", "custom_domain": true },
+    { "pattern": "www.pchnews.com.br", "custom_domain": true }
+  ],
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
