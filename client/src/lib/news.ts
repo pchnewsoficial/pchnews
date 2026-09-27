@@ -48,12 +48,8 @@ export const EDITORIAL_CHECKLIST_LABELS: Array<[keyof EditorialChecklist,string]
  * newsroom can classify more specific coverage through tags.
  */
 export const EDITORIAL_SUBTHEMES = [
-  { label: "Saúde e Beleza", parent: "Saúde & Beleza" },
-  { label: "Desenvolvimento Humano", parent: "Desenvolvimento Humano" },
   { label: "Terapia e Bem-Estar", parent: "Saúde & Beleza" },
-  { label: "Direitos e Cidadania", parent: "Direitos e Cidadania" },
   { label: "Notícias da Lei", parent: "Lei & Justiça" },
-  { label: "Investigação", parent: "Investigação" },
 ] as const;
 
 export type EditorialSubtheme = typeof EDITORIAL_SUBTHEMES[number]["label"];
