@@ -101,14 +101,64 @@ export default function Home() {
     });
   }, [activeCategory, activeTopic, published, query]);
 
-  const mostRead = useMemo(() => [...published].sort((a, b) => b.views - a.views).slice(0, 5), [published]);
   const editorialOrder = (a: NewsArticle, b: NewsArticle) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)) || b.views - a.views;
-  const carouselStories = visible.length ? [...visible].sort(editorialOrder).slice(0, 5) : [...mostRead].sort(editorialOrder);
+  const fallbackMostRead = useMemo(() => [...published].sort((a, b) => b.views - a.views), [published]);
+  const carouselStories = visible.length ? [...visible].sort(editorialOrder).slice(0, 5) : [...fallbackMostRead].sort(editorialOrder).slice(0, 5);
   const safeSlide = carouselStories.length ? activeSlide % carouselStories.length : 0;
   const lead = carouselStories[safeSlide] || published[0];
-  const sideStories = published.filter((article) => article.id !== lead?.id).sort((a, b) => b.views - a.views).slice(0, 3);
 
-  const pilulas = useMemo(() => published.filter((article) => (article.tags || []).some((tag) => tag.toLowerCase().includes("pílula do poeta")) || article.author.toLowerCase().includes("evaldo poeta")).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 6), [published]);
+  // Each homepage story is assigned to one editorial rail only, avoiding the same
+  // headline being repeated in Destaque, Mais lidas, Últimas and category blocks.
+  const leadId = lead?.id;
+  const sideStories = useMemo(
+    () => published.filter((article) => article.id !== leadId).sort((a, b) => b.views - a.views).slice(0, 3),
+    [published, leadId],
+  );
+  const sideIds = useMemo(() => new Set(sideStories.map((article) => article.id)), [sideStories]);
+
+  const gridStories = useMemo(
+    () => [...visible]
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime() || b.views - a.views)
+      .filter((article) => article.id !== leadId && !sideIds.has(article.id))
+      .slice(0, 6),
+    [visible, leadId, sideIds],
+  );
+  const gridIds = useMemo(() => new Set(gridStories.map((article) => article.id)), [gridStories]);
+
+  const pilulas = useMemo(
+    () => published
+      .filter((article) => (article.tags || []).some((tag) => tag.toLowerCase().includes("pílula do poeta")) || article.author.toLowerCase().includes("evaldo poeta"))
+      .filter((article) => article.id !== leadId && !sideIds.has(article.id) && !gridIds.has(article.id))
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 6),
+    [published, leadId, sideIds, gridIds],
+  );
+  const pilulaIds = useMemo(() => new Set(pilulas.map((article) => article.id)), [pilulas]);
+
+  const mostRead = useMemo(
+    () => [...published]
+      .filter((article) => article.id !== leadId && !sideIds.has(article.id) && !gridIds.has(article.id) && !pilulaIds.has(article.id))
+      .sort((a, b) => b.views - a.views)
+      .slice(0, 5),
+    [published, leadId, sideIds, gridIds, pilulaIds],
+  );
+  const mostReadIds = useMemo(() => new Set(mostRead.map((article) => article.id)), [mostRead]);
+
+  const usedEditorialIds = useMemo(
+    () => new Set([leadId, ...sideStories.map((article) => article.id), ...gridStories.map((article) => article.id), ...pilulas.map((article) => article.id), ...mostRead.map((article) => article.id)].filter(Boolean) as string[]),
+    [leadId, sideStories, gridStories, pilulas, mostRead],
+  );
+
+  const categorySections = useMemo(
+    () => EDITORIAL_CATEGORIES.map((category) => ({
+      category,
+      stories: published
+        .filter((article) => article.category === category && !usedEditorialIds.has(article.id))
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime() || b.views - a.views)
+        .slice(0, 4),
+    })).filter((section) => section.stories.length > 0).slice(0, 6),
+    [published, usedEditorialIds],
+  );
 
   const columnists = useMemo(() => {
     const profiles = Array.isArray(remoteEditorial?.profiles) ? remoteEditorial.profiles as any[] : [];
@@ -119,9 +169,9 @@ export default function Home() {
         const featured = [...stories].sort((a, b) => b.views - a.views)[0];
         return { profile, featured, publicationCount: stories.length };
       })
-      .filter((item) => item.profile?.name)
+       .filter((item) => item.profile?.name)
       .sort((a, b) => (Number(Boolean(b.featured)) - Number(Boolean(a.featured))) || ((b.featured?.views || 0) - (a.featured?.views || 0)))
-      .slice(0, 1);
+      .slice(0, 2);
   }, [published, remoteEditorial?.profiles]);
 
   useEffect(() => setActiveSlide(0), [activeCategory, activeTopic, query]);
@@ -221,18 +271,6 @@ export default function Home() {
       </header>
 
       <main>
-        <section className="container ad-banner ad-carousel" id="anuncie" aria-roledescription="carousel" aria-label="Publicidade PCH News" onMouseEnter={() => setAdPaused(true)} onMouseLeave={() => setAdPaused(false)} onFocusCapture={() => setAdPaused(true)} onBlurCapture={() => setAdPaused(false)}>
-          <div className="ad-carousel-track" style={{ transform: `translateX(-${activeAdSlide * 100}%)` }}>
-            {adSlides.map((slide) => <div className="ad-slide" key={slide.title}>
-              <div className="ad-copy"><span className="ad-tag">{slide.eyebrow}</span><h1>{slide.title}<br /><em>{slide.emphasis}</em></h1><p>{slide.text}</p><Link className="gold-button" href="/anuncie">{slide.cta} <ArrowRight size={16} /></Link></div>
-              <div className="ad-device"><div className="device-top"><span /><span /><span /></div><div className="device-content"><div className="device-logo">PCH<br /><small>NEWS</small></div><div className="device-lines"><i /><i /><i /><i /></div><div className="device-cards"><b /><b /><b /></div></div></div>
-              <div className="ad-side"><span>PUBLICIDADE</span><strong>{String(activeAdSlide + 1).padStart(2, "0")} / {String(adSlides.length).padStart(2, "0")}</strong><small>Peça comercial identificada.</small></div>
-            </div>)}
-          </div>
-          <div className="ad-carousel-controls"><button type="button" aria-label="Publicidade anterior" onClick={() => setActiveAdSlide((current) => (current - 1 + adSlides.length) % adSlides.length)}><ArrowLeft size={16} /></button><div className="ad-carousel-dots">{adSlides.map((slide, index) => <button type="button" key={slide.title} aria-label={`Ir para peça ${index + 1}`} className={index === activeAdSlide ? "active" : ""} onClick={() => setActiveAdSlide(index)} />)}</div><button type="button" aria-label="Próxima publicidade" onClick={() => setActiveAdSlide((current) => (current + 1) % adSlides.length)}><ArrowRight size={16} /></button></div>
-          <div className="ad-progress" aria-hidden="true"><span key={activeAdSlide} /></div>
-        </section>
-
         {(eventCarousel.data || []).length > 0 && <section className="container events-promo-home" aria-label="Eventos em destaque">
           <div className="section-heading large-heading"><div><span className="eyebrow">AGENDA PCH NEWS</span><h2>Eventos próximos</h2></div><Link href="/eventos" className="read-more">Ver agenda <ArrowRight size={14}/></Link></div>
           <div className="events-promo-rail">
@@ -249,7 +287,7 @@ export default function Home() {
           <div className="lead-column">
             <div className="lead-carousel" aria-roledescription="carousel" aria-label="Notícias em destaque">
               <Link className="lead-story" href={`/materia/${lead.id}`} key={lead.id}>
-                <img src={imageUrl(lead)} alt="" onError={(event) => { event.currentTarget.src = lead.image || LOGO_URL; }} />
+                <img src={imageUrl(lead)} alt={lead.title} onError={(event) => { event.currentTarget.src = lead.image || LOGO_URL; }} />
                 <div className="story-overlay">
                   <span className="category-tag">{lead.category}</span>
                   <span className="featured-kicker"><Eye size={12} /> {lead.views.toLocaleString("pt-BR")} visualizações</span>
@@ -279,7 +317,20 @@ export default function Home() {
             {sideStories.map((article, index) => <Link href={`/materia/${article.id}`} className="recent-item" key={article.id}><div className={`recent-thumb thumb-${index + 1}`} style={{ backgroundImage: `url(${imageUrl(article)})` }}><span>{String(index + 1).padStart(2, "0")}</span></div><div><span className="item-category">{article.category}</span><h3>{article.title}</h3><p><Eye size={12} /> {article.views.toLocaleString("pt-BR")} visualizações</p></div></Link>)}
           </aside>
         </section>
-        ) : (
+        ) : (        <section className="container ad-banner ad-carousel" id="anuncie" aria-roledescription="carousel" aria-label="Publicidade PCH News" onMouseEnter={() => setAdPaused(true)} onMouseLeave={() => setAdPaused(false)} onFocusCapture={() => setAdPaused(true)} onBlurCapture={() => setAdPaused(false)}>
+          <div className="ad-carousel-track" style={{ transform: `translateX(-${activeAdSlide * 100}%)` }}>
+            {adSlides.map((slide) => <div className="ad-slide" key={slide.title}>
+              <div className="ad-copy"><span className="ad-tag">{slide.eyebrow}</span><h1>{slide.title}<br /><em>{slide.emphasis}</em></h1><p>{slide.text}</p><Link className="gold-button" href="/anuncie">{slide.cta} <ArrowRight size={16} /></Link></div>
+              <div className="ad-device"><div className="device-top"><span /><span /><span /></div><div className="device-content"><div className="device-logo">PCH<br /><small>NEWS</small></div><div className="device-lines"><i /><i /><i /><i /></div><div className="device-cards"><b /><b /><b /></div></div></div>
+              <div className="ad-side"><span>PUBLICIDADE</span><strong>{String(activeAdSlide + 1).padStart(2, "0")} / {String(adSlides.length).padStart(2, "0")}</strong><small>Peça comercial identificada.</small></div>
+            </div>)}
+          </div>
+          <div className="ad-carousel-controls"><button type="button" aria-label="Publicidade anterior" onClick={() => setActiveAdSlide((current) => (current - 1 + adSlides.length) % adSlides.length)}><ArrowLeft size={16} /></button><div className="ad-carousel-dots">{adSlides.map((slide, index) => <button type="button" key={slide.title} aria-label={`Ir para peça ${index + 1}`} className={index === activeAdSlide ? "active" : ""} onClick={() => setActiveAdSlide(index)} />)}</div><button type="button" aria-label="Próxima publicidade" onClick={() => setActiveAdSlide((current) => (current + 1) % adSlides.length)}><ArrowRight size={16} /></button></div>
+          <div className="ad-progress" aria-hidden="true"><span key={activeAdSlide} /></div>
+        </section>
+
+
+
           <div className="container empty-state"><Search size={24} /><h3>Nada encontrado por aqui</h3><p>Tente outra busca ou escolha uma editoria no menu.</p><button onClick={() => { setQuery(""); setActiveCategory("Todas"); setActiveTopic(null); }}>Limpar filtros</button></div>
         )}
 
@@ -290,7 +341,7 @@ export default function Home() {
           <div className="pilulas-rail">{pilulas.map((article) => <Link href={`/materia/${article.id}`} className="pilula-card" key={article.id}><span className="pilula-card-kicker">PÍLULA DO POETA</span><h3>{article.title}</h3><p>{article.summary || "Uma palavra para pensar, refletir e transformar escolhas."}</p><Meta article={article} /><span className="read-more">Ler pílula <ArrowRight size={14} /></span></Link>)}</div>
         </section>}
 
-        {columnists.length > 0 && <section className="container columnist-showcase" id="colunistas">
+        {columnists.length >= 2 && <section className="container columnist-showcase" id="colunistas">
           <div className="section-heading large-heading"><div><span className="eyebrow">VOZES PCH NEWS · BRASIL</span><h2>Colunistas em destaque</h2></div><div className="heading-rule"><span>Perfis, publicações e perspectivas</span></div></div>
           <div className="columnist-rail">
             {columnists.map(({ profile, featured, publicationCount }) => <Link href={`/colunista/${profile.slug}`} className="columnist-card" key={profile.slug}>
@@ -302,7 +353,7 @@ export default function Home() {
 
         <section className="container latest-section" id="ultimas">
           <div className="section-heading large-heading"><div><span className="eyebrow">CURADORIA PCH NEWS</span><h2>{activeCategory === "Todas" ? "Últimas notícias" : activeCategory}</h2></div><div className="heading-rule"><span>{visible.length} histórias</span></div></div>
-          <div className="latest-grid">{gridStories.map((article) => <article className="news-card" key={article.id}><Link href={`/materia/${article.id}`}><div className="news-image"><img src={imageUrl(article)} alt="" onError={(event) => { event.currentTarget.src = article.image || LOGO_URL; }} /><span className="category-tag">{article.category}</span></div><div className="news-copy"><h3>{article.title}</h3><p>{article.summary}</p><div className="tag-row">{(article.tags || []).slice(0, 3).map((tag) => <span key={tag}>#{tag}</span>)}</div><Meta article={article} /><span className="read-more">Ler matéria <ArrowRight size={14} /></span></div></Link></article>)}</div>
+          <div className="latest-grid">{gridStories.map((article) => <article className="news-card" key={article.id}><Link href={`/materia/${article.id}`}><div className="news-image"><img src={imageUrl(article)} alt={article.title} onError={(event) => { event.currentTarget.src = article.image || LOGO_URL; }} /><span className="category-tag">{article.category}</span></div><div className="news-copy"><h3>{article.title}</h3><p>{article.summary}</p><div className="tag-row">{(article.tags || []).slice(0, 3).map((tag) => <span key={tag}>#{tag}</span>)}</div><Meta article={article} /><span className="read-more">Ler matéria <ArrowRight size={14} /></span></div></Link></article>)}</div>
         </section>
 
         <section className="container most-read-section">
@@ -317,7 +368,7 @@ export default function Home() {
               <div className="editorial-category-heading"><h3>{category}</h3><button onClick={() => setActiveCategory(category)}>Ver tudo <ArrowRight size={14} /></button></div>
               <div className="editorial-category-grid">
                 {stories.map((article) => <Link href={`/materia/${article.id}`} className="editorial-category-card" key={article.id}>
-                  <div className="editorial-category-image"><img src={imageUrl(article)} alt="" onError={(event) => { event.currentTarget.src = article.image || "/brand/pch-news-official-current.svg?v=20260927"; }} /></div>
+                  <div className="editorial-category-image"><img src={imageUrl(article)} alt={article.title} onError={(event) => { event.currentTarget.src = article.image || "/brand/pch-news-official-current.svg?v=20260927"; }} /></div>
                   <div><span>{article.category}</span><h4>{article.title}</h4><Meta article={article} /></div>
                 </Link>)}
               </div>
