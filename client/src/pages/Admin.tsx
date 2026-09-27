@@ -337,7 +337,7 @@ export default function Admin() {
 
   const deleteArticle = (id: string) => {
     const article = articles.find((item) => item.id === id);
-    if (!article || !canManageArticle(article) || !window.confirm(`Arquivar “${article.title}”?`)) return;
+    if (!article || !canManageArticle(article) || !window.confirm(`Excluir “${article.title}” da publicação?`)) return;
     updateStatus(id, "archived");
   };
 
