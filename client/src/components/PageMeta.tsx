@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-type Props = { title: string; description: string; canonicalPath: string };
+type Props = { title: string; description: string; canonicalPath: string; imageUrl?: string; type?: "website" | "article" };
 
 export default function PageMeta({ title, description, canonicalPath }: Props) {
   useEffect(() => {
