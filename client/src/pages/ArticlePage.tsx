@@ -5,7 +5,9 @@ import { Link, useRoute } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { NewsArticle } from "@/lib/news";
 import { ReaderComment } from "@/lib/editorial";
-const LOGO_URL = "/brand/pch-news-official-current.svg?v=20260927";
+import officialLogoUrl from "@/assets/pch-news-official-current.svg";
+import { editorialImageUrl } from "@/lib/editorialImage";
+const LOGO_URL = officialLogoUrl;
 const EyeIcon = () => <Eye size={14} />;
 const imageUrl = (article: NewsArticle) => {
   if (article.image) return article.image;
