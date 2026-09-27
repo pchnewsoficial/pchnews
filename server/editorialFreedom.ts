@@ -1,5 +1,5 @@
 /**
- * Liberdade Editorial — Tolerajornal
+ * Liberdade Editorial — PCH News
  * Motor determinístico e auditável de critérios editoriais.
  * Missão: "Informar para que o leitor possa pensar por si mesmo."
  *
@@ -11,7 +11,7 @@
  *   nunca substituir estas regras (ver FreedomRuleProvider).
  */
 
-export const FREEDOM_RULESET_VERSION = "tolerajornal-2026.09-v1";
+export const FREEDOM_RULESET_VERSION = "pch-news-2026.09-v1";
 
 export type FreedomSeverity = "ok" | "info" | "warning" | "block";
 
