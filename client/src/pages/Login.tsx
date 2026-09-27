@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 
 const LOGO_URL = officialLogoUrl;
 const OWNER_EMAIL = "pchnews.oficial@gmail.com";
-const ADMIN_APP_ORIGIN = "https://pch-news.pchnews-oficial.workers.dev";
+const ADMIN_APP_ORIGIN = typeof window !== "undefined" ? window.location.origin : "";
 
 export default function Login() {
   const [email, setEmail] = useState(OWNER_EMAIL);
