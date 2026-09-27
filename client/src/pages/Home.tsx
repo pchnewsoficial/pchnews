@@ -305,11 +305,17 @@ export default function Home() {
             </div>
           </div>
           <aside className="recent-panel">
-            <div className="side-ad-slot" aria-label="Publicidade">
+            <div className="side-ad-slot" aria-label="Publicidade principal">
               <span className="ad-tag">PUBLICIDADE</span>
               <strong>Sua marca em destaque</strong>
               <p>Espaço lateral reservado para campanhas, parceiros e divulgação.</p>
               <a href="#anuncie">Conheça os formatos <ArrowRight size={14} /></a>
+            </div>
+            <div className="side-ad-slot side-ad-slot-secondary" aria-label="Divulgação PCH News">
+              <span className="ad-tag">DIVULGAÇÃO</span>
+              <strong>Leve o PCH News com você</strong>
+              <p>Compartilhe o portal e encontre as principais notícias, colunas e a agenda em um só lugar.</p>
+              <a href="/" onClick={(event) => { event.preventDefault(); void navigator.share?.({ title: "PCH News", text: "Confira o PCH News.", url: window.location.origin }); }}>Compartilhar PCH News <ArrowRight size={14} /></a>
             </div>
             <div className="section-heading"><div><span className="eyebrow">AGORA</span><h2>Mais lidas</h2></div><span className="heading-line" /></div>
             {sideStories.map((article, index) => <Link href={`/materia/${article.id}`} className="recent-item" key={article.id}><div className={`recent-thumb thumb-${index + 1}`} style={{ backgroundImage: `url(${imageUrl(article)})` }}><span>{String(index + 1).padStart(2, "0")}</span></div><div><span className="item-category">{article.category}</span><h3>{article.title}</h3><p><Eye size={12} /> {article.views.toLocaleString("pt-BR")} visualizações</p></div></Link>)}
