@@ -1,8 +1,9 @@
 import { ArrowLeft, ArrowRight, KeyRound, LockKeyhole, ShieldCheck } from "lucide-react";
+import officialLogoUrl from "@/assets/pch-news-official-current.svg";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
-const LOGO_URL = "/brand/pch-news-official-current.svg?v=20260927";
+const LOGO_URL = officialLogoUrl;
 const OWNER_EMAIL = "pchnews.oficial@gmail.com";
 const ADMIN_APP_ORIGIN = "https://pch-news.pchnews-oficial.workers.dev";
 
