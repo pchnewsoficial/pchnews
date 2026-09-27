@@ -12,7 +12,7 @@ const requireUser = t.middleware(async ({ ctx, next }) => {
 });
 export const protectedProcedure = t.procedure.use(requireUser);
 export const columnistProcedure = t.procedure.use(t.middleware(async ({ ctx, next }) => {
-  if (!ctx.user || !["admin", "columnist"].includes(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN", message: NOT_ADMIN_ERR_MSG });
+  if (!ctx.user || !["admin", "editor", "journalist", "columnist", "reviewer"].includes(ctx.user.role)) throw new TRPCError({ code: "FORBIDDEN", message: NOT_ADMIN_ERR_MSG });
   return next({ ctx: { ...ctx, user: ctx.user } });
 }));
 export const adminProcedure = t.procedure.use(t.middleware(async ({ ctx, next }) => {
