@@ -244,3 +244,5 @@ jobs:
           echo "Worker: pch-news"
           echo "Public URL: $WORKER_URL"
           echo "Source commit: ${GITHUB_SHA}"
+
+# Deployment validation trigger: verify Supabase secret propagation end-to-end.
