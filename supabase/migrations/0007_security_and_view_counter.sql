@@ -1,11 +1,9 @@
--- PCH News: secure public view counter and auth RPC grants
+-- PCH News: secure public view counter
 -- Keeps the public counter callable by readers while hardening its inputs and
 -- preventing view increments on non-published content.
 
--- is_admin() is intentionally private; public access is hardened by the security migration.
-
-revoke all on function public.sync_authenticated_user(text, text, text) from anon;
-grant execute on function public.sync_authenticated_user(text, text, text) to authenticated;
+-- Authenticated-user synchronization is managed by later auth-hardening
+-- migrations; this migration must not assume the legacy RPC exists.
 
 create or replace function public.increment_article_view(
   p_article_id varchar,
