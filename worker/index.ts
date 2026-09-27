@@ -11,9 +11,6 @@ import { getSupabaseAdmin } from "../server/_core/supabase";
 const app = express();
 
 const ALLOWED_BROWSER_ORIGINS = new Set([
-  "https://pch-news.lovable.app",
-  "https://pchnews.lovable.app",
-  "https://id-preview--50a4b9f4-d0a8-4f19-a810-c59546a0d4f9.lovable.app",
   "https://pchnews-oficial.pages.dev",
   "https://pchnews.com.br",
   "https://www.pchnews.com.br",
