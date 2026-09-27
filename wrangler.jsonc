@@ -20,8 +20,6 @@
       "/healthz",
       "/admin",
       "/admin/*",
-      "/painel-editorial",
-      "/painel-editorial/*",
       "/eventos",
       "/eventos/*",
       "/login",
