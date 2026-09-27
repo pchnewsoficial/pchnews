@@ -282,3 +282,34 @@ export async function updateEventStatus(id: string, status: "pending" | "approve
   const { error } = await db.from("events").update({ status, updatedAtMs: Date.now() }).eq("id", id);
   if (error) throw error; return { success: true };
 }
+export async function updateEvent(id: string, input: any, accessToken?: string | null) {
+  const db = await getDb(accessToken); if (!db) throw new Error("Database unavailable");
+  const payload = {
+    title: input.title,
+    description: input.description,
+    eventType: input.eventType,
+    organizer: input.organizer,
+    contact: input.contact,
+    startAtMs: input.startAtMs,
+    endAtMs: input.endAtMs ?? null,
+    venue: input.venue,
+    address: input.address,
+    city: input.city,
+    state: input.state,
+    country: input.country ?? "Brasil",
+    latitude: input.latitude ?? null,
+    longitude: input.longitude ?? null,
+    image: input.image ?? null,
+    website: input.website ?? null,
+    price: input.price ?? null,
+    visibilityScope: input.visibilityScope ?? "national",
+    visibilityRegion: input.visibilityRegion ?? null,
+    visibilityState: input.visibilityState ?? input.state ?? null,
+    visibilitySubregion: input.visibilitySubregion ?? null,
+    visibilityCity: input.visibilityCity ?? input.city ?? null,
+    updatedAtMs: Date.now(),
+  };
+  const { error } = await db.from("events").update(payload).eq("id", id);
+  if (error) throw error;
+  return { success: true };
+}
