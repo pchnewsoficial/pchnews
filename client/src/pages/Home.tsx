@@ -142,8 +142,6 @@ export default function Home() {
       .slice(0, 5),
     [published, leadId, sideIds, gridIds, pilulaIds],
   );
-  const mostReadIds = useMemo(() => new Set(mostRead.map((article) => article.id)), [mostRead]);
-
   const usedEditorialIds = useMemo(
     () => new Set([leadId, ...sideStories.map((article) => article.id), ...gridStories.map((article) => article.id), ...pilulas.map((article) => article.id), ...mostRead.map((article) => article.id)].filter(Boolean) as string[]),
     [leadId, sideStories, gridStories, pilulas, mostRead],
@@ -163,7 +161,7 @@ export default function Home() {
   const columnists = useMemo(() => {
     const profiles = Array.isArray(remoteEditorial?.profiles) ? remoteEditorial.profiles as any[] : [];
     return profiles
-      .filter((profile) => profile?.slug === "evaldo-poeta" || profile?.name === "Evaldo Poeta")
+      .filter((profile) => profile?.role === "columnist" || profile?.slug === "evaldo-poeta" || profile?.name === "Evaldo Poeta")
       .map((profile) => {
         const stories = published.filter((article) => article.author === profile.name);
         const featured = [...stories].sort((a, b) => b.views - a.views)[0];
