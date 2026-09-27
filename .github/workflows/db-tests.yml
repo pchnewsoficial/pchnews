@@ -23,7 +23,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup Supabase CLI
-        uses: supabase/setup-cli@adc7f6c42cdd496c1c01bd3d49bd1c9f7da9630d # v1
+        uses: supabase/setup-cli@ab058987d8d6c725971f6cf9d0b5c98467e30bd1 # v1.7.1
         with:
           version: 2.117.0
 
