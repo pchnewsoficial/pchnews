@@ -64,3 +64,12 @@ export async function storageList(prefix = "editorial") {
   });
   return rows;
 }
+
+export async function storageDelete(relKey: string) {
+  const key = normalizeKey(relKey);
+  if (!key.startsWith("editorial/")) throw new Error("Só é permitido remover mídia editorial.");
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase.storage.from(ENV.supabaseStorageBucket).remove([key]);
+  if (error) throw new Error(`Supabase Storage delete failed: ${error.message}`);
+  return { success: true, key };
+}
