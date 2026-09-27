@@ -34,10 +34,8 @@ const apiBaseUrl = (() => {
   if (configured) return configured;
   if (typeof window !== "undefined") {
     const host = window.location.hostname;
-    // Production builds may be served by Lovable, Cloudflare Pages, or the
-    // Worker itself. All public/editorial API traffic must use the PCH News
-    // Worker instead of accidentally targeting a static host's /api path.
-    if (host.endsWith(".lovable.app") || host.endsWith(".pages.dev") || host === "pchnews.com.br" || host === "www.pchnews.com.br") {
+    // Static/production hosts route public and editorial API traffic to the PCH News Worker.
+    if (host.endsWith(".pages.dev") || host === "pchnews.com.br" || host === "www.pchnews.com.br") {
       return "https://pch-news.pchnews-oficial.workers.dev";
     }
     if (host === "pch-news.pchnews-oficial.workers.dev") return "";
