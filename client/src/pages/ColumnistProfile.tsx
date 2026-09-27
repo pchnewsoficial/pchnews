@@ -2,7 +2,9 @@ import { ArrowLeft, ArrowRight, BookOpen, Facebook, Instagram, Linkedin, Twitter
 import { Link, useRoute } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { NewsArticle } from "@/lib/news";
-const LOGO_URL = "/brand/pch-news-official-current.svg?v=20260927";
+import officialLogoUrl from "@/assets/pch-news-official-current.svg";
+import { editorialImageUrl } from "@/lib/editorialImage";
+const LOGO_URL = officialLogoUrl;
 const imageUrl = (article: NewsArticle) => {
   if (article.image) return article.image;
   if (article.sourceUrl?.startsWith("https://pchnews.hostingpress.com.br/materia/")) {
