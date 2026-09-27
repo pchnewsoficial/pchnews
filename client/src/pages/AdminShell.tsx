@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 import officialLogoUrl from "@/assets/pch-news-official-current.svg";
 import { LayoutDashboard, FileText, Users, Settings, ExternalLink, LogOut } from "lucide-react";
@@ -19,12 +18,6 @@ export default function AdminShell() {
     };
     return labels[user.role] || user.role;
   }, [user]);
-
-  const bootstrap = trpc.editorial.bootstrap.useQuery(undefined, {
-    enabled: Boolean(user),
-    retry: false,
-    staleTime: 30_000,
-  });
 
   if (loading) return <div className="app-loading">Validando acesso seguro…</div>;
 
@@ -54,9 +47,6 @@ export default function AdminShell() {
       </main>
     );
   }
-
-  const articleCount = bootstrap.data?.articles?.length ?? 0;
-  const publishedCount = bootstrap.data?.articles?.filter((a: any) => a.status === "published").length ?? 0;
 
   return (
     <div className="admin-shell-page">
@@ -88,8 +78,8 @@ export default function AdminShell() {
           <article className="panel admin-shell-card">
             <FileText size={22} />
             <span className="admin-kicker">CONTEÚDO</span>
-            <strong>{articleCount} matérias no banco</strong>
-            <small>{publishedCount} publicadas</small>
+            <strong>Conteúdo protegido</strong>
+            <small>Carregado somente após entrar no CMS</small>
           </article>
           <article className="panel admin-shell-card">
             <Users size={22} />
@@ -104,13 +94,6 @@ export default function AdminShell() {
             <small>Sessão validada pelo servidor</small>
           </article>
         </section>
-
-        {bootstrap.isError && (
-          <section className="panel admin-shell-warning">
-            <strong>O painel abriu, mas a leitura editorial encontrou uma falha.</strong>
-            <p>{bootstrap.error?.message || "Não foi possível carregar as matérias agora."}</p>
-          </section>
-        )}
 
         <nav className="admin-shell-links" aria-label="Acessos administrativos">
           <button onClick={() => navigate("/admin?legacy=1")}><LayoutDashboard size={16} /> CMS completo</button>
