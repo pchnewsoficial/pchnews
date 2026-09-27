@@ -32,8 +32,15 @@ queryClient.getMutationCache().subscribe(event => {
 const apiBaseUrl = (() => {
   const configured = import.meta.env.VITE_API_BASE_URL?.trim().replace(/\/$/, "");
   if (configured) return configured;
-  if (typeof window !== "undefined" && window.location.hostname.endsWith(".lovable.app")) {
-    return "https://pch-news.pchnews-oficial.workers.dev";
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname;
+    // Production builds may be served by Lovable, Cloudflare Pages, or the
+    // Worker itself. All public/editorial API traffic must use the PCH News
+    // Worker instead of accidentally targeting a static host's /api path.
+    if (host.endsWith(".lovable.app") || host.endsWith(".pages.dev") || host === "pchnews.com.br" || host === "www.pchnews.com.br") {
+      return "https://pch-news.pchnews-oficial.workers.dev";
+    }
+    if (host === "pch-news.pchnews-oficial.workers.dev") return "";
   }
   return "";
 })();
