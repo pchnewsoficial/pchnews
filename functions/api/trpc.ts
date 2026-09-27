@@ -15,8 +15,31 @@ type Article = {
   youtubeUrl?: string | null; socialLinks?: string | null; slug?: string | null; seoTitle?: string | null; metaDescription?: string | null; canonicalUrl?: string | null; focusKeyword?: string | null; ogTitle?: string | null; ogDescription?: string | null; imageAlt?: string | null; noindex?: boolean;
 };
 
-const json = (value: unknown, status = 200) =>
-  new Response(JSON.stringify(value), { status, headers: { "content-type": "application/json; charset=utf-8" } });
+function corsHeaders(request: Request) {
+  const origin = request.headers.get("Origin") || "";
+  const allowed =
+    origin === "https://pchnews-oficial.pages.dev" ||
+    origin === "https://pchnews.com.br" ||
+    origin === "https://www.pchnews.com.br" ||
+    origin.endsWith(".lovable.app") ||
+    origin.endsWith(".pages.dev");
+  return {
+    "access-control-allow-origin": allowed ? origin : "https://pchnews-oficial.pages.dev",
+    "access-control-allow-methods": "GET,POST,OPTIONS",
+    "access-control-allow-headers": "Authorization, Content-Type, X-Client-Info, apikey",
+    "access-control-max-age": "86400",
+    "vary": "Origin",
+  };
+}
+
+const json = (request: Request, value: unknown, status = 200) =>
+  new Response(JSON.stringify(value), {
+    status,
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      ...corsHeaders(request),
+    },
+  });
 
 function getInput(url: URL, body: any) {
   if (body && typeof body === "object") {
@@ -306,7 +329,12 @@ async function handleProcedure(path: string, request: Request, env: Env, input: 
 
 export async function onRequest(context: { request: Request; env: Env }) {
   const { request, env } = context;
-  if (request.method !== "GET" && request.method !== "POST") return new Response("Method Not Allowed", { status: 405 });
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: corsHeaders(request) });
+  }
+  if (request.method !== "GET" && request.method !== "POST") {
+    return new Response("Method Not Allowed", { status: 405, headers: corsHeaders(request) });
+  }
   const url = new URL(request.url);
   const path = url.pathname.replace(/^\/api\/trpc\//, "").replace(/^\/api\/trpc$/, "");
   const batch = url.searchParams.get("batch") === "1";
@@ -324,5 +352,5 @@ export async function onRequest(context: { request: Request; env: Env }) {
       results.push(trpcError(message, code));
     }
   }
-  return json(batch ? results : results[0]);
+  return json(request, batch ? results : results[0]);
 }
