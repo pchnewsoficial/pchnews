@@ -1,0 +1,6 @@
+# PCH News ownership map.
+# Enforcement requires GitHub branch protection or rulesets.
+* @pchnewsoficial
+.github/ @pchnewsoficial
+supabase/ @pchnewsoficial
+worker/ @pchnewsoficial
