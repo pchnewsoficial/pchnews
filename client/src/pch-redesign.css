@@ -1,18 +1,4 @@
 /* PCH News — editorial homepage refresh | build-sync 2026-09-26 */
-:root {
-  --pch-ink: var(--pch-ink);
-  --pch-navy: var(--pch-navy);
-  --pch-navy-2: var(--pch-navy-2);
-  --pch-gold: var(--pch-gold);
-  --pch-gold-dark: var(--pch-gold-dark);
-  --pch-paper: var(--pch-paper);
-  --pch-surface: var(--pch-surface);
-  --pch-surface-soft: #eef2f5;
-  --pch-muted: var(--pch-muted);
-  --pch-muted-on-dark: var(--pch-muted-on-dark);
-  --pch-line: var(--pch-line);
-  --pch-focus: #ffd66b;
-}
 body { background: var(--pch-paper); color: var(--pch-ink); }
 .site-shell { background: var(--pch-paper); }
 .breaking-bar { display:none; }
