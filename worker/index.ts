@@ -146,6 +146,13 @@ export default {
       url.pathname.startsWith("/convite/") ||
       url.pathname === "/institucional" || url.pathname === "/anuncie" || url.pathname === "/lei" || url.pathname === "/privacidade" || url.pathname === "/termos" || url.pathname === "/cookies" || url.pathname === "/parceiros";
 
+    // Canonicalize the legacy editorial route at the Worker boundary. This prevents
+    // any stale/client-side router from ever resolving /painel-editorial as Agenda.
+    if (url.pathname === "/painel-editorial" || url.pathname === "/painel-editorial/") {
+      const target = new URL("/admin", request.url);
+      return Response.redirect(target.toString(), 302);
+    }
+
     // Keep /admin as the real browser URL. Serve only the SPA entrypoint so
     // wouter sees /admin and renders ProtectedAdmin instead of any public page.
     if (url.pathname === "/admin" || url.pathname === "/admin/") {
