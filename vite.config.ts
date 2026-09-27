@@ -6,7 +6,7 @@ const ROOT = process.cwd();
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), {
-    // Static hosting (Lovable) has no SPA fallback: emit index.html copies for client-side routes.
+    // Static hosts may not provide an SPA fallback: emit index.html copies for client-side routes.
     name: "pch-spa-fallback",
     apply: "build",
     async closeBundle() {
@@ -33,8 +33,8 @@ export default defineConfig({
   root: path.resolve(ROOT, "client"),
   publicDir: path.resolve(ROOT, "client", "public"),
   build: {
-    // Use the conventional Vite output directory so Lovable and other hosts
-    // can detect and serve the frontend without custom output assumptions.
+    // Use the conventional Vite output directory so static hosts can detect
+    // and serve the frontend without custom output assumptions.
     outDir: path.resolve(ROOT, "dist"),
     emptyOutDir: true,
   },
