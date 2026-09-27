@@ -42,6 +42,7 @@ export default function Home() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [activeAdSlide, setActiveAdSlide] = useState(0);
   const [adPaused, setAdPaused] = useState(false);
+  const { data: managedAds = [] } = trpc.ads.active.useQuery(undefined, { retry: false, staleTime: 60_000 });
   const [now, setNow] = useState(() => new Date());
   const [coordinates, setCoordinates] = useState<{ latitude: number; longitude: number } | null>(null);
 
@@ -179,11 +180,14 @@ export default function Home() {
 
   useEffect(() => setActiveSlide(0), [activeCategory, activeTopic, query]);
 
-  const adSlides = [
-    { eyebrow: "PCH NEWS • MÍDIA ESTRATÉGICA", title: "Sua marca pode ser", emphasis: "a próxima notícia.", text: "Apresente sua empresa, produto ou serviço para uma audiência que busca informação.", cta: "ANUNCIE NO PCH NEWS" },
-    { eyebrow: "PUBLICIDADE", title: "Sua campanha no", emphasis: "lugar certo.", text: "Home, editorias, patrocínios e projetos especiais com identificação clara.", cta: "CONHEÇA OS FORMATOS" },
-    { eyebrow: "REDE PCH NEWS", title: "Conecte sua marca ao", emphasis: "jornalismo digital.", text: "Planeje presença por período e, futuramente, por região, cidade e dispositivo.", cta: "FALE COM O PCH NEWS" },
-  ];
+  const adSlides = (managedAds.length ? managedAds : [
+    { id: "house-1", eyebrow: "PCH NEWS • MÍDIA ESTRATÉGICA", title: "Sua marca pode ser", emphasis: "a próxima notícia.", text: "Apresente sua empresa, produto ou serviço para uma audiência que busca informação.", cta: "ANUNCIE NO PCH NEWS", href: "/anuncie" },
+    { id: "house-2", eyebrow: "PUBLICIDADE", title: "Sua campanha no", emphasis: "lugar certo.", text: "Home, editorias, patrocínios e projetos especiais com identificação clara.", cta: "CONHEÇA OS FORMATOS", href: "/anuncie" },
+    { id: "house-3", eyebrow: "REDE PCH NEWS", title: "Conecte sua marca ao", emphasis: "jornalismo digital.", text: "Planeje presença por período e, futuramente, por região, cidade e dispositivo.", cta: "FALE COM O PCH NEWS", href: "/anuncie" },
+  ]).map((slide: any) => ({
+    ...slide,
+    href: slide.href || slide.targetUrl || "/anuncie",
+  }));
 
   useEffect(() => {
     if (adPaused) return;
@@ -330,7 +334,7 @@ export default function Home() {
         <section className="container ad-banner ad-carousel" id="anuncie" aria-roledescription="carousel" aria-label="Publicidade PCH News" onMouseEnter={() => setAdPaused(true)} onMouseLeave={() => setAdPaused(false)} onFocusCapture={() => setAdPaused(true)} onBlurCapture={() => setAdPaused(false)}>
           <div className="ad-carousel-track" style={{ transform: `translateX(-${activeAdSlide * 100}%)` }}>
             {adSlides.map((slide) => <div className="ad-slide" key={slide.title}>
-              <div className="ad-copy"><span className="ad-tag">{slide.eyebrow}</span><h2>{slide.title}<br /><em>{slide.emphasis}</em></h2><p>{slide.text}</p><Link className="gold-button" href="/anuncie">{slide.cta} <ArrowRight size={16} /></Link></div>
+              <div className="ad-copy"><span className="ad-tag">{slide.eyebrow}</span><h2>{slide.title}<br /><em>{slide.emphasis}</em></h2><p>{slide.text}</p><Link className="gold-button" href={slide.href}>{slide.cta} <ArrowRight size={16} /></Link></div>
               <div className="ad-device"><div className="device-top"><span /><span /><span /></div><div className="device-content"><div className="device-logo">PCH<br /><small>NEWS</small></div><div className="device-lines"><i /><i /><i /><i /></div><div className="device-cards"><b /><b /><b /></div></div></div>
               <div className="ad-side"><span>PUBLICIDADE</span><strong>{String(activeAdSlide + 1).padStart(2, "0")} / {String(adSlides.length).padStart(2, "0")}</strong><small>Peça comercial identificada.</small></div>
             </div>)}
