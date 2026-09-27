@@ -24,6 +24,7 @@ export default function PageMeta({ title, description, canonicalPath }: Props) {
     set('meta[name="description"]', { name: "description", content: description });
     set('meta[property="og:title"]', { property: "og:title", content: title });
     set('meta[property="og:description"]', { property: "og:description", content: description });
+    set('meta[property="og:image"]', { property: "og:image", content: "https://wsrv.nl/?url=https%3A%2F%2Fpch-news.pchnews-oficial.workers.dev%2Fbrand%2Fpch-news-official-current.svg%26output=png%26w=1200%26h=630%26fit=contain%26bg=071a2d" });
 
     const origin = window.location.origin;
     set('link[rel="canonical"]', { rel: "canonical", href: origin + canonicalPath });
