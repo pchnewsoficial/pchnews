@@ -84,7 +84,7 @@ export default function Admin() {
   const { user, logout: oauthLogout } = useAuth();
   const currentRole = user?.role || "user";
   const currentAuthor = user?.name || "Colunista";
-  const displayName = user?.name || "Redação PCH News";
+  const roleLabels: Record<AccessUser["role"], string> = { user: "Usuário", admin: "Administrador", editor: "Editor", journalist: "Jornalista", columnist: "Colunista", reviewer: "Revisor" };\n  const displayName = user?.name || "Redação PCH News";
   const displayInitials = getInitials(displayName);
   const { data: editorialRemote, refetch: refetchEditorial } = trpc.editorial.bootstrap.useQuery(undefined, { enabled: Boolean(user), retry: false });
   const adRequests = editorialRemote?.adRequests ?? [];
@@ -383,8 +383,8 @@ export default function Admin() {
       <aside className={`admin-sidebar ${sidebarOpen ? "is-open" : ""}`}>
         <div className="admin-brand"><img src={LOGO_URL} alt="PCH News" /><span>STUDIO</span></div>
         <div className="workspace-switcher"><div className="workspace-avatar">PN</div><div><strong>PCH News</strong><small>Redação principal</small></div><ChevronDown size={15} /></div>
-        <nav className="admin-nav" aria-label="Navegação do painel"><span className="nav-label">WORKSPACE</span>{navItems.filter((item) => isAdmin || !["settings", "ads"].includes(item.id)).map(({ id, label, icon: Icon }) => <button key={id} className={view === id ? "active" : ""} onClick={() => { setView(id); setSidebarOpen(false); }}><Icon size={17} /><span>{label}</span>{id === "articles" && <em>{articles.length}</em>}</button>)}<span className="nav-label nav-label-spaced">CANAIS</span><button onClick={() => { setView("stats"); setSidebarOpen(false); }}><BarChart3 size={17} /><span>Analytics</span></button><button onClick={() => setNotificationsOpen(true)}><Bell size={17} /><span>Notificações</span>{pendingTasks > 0 && <em>{pendingTasks}</em>}</button></nav>
-        <div className="sidebar-bottom"><div className="user-chip"><div className="user-avatar">{displayInitials}</div><div><strong>{displayName}</strong><small>{isAdmin ? "Administrador" : "Colunista"}</small></div><MoreHorizontal size={16} /></div><Link className="back-public" href="/"><ExternalLink size={14} /> Ver site público</Link><button className="logout-button" onClick={logout}><LogOut size={14} /> Sair do painel</button></div>
+        <nav className="admin-nav" aria-label="Navegação do painel"><span className="nav-label">WORKSPACE</span>{navItems.filter((item) => isAdmin || !["settings", "ads"].includes(item.id)).map(({ id, label, icon: Icon }) => <button key={id} className={view === id ? "active" : ""} onClick={() => { setView(id); setSidebarOpen(false); }}><Icon size={17} /><span>{label}</span>{id === "articles" && <em>{articles.length}</em>}</button>)}</nav>
+        <div className="sidebar-bottom"><div className="user-chip"><div className="user-avatar">{displayInitials}</div><div><strong>{displayName}</strong><small>{roleLabels[currentRole as AccessUser["role"]] || "Equipe editorial"}</small></div><MoreHorizontal size={16} /></div><Link className="back-public" href="/"><ExternalLink size={14} /> Ver site público</Link><button className="logout-button" onClick={logout}><LogOut size={14} /> Sair do painel</button></div>
       </aside>
 
       <div className="admin-main">
