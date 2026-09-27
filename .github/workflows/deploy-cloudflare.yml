@@ -139,17 +139,29 @@ jobs:
           fi
           echo "Public SPA HTML verified."
 
-      - name: Browser smoke test — execute React in Chromium
-        uses: browser-actions/setup-chrome@54e7c7bf1c147ffca98dc47b796907454c8c1787 # v2.2.0
-        with:
-          chrome-version: stable
-          install-dependencies: true
+      - name: Locate Chromium browser
+        id: browser
+        run: |
+          set -euo pipefail
+          if command -v google-chrome >/dev/null 2>&1; then
+            BROWSER="$(command -v google-chrome)"
+          elif command -v chromium >/dev/null 2>&1; then
+            BROWSER="$(command -v chromium)"
+          elif command -v chromium-browser >/dev/null 2>&1; then
+            BROWSER="$(command -v chromium-browser)"
+          else
+            echo "No Chromium-compatible browser is available on the GitHub runner."
+            exit 1
+          fi
+          echo "browser=$BROWSER" >> "$GITHUB_OUTPUT"
+          "$BROWSER" --version
 
       - name: Verify rendered PCH News DOM
         env:
           WORKER_URL: ${{ steps.deploy.outputs.worker_url }}
+          BROWSER: ${{ steps.browser.outputs.browser }}
         run: |
-          google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=10000 --dump-dom "$WORKER_URL/" > /tmp/pch-news-dom.html
+          "$BROWSER" --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=10000 --dump-dom "$WORKER_URL/" > /tmp/pch-news-dom.html
           grep -q "PCH News" /tmp/pch-news-dom.html
           grep -q "PUBLICIDADE" /tmp/pch-news-dom.html
           grep -q "Últimas notícias" /tmp/pch-news-dom.html
@@ -205,8 +217,9 @@ jobs:
       - name: Verify published Admin rendering in Chromium
         env:
           WORKER_URL: ${{ steps.deploy.outputs.worker_url }}
+          BROWSER: ${{ steps.browser.outputs.browser }}
         run: |
-          google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=10000 \
+          "$BROWSER" --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --virtual-time-budget=10000 \
             --dump-dom "$WORKER_URL/admin" > /tmp/pch-news-admin-dom.html
           echo "Admin browser DOM (first 16000 bytes):"
           head -c 16000 /tmp/pch-news-admin-dom.html || true
