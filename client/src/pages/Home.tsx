@@ -12,7 +12,7 @@ const LOGO_URL = officialLogoUrl;
 const LOGO_FALLBACK_URL = officialLogoUrl;
 const imageUrl = (article: NewsArticle) => editorialImageUrl(article);
 const categories = ["Todas", "Brasil", "Regiões", "Política", "Economia", "Internacional"];
-const moreCategories = EDITORIAL_CATEGORIES.filter((category) => !categories.includes(category));
+
 
 function Meta({ article }: { article: NewsArticle }) {
   return (
@@ -80,6 +80,16 @@ export default function Home() {
     if (!article.scheduledAt) return true;
     return new Date(article.scheduledAt).getTime() <= Date.now();
   }), [articles]);
+  const populatedCategories = useMemo(() => new Set(published.map((article) => article.category)), [published]);
+  const availableCategories = useMemo(
+    () => EDITORIAL_CATEGORIES.filter((category) => populatedCategories.has(category)),
+    [populatedCategories],
+  );
+  const moreCategories = useMemo(
+    () => availableCategories.filter((category) => !categories.includes(category)),
+    [availableCategories],
+  );
+
   const visible = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     return published.filter((article) => {
@@ -241,7 +251,7 @@ export default function Home() {
         </div>
         <div className={`nav-wrap ${menuOpen ? "is-open" : ""}`}>
           <nav className="container primary-nav" aria-label="Navegação principal">
-            {categories.map((category) => <button key={category} className={activeCategory === category && !activeTopic ? "active" : ""} onClick={() => { setActiveCategory(category); setActiveTopic(null); setMenuOpen(false); setMoreOpen(false); }}>{category.toUpperCase()}</button>)}
+            {categories.filter((category) => category === "Todas" || category === "Regiões" || category === "Internacional" || populatedCategories.has(category)).map((category) => <button key={category} className={activeCategory === category && !activeTopic ? "active" : ""} onClick={() => { setActiveCategory(category); setActiveTopic(null); setMenuOpen(false); setMoreOpen(false); }}>{category.toUpperCase()}</button>)}
             <button className={`more-trigger ${moreOpen ? "active" : ""}`} type="button" aria-expanded={moreOpen} aria-haspopup="menu" onClick={() => setMoreOpen((open) => !open)}>+ MAIS <ChevronDown size={14} /></button>
 
           </nav>
@@ -327,7 +337,7 @@ export default function Home() {
 
         {pilulas.length > 0 && <section className="container pilulas-showcase">
           <div className="section-heading large-heading"><div><span className="eyebrow">COLUNAS · EVALDO POETA</span><h2>Pílulas do Poeta</h2></div><div className="heading-rule"><span>Últimas publicações</span></div></div>
-          <div className="pilulas-rail">{pilulas.map((article) => <Link href={`/materia/${article.id}`} className="pilula-card" key={article.id}><span className="pilula-card-kicker">PÍLULA DO POETA</span><h3>{article.title}</h3><p>{article.summary || "Uma palavra para pensar, refletir e transformar escolhas."}</p><Meta article={article} /><span className="read-more">Ler pílula <ArrowRight size={14} /></span></Link>)}</div>
+          <div className="pilulas-rail">{pilulas.map((article) => <Link href={`/materia/${article.id}`} className="pilula-card" key={article.id}><span className="pilula-card-kicker">PÍLULA DO POETA</span><h3>{article.title}</h3><p>{article.summary || ""}</p><Meta article={article} /><span className="read-more">Ler pílula <ArrowRight size={14} /></span></Link>)}</div>
         </section>}
 
         {columnists.length >= 2 && <section className="container columnist-showcase" id="colunistas">
@@ -370,7 +380,7 @@ export default function Home() {
         <section className="container services-section" id="servicos"><div className="section-heading large-heading"><div><span className="eyebrow">UTILIDADE PÚBLICA</span><h2>Serviços PCH News</h2></div><div className="heading-rule"><span>Informação que ajuda no dia a dia</span></div></div><div className="services-grid"><Link href="/eventos" className="service-card"><CalendarDays size={24}/><div><strong>Agenda de eventos</strong><p>Encontre eventos por cidade, estado e proximidade.</p></div><ArrowRight size={16}/></Link><Link href="/conhecimento-pch" className="service-card service-card-knowledge"><span className="service-icon service-icon-pch"><strong>PCH</strong><small>CONHECIMENTO</small></span><div><span className="service-eyebrow">IDEIAS · CULTURA · DESENVOLVIMENTO</span><strong>Conhecimento PCH</strong><p>Um espaço próprio para conhecimento, ideias e conteúdos especiais do PCH News.</p></div><ArrowRight size={16}/></Link></div></section>
 
         {(published.some((article) => article.youtubeUrl) || published.some((article) => (article.tags || []).some((tag) => /podcast/i.test(tag)))) && <section className="container media-hub-section" id="midia"><div className="section-heading large-heading"><div><span className="eyebrow">PCH NEWS · VÍDEOS E PODCASTS</span><h2>Programas e conversas</h2></div><div className="heading-rule"><span>Conteúdo audiovisual</span></div></div><div className="media-hub-grid">{published.filter((article) => article.youtubeUrl || (article.tags || []).some((tag) => /podcast/i.test(tag))).slice(0,6).map((article) => <Link key={article.id} href={`/materia/${article.id}`} className="media-hub-card"><div className="media-hub-label">{article.youtubeUrl ? "VÍDEO" : "PODCAST"}</div><h3>{article.title}</h3><p>{article.summary}</p><span>Assistir / ouvir <ArrowRight size={14}/></span></Link>)}</div></section>}
-        <section className="container partners-section" id="parceiros">
+        {published.length >= 2 && <section className="container partners-section" id="parceiros">
           <div className="section-heading large-heading">
             <div><span className="eyebrow">REDE PCH NEWS</span><h2>Parceiros</h2></div>
             <div className="heading-rule"><span>Distribuição e conexão editorial</span></div>
