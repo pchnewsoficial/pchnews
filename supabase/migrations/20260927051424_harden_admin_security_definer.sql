@@ -15,6 +15,28 @@ $$;
 revoke all on function public.is_admin() from public;
 revoke execute on function public.is_admin() from anon, authenticated;
 
+-- Schema drift repair: these policies exist in production but were never versioned.
+-- Create them only when missing so fresh databases can apply the ALTERs below.
+do $$
+begin
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'adRequests' and policyname = 'ads authenticated admin') then
+    create policy "ads authenticated admin" on public."adRequests" for select to authenticated using (private.is_admin());
+  end if;
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'adRequests' and policyname = 'ads authenticated update') then
+    create policy "ads authenticated update" on public."adRequests" for update to authenticated using (private.is_admin()) with check (private.is_admin());
+  end if;
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'columnistInvites' and policyname = 'invites admin only') then
+    create policy "invites admin only" on public."columnistInvites" for all to authenticated using (private.is_admin()) with check (private.is_admin());
+  end if;
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'comments' and policyname = 'comments authenticated manage') then
+    create policy "comments authenticated manage" on public.comments for all to authenticated using (private.is_admin()) with check (private.is_admin());
+  end if;
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'users' and policyname = 'users admin update') then
+    create policy "users admin update" on public.users for update to authenticated using (private.is_admin()) with check (private.is_admin());
+  end if;
+end;
+$$;
+
 alter policy "ads authenticated admin" on public."adRequests"
   using (private.is_admin());
 alter policy "ads authenticated update" on public."adRequests"

@@ -16,20 +16,20 @@ create table if not exists public.users (
 -- Keep these in the private schema so they are not exposed through the Data API.
 create schema if not exists private;
 
-create or replace function private.has_editorial_role(p_roles text[])
+create or replace function private.has_editorial_role(required_roles text[])
 returns boolean
 language sql
 stable
 security definer
 set search_path = ''
-as $
+as $$
   select exists (
     select 1
     from public.users
     where "openId" = (select auth.uid())::text
-      and role = any(coalesce(p_roles, '{}'::text[]))
+      and role = any(coalesce(required_roles, '{}'::text[]))
   );
-$;
+$$;
 
 revoke all on function private.has_editorial_role(text[]) from public, anon;
 grant usage on schema private to authenticated;
@@ -43,9 +43,9 @@ language sql
 stable
 security definer
 set search_path = ''
-as $
+as $$
   select private.has_editorial_role(array['admin']::text[]);
-$;
+$$;
 
 revoke all on function public.is_admin() from public, anon, authenticated;
 
