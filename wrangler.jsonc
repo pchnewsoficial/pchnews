@@ -22,6 +22,8 @@
       "/admin/*",
       "/eventos",
       "/eventos/*",
+      "/agenda",
+      "/agenda/*",
       "/login",
       "/perfil",
       "/404",
