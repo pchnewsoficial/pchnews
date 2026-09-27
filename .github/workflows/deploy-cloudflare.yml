@@ -246,3 +246,4 @@ jobs:
           echo "Source commit: ${GITHUB_SHA}"
 
 # Deployment validation trigger: verify Supabase secret propagation end-to-end.
+# Manual production redeploy trigger: keep deployment synchronized with main.
