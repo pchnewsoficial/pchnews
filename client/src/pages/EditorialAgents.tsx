@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { CheckCircle2, CircleAlert, ShieldCheck, SearchCheck, Sparkles, Wand2, Share2, FileCheck2 } from "lucide-react";
 import { FreedomReviewPanel } from "@/components/FreedomReviewPanel";
 import { trpc } from "@/lib/trpc";
-import type { NewsArticle } from "@/lib/news";
+import { statusLabels, type NewsArticle } from "@/lib/news";
 
 type Agent = {
   id: "journalism-master-orchestrator" | "story-editor" | "fact-checker" | "seo-optimization-specialist" | "ethics-advisor" | "liberdade-editorial" | "publication-readiness" | "multi-platform-distributor";
