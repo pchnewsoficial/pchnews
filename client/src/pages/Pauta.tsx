@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { CalendarDays, Check, ChevronDown, CircleAlert, ExternalLink, FilePlus2, Filter, ListChecks, Plus, Search, Target, UserRound } from "lucide-react";
+import { CalendarDays, Check, ChevronDown, CircleAlert, Edit3, Archive, ExternalLink, FilePlus2, Filter, ListChecks, Plus, Search, Target, UserRound } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { makeArticleId } from "@/lib/news";
@@ -132,14 +132,14 @@ export default function Pauta({ isAdmin, currentAuthor, accessUsers, notify }: {
         <div className="pauta-column-head"><div><span>{column.label}</span><b>{filtered.filter(p => p.status === column.id).length}</b></div></div>
         <div className="pauta-column-body">
           {filtered.filter(p => p.status === column.id).map(p => <article className={`pauta-card ${isLate(p) ? "is-late" : ""}`} key={p.id}>
-            <div className="pauta-card-top"><span className={`pauta-priority ${p.priority}`}>{priorityLabel[p.priority]}</span><button onClick={() => openEdit(p)}><ChevronDown size={15}/></button></div>
+            <div className="pauta-card-top"><span className={`pauta-priority ${p.priority}`}>{priorityLabel[p.priority]}</span><button aria-label="Editar pauta" title="Editar pauta" onClick={() => openEdit(p)}><Edit3 size={15}/></button></div>
             <h3>{p.title}</h3><p>{p.angle}</p>
             <div className="pauta-meta"><span><UserRound size={13}/>{p.assignedToName || "Sem responsável"}</span><span><CalendarDays size={13}/>{fmt(p.deadlineAtMs)}</span></div>
             <div className="pauta-progress"><span><ListChecks size={13}/> {p.checklistJson.filter(x=>x.done).length}/{p.checklistJson.length}</span>{isLate(p) && <em>Atrasada</em>}</div>
             <div className="pauta-card-actions">
               <select value={p.status} onChange={e => changeStatus(p, e.target.value as PautaStatus)}><option value={p.status}>{statusLabel[p.status]}</option>{columns.filter(c=>c.id!==p.status).map(c=><option key={c.id} value={c.id}>{c.label}</option>)}</select>
               {!p.articleId && <button onClick={() => convertToArticle(p)} disabled={saveArticle.isPending}><FilePlus2 size={14}/> Criar notícia</button>}
-              {p.articleId && <a href={`/materia/${p.articleId}`} target="_blank" rel="noreferrer"><ExternalLink size={14}/> Matéria</a>}
+              {p.articleId && <a href={`/materia/${p.articleId}`} target="_blank" rel="noreferrer"><ExternalLink size={14}/> Matéria</a>}{p.status !== "archived" && <button onClick={() => { if (window.confirm(`Arquivar “${p.title}”?`)) changeStatus(p, "archived"); }}><Archive size={14}/> Arquivar</button>}
             </div>
           </article>)}
           {filtered.filter(p => p.status === column.id).length === 0 && <div className="pauta-empty">Nenhuma pauta aqui.</div>}
