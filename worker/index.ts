@@ -154,15 +154,17 @@ export default {
     // Keep /admin as the real browser URL. Serve only the SPA entrypoint so
     // wouter sees /admin and renders ProtectedAdmin instead of any public page.
     if (url.pathname === "/admin" || url.pathname === "/admin/") {
-      const response = await env.ASSETS.fetch(new Request(new URL("/index.html", request.url), request));
+      const response = await env.ASSETS.fetch(new Request(new URL("/", request.url), request));
       const headers = new Headers(response.headers);
       headers.set("Cache-Control", "no-store");
       headers.set("X-PCH-Route", "admin-protected");
       return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
     }
 
-    const spaPath = isSpaRoute ? "/index.html" : url.pathname;
-    if (spaPath !== url.pathname) return env.ASSETS.fetch(new Request(new URL("/index.html", request.url), request));
+    // Serve the SPA shell from "/" (not "/index.html"): Cloudflare Assets answers
+    // "/index.html" with a 307 redirect to "/", which sent every deep link
+    // (/admin, /login, /materia/...) back to the home page.
+    if (isSpaRoute) return env.ASSETS.fetch(new Request(new URL("/", request.url), request));
     return env.ASSETS.fetch(request);
   },
 };
