@@ -141,7 +141,7 @@ export const appRouter = router({
       return data || [];
     }),
     create: adminProcedure.input(z.object({
-      id: z.string().min(2), advertiserId: z.string().min(2), name: z.string().min(2), adType: z.string().min(2),
+      id: z.string().min(2), advertiserCompany: z.string().min(2), name: z.string().min(2), adType: z.string().min(2),
       creativeUrl: z.string().url().nullable().optional(), targetScope: z.string().default("national"),
       region: z.string().nullable().optional(), state: z.string().nullable().optional(),
       startsAtMs: z.number().int().nullable().optional(), endsAtMs: z.number().int().nullable().optional(),
@@ -149,7 +149,11 @@ export const appRouter = router({
     })).mutation(async ({ input }) => {
       const db = getSupabaseAdmin();
       const now = Date.now();
-      const row = { ...input, creativeUrl: input.creativeUrl || null, region: input.region || null, state: input.state || null, startsAtMs: input.startsAtMs ?? null, endsAtMs: input.endsAtMs ?? null, createdAtMs: now, updatedAtMs: now };
+      const advertiserId = `advertiser-${Date.now()}-${randomBytes(4).toString("hex")}`;
+      const { error: advertiserError } = await db.from("advertisers").upsert({ id: advertiserId, company: input.advertiserCompany, status: "active", createdAtMs: now, updatedAtMs: now }, { onConflict: "id" });
+      if (advertiserError) throw advertiserError;
+      const { advertiserCompany: _advertiserCompany, ...campaignInput } = input;
+      const row = { ...campaignInput, advertiserId, creativeUrl: input.creativeUrl || null, region: input.region || null, state: input.state || null, startsAtMs: input.startsAtMs ?? null, endsAtMs: input.endsAtMs ?? null, createdAtMs: now, updatedAtMs: now };
       const { data, error } = await db.from("adCampaigns").insert(row).select("*").single();
       if (error) throw error;
       return data;
