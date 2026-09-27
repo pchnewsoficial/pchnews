@@ -106,10 +106,10 @@ export default function ArticlePage() {
   }, [article?.id]);
   useEffect(() => {
     if (!article) return;
+    const origin = window.location.origin;
     const canonical = article.canonicalUrl || `${origin}/materia/${params?.slug || article.id}`;
     const title = article.seoTitle || article.title;
     const description = article.metaDescription || article.summary;
-    const origin = window.location.origin;
     const resolvedArticleImage = editorialImageUrl(article);
     const absoluteArticleImage = new URL(resolvedArticleImage, origin).toString();
     const socialImage = /\.svg(?:$|[?#])/i.test(absoluteArticleImage) ? `https://wsrv.nl/?url=${encodeURIComponent(absoluteArticleImage)}&output=png&w=1200&h=630&fit=contain&bg=071a2d` : absoluteArticleImage;
