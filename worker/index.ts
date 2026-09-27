@@ -153,13 +153,13 @@ export default {
       url.pathname.startsWith("/colunista/") ||
       url.pathname.startsWith("/convite/") ||
       url.pathname === "/institucional" || url.pathname === "/anuncie" || url.pathname === "/lei" || url.pathname === "/privacidade" || url.pathname === "/termos" || url.pathname === "/cookies" || url.pathname === "/parceiros";
-    // /admin is a protected entry point, not a public page. Force the
-    // application into the admin guard even if the asset host/SPA fallback
-    // normalizes the pathname to "/". This prevents /admin from ever landing
-    // on Home or the Events/Agenda page.
+    // /admin must never fall through to a public route such as /eventos.
+    // Redirect to the app's explicit admin entry query so HomeOrAdmin()
+    // deterministically renders the protected admin guard.
     if (url.pathname === "/admin" || url.pathname === "/admin/") {
-      const adminIndex = new URL("/index.html?admin=1", request.url);
-      return env.ASSETS.fetch(new Request(adminIndex, request));
+      const adminUrl = new URL("/", request.url);
+      adminUrl.searchParams.set("admin", "1");
+      return Response.redirect(adminUrl.toString(), 302);
     }
 
     const spaPath = isSpaRoute ? "/index.html" : url.pathname;
