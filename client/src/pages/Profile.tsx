@@ -1,9 +1,10 @@
 import { LogOut, ShieldCheck, UserCircle, ArrowRight } from "lucide-react";
+import officialLogoUrl from "@/assets/pch-news-official-current.svg";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 
-const LOGO_URL = "/brand/pch-news-official-current.svg?v=20260927";
+const LOGO_URL = officialLogoUrl;
 
 export default function Profile() {
   const [, navigate] = useLocation();
