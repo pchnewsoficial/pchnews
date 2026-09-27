@@ -204,7 +204,11 @@ export async function listEventCarousel(filters?: { state?: string; city?: strin
 }
 
 export async function listPublicEvents(filters?: any) {
-  const db = await getDb(); if (!db) return [];
+  // Public agenda reads must use the server-only Supabase client. The Admin uses
+  // an authenticated session, while the public site has no session; relying on
+  // the request client here can therefore make the same approved event appear
+  // in Admin but disappear from the public Agenda.
+  const db = getSupabaseAdmin();
   const nowMs = Date.now();
   // Keep the database query simple and apply lifecycle filtering in application code.
   // This avoids PostgREST OR-expression issues with camelCase columns while preserving
@@ -261,8 +265,9 @@ export async function createEvent(input: any, accessToken?: string | null) {
   if (error) throw error;
   return { ...input, status: "pending", createdAtMs: nowMs, updatedAtMs: nowMs };
 }
-export async function getPublicEvent(id: string, accessToken?: string | null) {
-  const db = await getDb(accessToken); if (!db) return undefined;
+export async function getPublicEvent(id: string, _accessToken?: string | null) {
+  // Same server-side read path as the public agenda list.
+  const db = getSupabaseAdmin();
   const { data, error } = await db.from("events").select("*").eq("id", id).eq("status", "approved").maybeSingle();
   if (error) throw error;
   if (!data) return undefined;
