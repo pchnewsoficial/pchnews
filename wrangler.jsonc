@@ -10,8 +10,8 @@
     "assets_navigation_has_no_effect"
   ],
   "routes": [
-    { "pattern": "pchnews.com.br", "custom_domain": true },
-    { "pattern": "www.pchnews.com.br", "custom_domain": true }
+    { "pattern": "pchnews.com.br", "custom_domain": true, "zone_name": "pchnews.com.br" },
+    { "pattern": "www.pchnews.com.br", "custom_domain": true, "zone_name": "pchnews.com.br" }
   ],
   "assets": {
     "directory": "./dist",
