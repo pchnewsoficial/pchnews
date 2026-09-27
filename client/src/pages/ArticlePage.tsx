@@ -9,13 +9,7 @@ import officialLogoUrl from "@/assets/pch-news-official-current.svg";
 import { editorialImageUrl } from "@/lib/editorialImage";
 const LOGO_URL = officialLogoUrl;
 const EyeIcon = () => <Eye size={14} />;
-const imageUrl = (article: NewsArticle) => {
-  if (article.image) return article.image;
-  if (article.sourceUrl?.startsWith("https://pchnews.hostingpress.com.br/materia/")) {
-    return `/legacy-image/${encodeURIComponent(article.sourceUrl)}`;
-  }
-  return LOGO_URL;
-};
+const imageUrl = (article: NewsArticle) => editorialImageUrl(article);
 const slugify = (value: string) => value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 function youtubeEmbed(url?: string | null) {
   if (!url?.trim()) return null;
