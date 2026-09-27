@@ -4,7 +4,7 @@ type Check = { ruleId: string; label: string; severity: "ok" | "info" | "warning
 type Report = { rulesetVersion: string; mission: string; contentType: "fato" | "opinião"; score: number; checks: Check[]; autonomy: { question: string; answer: string; blockingRules: string[] } };
 
 export function TolerajornalMark({ compact = false }: { compact?: boolean }) {
-  return <div className={compact ? "tj-mark compact" : "tj-mark"}><strong>Tolerajornal</strong><span>informação para pensar por si mesmo</span></div>;
+  return <div className={compact ? "tj-mark compact" : "tj-mark"}><strong>PCH News</strong><span>informação para pensar por si mesmo</span></div>;
 }
 
 export function FreedomReviewPanel({ report }: { report: Report }) {
@@ -12,7 +12,7 @@ export function FreedomReviewPanel({ report }: { report: Report }) {
   const checks = [...report.checks].sort((a, b) => order[a.severity] - order[b.severity]);
   return <section className="tj-panel" aria-label="Liberdade Editorial">
     <header>
-      <span className="tj-kicker">LIBERDADE EDITORIAL — Tolerajornal</span>
+      <span className="tj-kicker">LIBERDADE EDITORIAL — PCH News</span>
       <p className="tj-mission">“{report.mission}”</p>
       <div className="tj-meta"><span className={"tj-type " + (report.contentType === "fato" ? "fact" : "opinion")}>{report.contentType === "fato" ? "CONTEÚDO FACTUAL" : "OPINIÃO"}</span><span>Índice de autonomia: <b>{report.score}/100</b></span><span>Regras {report.rulesetVersion}</span></div>
     </header>
