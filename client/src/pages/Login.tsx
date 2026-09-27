@@ -92,7 +92,8 @@ export default function Login() {
     setSending(true);
     setMessage("");
 
-    // Keep the magic-link callback on the exact host where the login started.\n    const redirectTo = typeof window !== "undefined" ? `${window.location.origin}/admin` : undefined;
+    // Keep the magic-link callback on the exact host where the login started.
+    const redirectTo = typeof window !== "undefined" ? `${window.location.origin}/admin` : undefined;
     const { error } = await supabase.auth.signInWithOtp({
       email: normalized,
       options: {
