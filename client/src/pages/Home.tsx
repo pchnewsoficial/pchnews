@@ -317,7 +317,13 @@ export default function Home() {
             {sideStories.map((article, index) => <Link href={`/materia/${article.id}`} className="recent-item" key={article.id}><div className={`recent-thumb thumb-${index + 1}`} style={{ backgroundImage: `url(${imageUrl(article)})` }}><span>{String(index + 1).padStart(2, "0")}</span></div><div><span className="item-category">{article.category}</span><h3>{article.title}</h3><p><Eye size={12} /> {article.views.toLocaleString("pt-BR")} visualizações</p></div></Link>)}
           </aside>
         </section>
-        ) : (        <section className="container ad-banner ad-carousel" id="anuncie" aria-roledescription="carousel" aria-label="Publicidade PCH News" onMouseEnter={() => setAdPaused(true)} onMouseLeave={() => setAdPaused(false)} onFocusCapture={() => setAdPaused(true)} onBlurCapture={() => setAdPaused(false)}>
+        ) : (
+
+
+          <div className="container empty-state"><Search size={24} /><h3>Nada encontrado por aqui</h3><p>Tente outra busca ou escolha uma editoria no menu.</p><button onClick={() => { setQuery(""); setActiveCategory("Todas"); setActiveTopic(null); }}>Limpar filtros</button></div>
+        )}
+
+        <section className="container ad-banner ad-carousel" id="anuncie" aria-roledescription="carousel" aria-label="Publicidade PCH News" onMouseEnter={() => setAdPaused(true)} onMouseLeave={() => setAdPaused(false)} onFocusCapture={() => setAdPaused(true)} onBlurCapture={() => setAdPaused(false)}>
           <div className="ad-carousel-track" style={{ transform: `translateX(-${activeAdSlide * 100}%)` }}>
             {adSlides.map((slide) => <div className="ad-slide" key={slide.title}>
               <div className="ad-copy"><span className="ad-tag">{slide.eyebrow}</span><h1>{slide.title}<br /><em>{slide.emphasis}</em></h1><p>{slide.text}</p><Link className="gold-button" href="/anuncie">{slide.cta} <ArrowRight size={16} /></Link></div>
@@ -329,10 +335,6 @@ export default function Home() {
           <div className="ad-progress" aria-hidden="true"><span key={activeAdSlide} /></div>
         </section>
 
-
-
-          <div className="container empty-state"><Search size={24} /><h3>Nada encontrado por aqui</h3><p>Tente outra busca ou escolha uma editoria no menu.</p><button onClick={() => { setQuery(""); setActiveCategory("Todas"); setActiveTopic(null); }}>Limpar filtros</button></div>
-        )}
 
         <section className="quote-strip"><div className="container quote-inner"><span className="quote-mark">“</span><p>Conteúdo e interação com responsabilidade, ética e entretenimento.</p><span className="quote-sign">PCH <i>NEWS</i></span></div></section>
 
