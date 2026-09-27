@@ -146,6 +146,7 @@ export default function Admin() {
   const profileUpload = trpc.profiles.uploadPhoto.useMutation();
   const mediaList = trpc.media.list.useQuery(undefined, { enabled: Boolean(user), retry: false });
   const mediaUpload = trpc.media.upload.useMutation();
+  const mediaDelete = trpc.media.delete.useMutation({ onSuccess: () => { void mediaList.refetch(); notify("Mídia removida do armazenamento."); }, onError: (error) => notify(error.message) });
   const canManageArticle = (article: NewsArticle) => isAdmin || (["editor", "journalist", "columnist"].includes(user?.role || "") && article.author === currentAuthor);
   const [, navigate] = useLocation();
 
