@@ -62,7 +62,7 @@ export async function saveArticle(article:any, accessToken?: string | null){
   const {data,error}=await db.from("articles").upsert(payload,{onConflict:"id"}).select().single();if(error)throw error;return data;
 }
 export async function recordArticleView(articleId:string,visitorId:string,_accessToken?:string|null){
-  const db = getSupabasePublic();
+  const db = getSupabaseAdmin();
   const { data, error } = await db.rpc("increment_article_view", { p_article_id: articleId, p_visitor_id: visitorId });
   if (error) throw error;
   return data as { counted: boolean; views: number };
@@ -94,8 +94,8 @@ export async function findInvite(tokenHash:string,accessToken?:string|null){cons
 export async function acceptInvite(id:string,responsibilityVersion:string,accessToken?:string|null){const db=await getDb(accessToken);if(!db)throw new Error("Database unavailable");const {error}=await db.from("columnistInvites").update({acceptedAtMs:Date.now(),responsibilityAcceptedAtMs:Date.now(),responsibilityVersion}).eq("id",id);if(error)throw error;}
 export async function revokeInvite(id:string,accessToken?:string|null){const db=await getDb(accessToken);if(!db)throw new Error("Database unavailable");const {error}=await db.from("columnistInvites").update({revokedAtMs:Date.now()}).eq("id",id);if(error)throw error;return {success:true};}
 export async function renewInvite(id:string,tokenHash:string,expiresAtMs:number,accessToken?:string|null){const db=await getDb(accessToken);if(!db)throw new Error("Database unavailable");const {data,error}=await db.from("columnistInvites").select("*").eq("id",id).maybeSingle();if(error)throw error;if(!data||data.acceptedAtMs||data.revokedAtMs)return undefined;const next={...data,tokenHash,expiresAtMs,createdAtMs:Date.now()};const {error:ue}=await db.from("columnistInvites").update({tokenHash,expiresAtMs,createdAtMs:next.createdAtMs}).eq("id",id);if(ue)throw ue;return next;}
-export async function recordArticleAudit(entry:Omit<ArticleAudit,"createdAtMs">,accessToken?:string|null){const db=await getDb(accessToken);if(!db)throw new Error("Database unavailable");const {error}=await db.from("articleAudit").insert({...entry,createdAtMs:Date.now()});if(error)throw error;return {success:true};}
-export async function listArticleAudit(articleId?:string,accessToken?:string|null){const db=await getDb(accessToken);if(!db)return [];let q=db.from("articleAudit").select("*, articles(title)").order("createdAtMs",{ascending:false});if(articleId)q=q.eq("articleId",articleId);const {data,error}=await q;if(error)throw error;return (data??[]).map((x:any)=>({...x,articleTitle:x.articles?.title??null,articles:undefined}));}
+export async function recordArticleAudit(entry:Omit<ArticleAudit,"createdAtMs">,accessToken?:string|null){const db=getSupabaseAdmin();const {error}=await db.from("articleAudit").insert({...entry,createdAtMs:Date.now()});if(error)throw error;return {success:true};}
+export async function listArticleAudit(articleId?:string,accessToken?:string|null){const db=getSupabaseAdmin();let q=db.from("articleAudit").select("*, articles(title)").order("createdAtMs",{ascending:false});if(articleId)q=q.eq("articleId",articleId);const {data,error}=await q;if(error)throw error;return (data??[]).map((x:any)=>({...x,articleTitle:x.articles?.title??null,articles:undefined}));}
 export async function recordEditorialResearchContext(entry:any,accessToken?:string|null){
   const db=await getDb(accessToken);if(!db)return {success:false};
   const {error}=await db.from("editorialResearchContexts").insert(entry);
