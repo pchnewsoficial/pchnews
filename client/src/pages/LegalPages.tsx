@@ -26,7 +26,7 @@ const content = {
 
 function Shell({ kind, children }: { kind: LegalKind; children: ReactNode }) {
   const meta = content[kind];
-  return <div className="site-shell public-module-page"><PageMeta title={`${meta.title} — PCH News`} description={meta.description} canonicalPath={kind === "privacy" ? "/privacidade" : `/${kind}`} /><header className="public-module-hero"><div className="container"><span className="eyebrow">{meta.kicker}</span><h1>{meta.title}</h1><p>{meta.description}</p></div></header><main className="container legal-layout">{children}</main><PublicFooter /></div>;
+  return <div className="site-shell public-module-page"><PageMeta title={`${meta.title} — PCH News`} description={meta.description} canonicalPath={kind === "privacy" ? "/privacidade" : kind === "terms" ? "/termos" : "/cookies"} /><header className="public-module-hero"><div className="container"><span className="eyebrow">{meta.kicker}</span><h1>{meta.title}</h1><p>{meta.description}</p></div></header><main className="container legal-layout">{children}</main><PublicFooter /></div>;
 }
 
 export function PrivacyPage() {
