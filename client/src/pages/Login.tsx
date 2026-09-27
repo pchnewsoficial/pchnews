@@ -53,7 +53,7 @@ export default function Login() {
       );
       return;
     }
-    window.location.assign("/painel-editorial");
+    window.location.assign("/admin");
   };
 
   const handleForgotPassword = async () => {
@@ -61,7 +61,7 @@ export default function Login() {
     if (normalized !== OWNER_EMAIL) { setMessage("Use o e-mail administrativo cadastrado no PCH News."); return; }
     setSending(true); setMessage("");
     const redirectTo = typeof window !== "undefined"
-      ? ADMIN_APP_ORIGIN + "/painel-editorial?reset=1"
+      ? ADMIN_APP_ORIGIN + "/admin?reset=1"
       : undefined;
     const { error } = await supabase.auth.resetPasswordForEmail(
       normalized,
@@ -79,7 +79,7 @@ export default function Login() {
     setSending(false);
     if (error) { setMessage("Não foi possível alterar a senha. Solicite um novo link de recuperação."); return; }
     setMessage("Senha alterada com sucesso. Entrando no painel editorial…");
-    window.setTimeout(() => window.location.assign("/painel-editorial"), 700);
+    window.setTimeout(() => window.location.assign("/admin"), 700);
   };
 
   const returnToLogin = () => {
@@ -98,7 +98,7 @@ export default function Login() {
     // Keep the magic-link callback on the exact host where the login started.
     // This avoids sending production users to the Lovable preview/published host.
     const redirectTo = typeof window !== "undefined"
-      ? ADMIN_APP_ORIGIN + "/painel-editorial"
+      ? ADMIN_APP_ORIGIN + "/admin"
       : undefined;
     const { error } = await supabase.auth.signInWithOtp({
       email: normalized,
