@@ -1,4 +1,4 @@
-import { getDb, saveArticle } from "./db";
+import { saveArticle } from "./db";
 import { storagePut } from "./storage";
 
 const SOURCE = "https://pchnews.hostingpress.com.br";
@@ -74,7 +74,6 @@ export async function syncHostingPressPilulas(accessToken?: string | null) {
   if (!links.length) throw new Error("Nenhuma matéria /materia/ foi encontrada na fonte HostingPRESS.");
 
   const imported: string[] = [];
-  const db = await getDb(accessToken);
   for (const url of links) {
     try {
       const response = await fetch(url, { headers: { "user-agent": USER_AGENT }, redirect: "follow" });
