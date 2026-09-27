@@ -106,10 +106,13 @@ export default function ArticlePage() {
   }, [article?.id]);
   useEffect(() => {
     if (!article) return;
-    const origin = window.location.origin;
     const canonical = article.canonicalUrl || `${origin}/materia/${params?.slug || article.id}`;
     const title = article.seoTitle || article.title;
     const description = article.metaDescription || article.summary;
+    const origin = window.location.origin;
+    const resolvedArticleImage = editorialImageUrl(article);
+    const absoluteArticleImage = new URL(resolvedArticleImage, origin).toString();
+    const socialImage = /\.svg(?:$|[?#])/i.test(absoluteArticleImage) ? `https://wsrv.nl/?url=${encodeURIComponent(absoluteArticleImage)}&output=png&w=1200&h=630&fit=contain&bg=071a2d` : absoluteArticleImage;
     document.title = title ? `${title} | PCH News` : "PCH News";
     const upsertMeta = (selector: string, attrs: Record<string,string>) => {
       let node = document.head.querySelector(selector) as HTMLMetaElement | null;
@@ -122,11 +125,11 @@ export default function ArticlePage() {
     upsertMeta('meta[property="og:description"]',{property:"og:description",content:article.ogDescription || description});
     upsertMeta('meta[property="og:type"]',{property:"og:type",content:"article"});
     upsertMeta('meta[property="og:url"]',{property:"og:url",content:canonical});
-    upsertMeta('meta[property="og:image"]',{property:"og:image",content:article.image});
+    upsertMeta('meta[property="og:image"]',{property:"og:image",content:socialImage});
     upsertMeta('meta[name="twitter:card"]',{name:"twitter:card",content:"summary_large_image"});
     upsertMeta('meta[name="twitter:title"]',{name:"twitter:title",content:article.ogTitle || title});
     upsertMeta('meta[name="twitter:description"]',{name:"twitter:description",content:article.ogDescription || description});
-    upsertMeta('meta[name="twitter:image"]',{name:"twitter:image",content:article.image});
+    upsertMeta('meta[name="twitter:image"]',{name:"twitter:image",content:socialImage});
     let link = document.head.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
     if (!link) { link = document.createElement("link"); link.rel = "canonical"; document.head.appendChild(link); }
     link.href = canonical;
@@ -134,7 +137,7 @@ export default function ArticlePage() {
     if (!script) { script = document.createElement("script"); script.type = "application/ld+json"; script.dataset.pchNewsArticle = "true"; document.head.appendChild(script); }
     script.textContent = JSON.stringify({
       "@context":"https://schema.org","@type":"NewsArticle","mainEntityOfPage":{"@type":"WebPage","@id":canonical},
-      "headline":article.title,"description":description,"image":[article.image],
+      "headline":article.title,"description":description,"image":[socialImage],
       "datePublished":article.date,"dateModified":article.updated,"author":{"@type":"Person","name":article.author,"url":`${origin}/colunista/${profileSlug}`},
       "publisher":{"@type":"Organization","name":"PCH News","url":origin}
     });
