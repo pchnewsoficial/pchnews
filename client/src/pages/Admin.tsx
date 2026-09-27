@@ -84,7 +84,8 @@ export default function Admin() {
   const { user, logout: oauthLogout } = useAuth();
   const currentRole = user?.role || "user";
   const currentAuthor = user?.name || "Colunista";
-  const roleLabels: Record<AccessUser["role"], string> = { user: "Usuário", admin: "Administrador", editor: "Editor", journalist: "Jornalista", columnist: "Colunista", reviewer: "Revisor" };\n  const displayName = user?.name || "Redação PCH News";
+  const roleLabels: Record<AccessUser["role"], string> = { user: "Usuário", admin: "Administrador", editor: "Editor", journalist: "Jornalista", columnist: "Colunista", reviewer: "Revisor" };
+  const displayName = user?.name || "Redação PCH News";
   const displayInitials = getInitials(displayName);
   const { data: editorialRemote, refetch: refetchEditorial } = trpc.editorial.bootstrap.useQuery(undefined, { enabled: Boolean(user), retry: false });
   const adRequests = editorialRemote?.adRequests ?? [];
