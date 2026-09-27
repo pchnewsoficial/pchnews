@@ -45,18 +45,57 @@ function getInitials(name: string) {
 function EventsAdmin({ notify }: { notify: (message: string) => void }) {
   const { data: events = [], refetch, isLoading } = trpc.events.adminList.useQuery(undefined, { retry: false });
   const setStatus = trpc.events.setStatus.useMutation({ onSuccess: () => { void refetch(); notify("Status do evento atualizado."); }, onError: (error) => notify(error.message) });
+  const updateEvent = trpc.events.update.useMutation({ onSuccess: () => { void refetch(); setEditing(null); notify("Evento atualizado."); }, onError: (error) => notify(error.message) });
+  const [editing, setEditing] = useState<any>(null);
   const labels: Record<string,string> = { pending:"Pendente", approved:"Aprovado", rejected:"Rejeitado", cancelled:"Cancelado" };
+  const editDraft = editing ? {
+    ...editing,
+    startAt: new Date(Number(editing.startAtMs)).toISOString().slice(0,16),
+    endAt: editing.endAtMs ? new Date(Number(editing.endAtMs)).toISOString().slice(0,16) : "",
+  } : null;
+  const save = (event: FormEvent) => {
+    event.preventDefault();
+    if (!editDraft) return;
+    updateEvent.mutate({
+      id: editDraft.id,
+      title: editDraft.title,
+      description: editDraft.description,
+      eventType: editDraft.eventType,
+      organizer: editDraft.organizer,
+      contact: editDraft.contact,
+      startAtMs: new Date(editDraft.startAt).getTime(),
+      endAtMs: editDraft.endAt ? new Date(editDraft.endAt).getTime() : null,
+      venue: editDraft.venue,
+      address: editDraft.address,
+      city: editDraft.city,
+      state: editDraft.state,
+      country: editDraft.country || "Brasil",
+      latitude: editDraft.latitude || null,
+      longitude: editDraft.longitude || null,
+      image: editDraft.image || null,
+      website: editDraft.website || null,
+      price: editDraft.price || null,
+      visibilityScope: editDraft.visibilityScope || "national",
+      visibilityRegion: editDraft.visibilityRegion || null,
+      visibilityState: editDraft.visibilityState || editDraft.state || null,
+      visibilitySubregion: editDraft.visibilitySubregion || null,
+      visibilityCity: editDraft.visibilityCity || editDraft.city || null,
+    });
+  };
   return <section className="panel events-admin-panel">
-    <div className="admin-heading compact"><div><span className="admin-kicker">AGENDA PCH NEWS</span><h1>Eventos<span>.</span></h1><p>Modere os eventos enviados pelo público antes da publicação.</p></div><Link className="secondary-cta" href="/eventos"><ExternalLink size={15}/> Ver agenda pública</Link></div>
+    <div className="admin-heading compact"><div><span className="admin-kicker">AGENDA PCH NEWS</span><h1>Eventos<span>.</span></h1><p>Gerencie, edite, modere e retire eventos da agenda pública.</p></div><Link className="secondary-cta" href="/agenda"><ExternalLink size={15}/> Ver agenda compartilhável</Link></div>
     {isLoading ? <div className="events-empty">Carregando eventos…</div> : events.length === 0 ? <div className="events-empty"><CalendarDays size={28}/><h2>Nenhum evento recebido</h2><p>Quando alguém enviar um evento, ele aparecerá aqui para validação.</p></div> :
       <div className="events-admin-list">{events.map((event:any) => <article className="events-admin-row" key={event.id}>
         <div><span className="event-type">{event.eventType}</span><h3>{event.title}</h3><p>{event.description}</p><small>{event.organizer} · {event.city}/{event.state} · {new Date(Number(event.startAtMs)).toLocaleString("pt-BR")}</small></div>
         <div className="events-admin-meta"><span className={`event-status status-${event.status}`}>{labels[event.status] || event.status}</span><div className="events-admin-actions">
-          {event.status !== "approved" && <button className="primary-cta" disabled={setStatus.isPending} onClick={() => setStatus.mutate({id:event.id,status:"approved"})}>Aprovar</button>}
-          {event.status !== "rejected" && <button className="secondary-cta" disabled={setStatus.isPending} onClick={() => setStatus.mutate({id:event.id,status:"rejected"})}>Rejeitar</button>}
+          <button className="ghost-button" onClick={() => setEditing(event)}><Edit3 size={14}/> Editar</button>
+          {event.status !== "approved" && event.status !== "cancelled" && <button className="primary-cta" disabled={setStatus.isPending} onClick={() => setStatus.mutate({id:event.id,status:"approved"})}>Aprovar</button>}
+          {event.status !== "rejected" && event.status !== "cancelled" && <button className="secondary-cta" disabled={setStatus.isPending} onClick={() => setStatus.mutate({id:event.id,status:"rejected"})}>Rejeitar</button>}
           {event.status === "approved" && <button className="ghost-button" disabled={setStatus.isPending} onClick={() => setStatus.mutate({id:event.id,status:"cancelled"})}>Cancelar</button>}
+          {event.status !== "cancelled" && <button className="ghost-button" disabled={setStatus.isPending} onClick={() => { if (window.confirm(`Retirar “${event.title}” da agenda pública?`)) setStatus.mutate({id:event.id,status:"cancelled"}); }}><Archive size={14}/> Excluir</button>}
         </div></div>
       </article>)}</div>}
+    {editing&&<div className="event-modal"><button className="event-modal-close" onClick={() => setEditing(null)}><X/></button><form onSubmit={save} className="event-form"><span className="eyebrow">EDITOR DA AGENDA</span><h2>Editar evento</h2><label>Nome do evento<input required value={editDraft.title} onChange={e=>setEditing({...editDraft,title:e.target.value})}/></label><label>Descrição<textarea required rows={4} value={editDraft.description} onChange={e=>setEditing({...editDraft,description:e.target.value})}/></label><div className="form-grid"><label>Tipo<input required value={editDraft.eventType} onChange={e=>setEditing({...editDraft,eventType:e.target.value})}/></label><label>Organizador<input required value={editDraft.organizer} onChange={e=>setEditing({...editDraft,organizer:e.target.value})}/></label></div><div className="form-grid"><label>Início<input required type="datetime-local" value={editDraft.startAt} onChange={e=>setEditing({...editDraft,startAt:e.target.value})}/></label><label>Fim<input type="datetime-local" value={editDraft.endAt} onChange={e=>setEditing({...editDraft,endAt:e.target.value})}/></label></div><div className="form-grid"><label>Local<input required value={editDraft.venue} onChange={e=>setEditing({...editDraft,venue:e.target.value})}/></label><label>Cidade<input required value={editDraft.city} onChange={e=>setEditing({...editDraft,city:e.target.value})}/></label></div><div className="form-grid"><label>Estado<input required value={editDraft.state} onChange={e=>setEditing({...editDraft,state:e.target.value})}/></label><label>Contato<input required value={editDraft.contact} onChange={e=>setEditing({...editDraft,contact:e.target.value})}/></label></div><label>Endereço<input required value={editDraft.address} onChange={e=>setEditing({...editDraft,address:e.target.value})}/></label><div className="editor-actions"><button type="button" className="secondary-cta" onClick={()=>setEditing(null)}>Cancelar</button><button type="submit" className="primary-cta" disabled={updateEvent.isPending}>Salvar alterações</button></div></form></div>}
   </section>;
 }
 
