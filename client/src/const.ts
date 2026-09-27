@@ -2,10 +2,13 @@ import { supabase } from "@/lib/supabase";
 
 export { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 
-const PRODUCTION_ADMIN_ORIGIN = "https://pch-news.pchnews-oficial.workers.dev";
+function getAdminRedirectUrl() {
+  if (typeof window === "undefined") return undefined;
+  return `${window.location.origin}/admin`;
+}
 
 export const startLogin = async () => {
-  const redirectTo = PRODUCTION_ADMIN_ORIGIN + "/admin";
+  const redirectTo = getAdminRedirectUrl();
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: redirectTo ? { redirectTo } : undefined,
