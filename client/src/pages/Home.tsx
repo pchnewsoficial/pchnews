@@ -396,7 +396,7 @@ export default function Home() {
               <div><strong>Novos parceiros</strong><p>Este espaço já está preparado para receber os próximos portais parceiros.</p></div>
             </div>
           </div>
-        </section>
+        </section>}
 
       <nav className="mobile-app-nav" aria-label="Atalhos rápidos">
         <Link href="/" className="mobile-app-item"><span><Bookmark size={18} /></span><small>Início</small></Link>
