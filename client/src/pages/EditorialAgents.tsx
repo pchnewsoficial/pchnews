@@ -17,7 +17,7 @@ const AGENTS: Agent[] = [
   { id: "fact-checker", name: "Fact Checker", description: "Localiza datas, números, citações e pontos que pedem fonte.", icon: SearchCheck },
   { id: "seo-optimization-specialist", name: "SEO", description: "Analisa título, resumo, tags e sugere slug/meta.", icon: Sparkles },
   { id: "ethics-advisor", name: "Ethics Advisor", description: "Sinaliza linguagem acusatória, absoluta ou sensacionalista.", icon: ShieldCheck },
-  { id: "liberdade-editorial", name: "Liberdade Editorial", description: "Tolerajornal: fato x opinião, contexto, fontes, contraponto e lide completo.", icon: ShieldCheck },
+  { id: "liberdade-editorial", name: "Liberdade Editorial", description: "PCH News: fato x opinião, contexto, fontes, contraponto e lide completo.", icon: ShieldCheck },
   { id: "publication-readiness", name: "Publication Readiness", description: "Confere se a matéria está completa para ir ao ar.", icon: FileCheck2 },
   { id: "multi-platform-distributor", name: "Distribuição", description: "Prepara versões para Instagram, Facebook, X, WhatsApp e YouTube.", icon: Share2 },
 ];
