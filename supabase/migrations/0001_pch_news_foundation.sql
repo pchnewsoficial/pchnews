@@ -12,6 +12,29 @@ create table if not exists public.users (
   "lastSignedIn" timestamptz not null default now()
 );
 
+-- Internal authorization helpers used by RLS policies.
+-- Keep these in the private schema so they are not exposed through the Data API.
+create schema if not exists private;
+
+create or replace function private.has_editorial_role(p_roles text[])
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $
+  select exists (
+    select 1
+    from public.users
+    where "openId" = (select auth.uid())::text
+      and role = any(coalesce(p_roles, '{}'::text[]))
+  );
+$;
+
+revoke all on function private.has_editorial_role(text[]) from public, anon;
+grant usage on schema private to authenticated;
+grant execute on function private.has_editorial_role(text[]) to authenticated;
+
 -- Compatibility helper used by the early RLS migrations.
 -- Later hardening moves authorization checks to private.is_admin().
 create or replace function public.is_admin()
@@ -19,17 +42,12 @@ returns boolean
 language sql
 stable
 security definer
-set search_path = public
+set search_path = ''
 as $
-  select exists (
-    select 1
-    from public.users
-    where "openId" = auth.uid()::text
-      and role = 'admin'
-  );
+  select private.has_editorial_role(array['admin']::text[]);
 $;
 
-revoke all on function public.is_admin() from public;
+revoke all on function public.is_admin() from public, anon, authenticated;
 
 create table if not exists public.articles (
   id text primary key,
