@@ -1,9 +1,10 @@
 import { Link } from "wouter";
+import officialLogoUrl from "@/assets/pch-news-official-current.svg";
 import { ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
 import PublicFooter from "@/components/PublicFooter";
 import PageMeta from "@/components/PageMeta";
 
-const LOGO_URL = "/brand/pch-news-official-current.svg?v=20260927";
+const LOGO_URL = officialLogoUrl;
 
 export default function Institutional() {
   return (
