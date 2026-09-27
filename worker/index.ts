@@ -134,8 +134,6 @@ export default {
     const isSpaRoute =
       url.pathname === "/admin" ||
       url.pathname.startsWith("/admin/") ||
-      url.pathname === "/painel-editorial" ||
-      url.pathname.startsWith("/painel-editorial/") ||
       url.pathname === "/eventos" ||
       url.pathname.startsWith("/eventos/") ||
       url.pathname === "/login" ||
