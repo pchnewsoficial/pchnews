@@ -5,7 +5,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, columnistProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { acceptInvite, createAdRequest, createComment, createInvite, findInvite, getArticle, getDb, getEditorialSnapshot, getViewAnalytics, listArticleAudit, listInvites, listUsers, recordArticleAudit, recordArticleView, renewInvite, revokeInvite, saveArticle, setUserRole, syncEditorial, updateColumnistProfile, recordEditorialAgentRun, listEditorialAgentRuns, recordEditorialFindingDecision, listEditorialFindingDecisions, listPautas, getPauta, savePauta, recordEditorialResearchContext, listEditorialResearchContexts, listPublicEvents, createEvent, getPublicEvent, listEventsAdmin, updateEventStatus, listEventCarousel, getAgendaMonetizationSettings, listEventPromotions } from "./db";
+import { acceptInvite, createAdRequest, createComment, createInvite, findInvite, getArticle, getDb, getEditorialSnapshot, getViewAnalytics, listArticleAudit, listInvites, listUsers, recordArticleAudit, recordArticleView, renewInvite, revokeInvite, saveArticle, setUserRole, syncEditorial, updateColumnistProfile, recordEditorialAgentRun, listEditorialAgentRuns, recordEditorialFindingDecision, listEditorialFindingDecisions, listPautas, getPauta, savePauta, recordEditorialResearchContext, listEditorialResearchContexts, listPublicEvents, createEvent, getPublicEvent, listEventsAdmin, updateEventStatus, updateEvent, listEventCarousel, getAgendaMonetizationSettings, listEventPromotions } from "./db";
 import { storagePut, storageList } from "./storage";
 import { sendInviteEmail, smtpConfigured } from "./email";
 import { ENV } from "./_core/env";
@@ -267,6 +267,7 @@ export const appRouter = router({
     adminList: adminProcedure.query(({ ctx }) => listEventsAdmin(ctx.accessToken)),
     adminPromotions: adminProcedure.query(({ ctx }) => listEventPromotions(ctx.accessToken)),
     setStatus: adminProcedure.input(z.object({ id: z.string(), status: z.enum(["pending", "approved", "rejected", "cancelled"]) })).mutation(({ input, ctx }) => updateEventStatus(input.id, input.status, ctx.accessToken)),
+    update: adminProcedure.input(z.object({ id: z.string(), title: z.string().min(3), description: z.string().min(10), eventType: z.string().min(1), organizer: z.string().min(2), contact: z.string().min(3), startAtMs: z.number().int(), endAtMs: z.number().int().nullable(), venue: z.string().min(2), address: z.string().min(3), city: z.string().min(2), state: z.string().min(2), country: z.string().default("Brasil"), latitude: z.string().nullable(), longitude: z.string().nullable(), image: z.string().nullable(), website: z.string().nullable(), price: z.string().nullable(), visibilityScope: z.enum(["national","regional","state","subregional","city"]).optional(), visibilityRegion: z.string().max(120).nullable().optional(), visibilityState: z.string().max(80).nullable().optional(), visibilitySubregion: z.string().max(120).nullable().optional(), visibilityCity: z.string().max(120).nullable().optional() })).mutation(({ input, ctx }) => updateEvent(input.id, input, ctx.accessToken)),
   }),
 });
 export type AppRouter = typeof appRouter;
