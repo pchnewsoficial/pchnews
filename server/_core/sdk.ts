@@ -39,7 +39,16 @@ export async function authenticateSupabaseRequest(req: Request): Promise<Authent
   // the user's own Bearer token. This is especially important on Cloudflare Worker
   // deployments where only the publishable Supabase key may be configured.
   const existingUser = await db.getUserByOpenId(openId, token);
-  if (existingUser) return existingUser;
+  if (existingUser) {
+    await db.upsertUser({
+      openId,
+      name,
+      email: authUser.email ?? null,
+      loginMethod: authUser.app_metadata?.provider ?? "supabase",
+      lastSignedIn: new Date(),
+    }, token);
+    return (await db.getUserByOpenId(openId, token)) ?? existingUser;
+  }
 
   // New-account provisioning still uses the server-side sync path. Existing users
   // never need the service-role key just to sign in and reach the editorial panel.
