@@ -9,6 +9,7 @@ import { acceptInvite, createAdRequest, createComment, createInvite, findInvite,
 import { storagePut, storageList } from "./storage";
 import { sendInviteEmail, smtpConfigured } from "./email";
 import { ENV } from "./_core/env";
+import { getSupabaseAdmin } from "./_core/supabase";
 import { recordFreedomReview } from "./db";
 // Production build guard: keep editorial event routes type-safe.
 import { runEditorialAgent, type EditorialAgentId } from "./editorialAgents";
@@ -197,7 +198,7 @@ export const appRouter = router({
     history: columnistProcedure.input(z.object({ articleId: z.string().min(1) })).query(async ({ input, ctx }) => { const article = await getArticle(input.articleId, ctx.accessToken); if (!article) return []; if (ctx.user.role !== "admin" && article.authorOpenId !== ctx.user.openId) throw new Error("Você não tem acesso ao histórico desta publicação."); return listArticleAudit(input.articleId, ctx.accessToken); }),
   }),
   media: router({
-    list: columnistProcedure.query(({ ctx }) => storageList(`editorial/${ctx.user.openId}`)),
+    list: columnistProcedure.query(async ({ ctx }) => { const stored = await storageList(`editorial/${ctx.user.openId}`); const snapshot = await getEditorialSnapshot(true, ctx.accessToken); const allowedArticles = ctx.user.role === "admin" ? snapshot.articles : snapshot.articles.filter((article: any) => article.authorOpenId === ctx.user.openId); const virtual = allowedArticles.filter((article: any) => typeof article.image === "string" && article.image.trim()).map((article: any) => ({ id: `article-image-${article.id}`, name: article.title || article.id, key: `article:${article.id}`, url: article.image, size: "", createdAt: article.updatedAt || article.createdAt || null })); const seen = new Set<string>(); return [...stored, ...virtual].filter((item: any) => { const key = item.url || item.key || item.id; if (seen.has(key)) return false; seen.add(key); return true; }); }),
     upload: columnistProcedure.input(uploadSchema).mutation(async ({ input, ctx }) => {
       const safeName = input.fileName.replace(/[^a-zA-Z0-9._-]/g, "-");
       const bytes = Buffer.from(input.base64.replace(/^data:[^;]+;base64,/, ""), "base64");
