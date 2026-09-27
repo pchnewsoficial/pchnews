@@ -15,7 +15,7 @@ import ApiHubPanel from "@/components/ApiHubPanel";
 import ApiHubEditorialTools from "@/components/ApiHubEditorialTools";
 import { ArticleStatus, EDITORIAL_CATEGORIES, EDITORIAL_SCOPES, EDITORIAL_CONTENT_TYPES, EDITORIAL_CHECKLIST_DEFAULT, EDITORIAL_CHECKLIST_LABELS, MediaAsset, NewsArticle, makeArticleId, statusLabels } from "@/lib/news";
 
-type View = "overview" | "articles" | "pauta" | "media" | "settings" | "profile" | "comments" | "ads" | "stats" | "audit" | "agents" | "apiHub" | "events" | "editorialRequests";
+type View = "overview" | "articles" | "pauta" | "media" | "settings" | "team" | "profile" | "comments" | "ads" | "stats" | "audit" | "agents" | "apiHub" | "events" | "editorialRequests";
 type AccessUser = { id: number; openId: string; name: string | null; email: string | null; role: "user" | "admin" | "editor" | "journalist" | "columnist" | "reviewer"; lastSignedIn: Date };
 import officialLogoUrl from "@/assets/pch-news-official-current.svg";
 const LOGO_URL = officialLogoUrl;
@@ -411,6 +411,7 @@ export default function Admin() {
     ...(isAdmin ? [{ id: "editorialRequests" as View, label: "Correções e respostas", icon: MessageCircle }] : []),
     { id: "agents", label: "Agentes editoriais", icon: Sparkles },
     ...(isAdmin ? [{ id: "apiHub" as View, label: "Integrações / API Hub", icon: Settings }] : []),
+    ...(isAdmin ? [{ id: "team" as View, label: "Colunistas e equipe", icon: Users }] : []),
     { id: "media", label: "Mídia", icon: FolderOpen },
     { id: "stats", label: "Estatísticas", icon: BarChart3 },
     { id: "audit", label: "Auditoria", icon: History },
@@ -449,7 +450,8 @@ export default function Admin() {
           {view === "ads" && isAdmin && <Ads notify={notify} />}
           {view === "profile" && (isAdmin ? <AdminAccountProfile user={user} roleLabel={roleLabels[currentRole as AccessUser["role"]] || "Administrador"} /> : <ProfileEditor profile={profiles[slugify(currentAuthor)] || Object.values(profiles)[0]} onSave={saveProfile} onUpload={uploadProfilePhoto} notify={notify} />)}
           {view === "media" && <MediaLibrary media={media} onUpload={uploadMedia} onDelete={() => notify("A exclusão de mídia ainda requer uma operação de armazenamento persistente.")} />}
-          {view === "settings" && isAdmin && <AccessSettings users={accessUsers} onRoleChange={(openId, role) => setRole.mutate({ openId, role })} />}
+          {view === "team" && isAdmin && <AccessSettings users={accessUsers} onRoleChange={(openId, role) => setRole.mutate({ openId, role })} />}
+          {view === "settings" && isAdmin && <section className="panel"><div className="admin-heading compact"><div><span className="admin-kicker">CONFIGURAÇÕES</span><h1>Configurações<span>.</span></h1><p>Preferências administrativas do PCH News.</p></div></div><p className="editor-note">As funções de equipe e convites ficam no módulo <strong>Colunistas e equipe</strong>, no menu lateral.</p></section>}
         </main>
       </div>
 
