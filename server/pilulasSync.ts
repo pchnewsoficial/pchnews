@@ -97,7 +97,7 @@ export async function syncHostingPressPilulas(accessToken?: string | null) {
             const bytes = Buffer.from(await imageResponse.arrayBuffer());
             const contentType = imageResponse.headers.get("content-type") || "image/jpeg";
             const extension = contentType.includes("png") ? "png" : contentType.includes("webp") ? "webp" : contentType.includes("gif") ? "gif" : "jpg";
-            image = (await storagePut("editorial/pilulas/" + slugifyForStorage(headline) + "." + extension, bytes, contentType, accessToken)).url;
+            image = (await storagePut("editorial/pilulas/" + slugifyForStorage(headline) + "." + extension, bytes, contentType)).url;
           }
         } catch (error) { console.warn("[PCH] Pílula image migration skipped:", url, error); }
       }
