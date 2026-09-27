@@ -6,7 +6,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, columnistProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { acceptInvite, createAdRequest, createComment, createInvite, findInvite, getArticle, getDb, getEditorialSnapshot, getViewAnalytics, listArticleAudit, listInvites, listUsers, recordArticleAudit, recordArticleView, renewInvite, revokeInvite, saveArticle, setUserRole, syncEditorial, updateColumnistProfile, recordEditorialAgentRun, listEditorialAgentRuns, recordEditorialFindingDecision, listEditorialFindingDecisions, listPautas, getPauta, savePauta, recordEditorialResearchContext, listEditorialResearchContexts, listPublicEvents, createEvent, getPublicEvent, listEventsAdmin, updateEventStatus, updateEvent, listEventCarousel, getAgendaMonetizationSettings, listEventPromotions } from "./db";
-import { storagePut, storageList } from "./storage";
+import { storagePut, storageList, storageDelete } from "./storage";
 import { sendInviteEmail, smtpConfigured } from "./email";
 import { ENV } from "./_core/env";
 import { getSupabaseAdmin } from "./_core/supabase";
@@ -199,6 +199,10 @@ export const appRouter = router({
   }),
   media: router({
     list: columnistProcedure.query(async ({ ctx }) => { const stored = await storageList(`editorial/${ctx.user.openId}`); const snapshot = await getEditorialSnapshot(true, ctx.accessToken); const allowedArticles = ctx.user.role === "admin" ? snapshot.articles : snapshot.articles.filter((article: any) => article.authorOpenId === ctx.user.openId); const virtual = allowedArticles.filter((article: any) => typeof article.image === "string" && article.image.trim()).map((article: any) => ({ id: `article-image-${article.id}`, name: article.title || article.id, key: `article:${article.id}`, url: article.image, size: "", createdAt: article.updatedAt || article.createdAt || null })); const seen = new Set<string>(); return [...stored, ...virtual].filter((item: any) => { const key = item.url || item.key || item.id; if (seen.has(key)) return false; seen.add(key); return true; }); }),
+    delete: columnistProcedure.input(z.object({ key: z.string().min(1) })).mutation(async ({ input, ctx }) => {
+      if (!input.key.startsWith(`editorial/${ctx.user.openId}/`) && ctx.user.role !== "admin") throw new Error("Você só pode remover sua própria mídia.");
+      return storageDelete(input.key);
+    }),
     upload: columnistProcedure.input(uploadSchema).mutation(async ({ input, ctx }) => {
       const safeName = input.fileName.replace(/[^a-zA-Z0-9._-]/g, "-");
       const bytes = Buffer.from(input.base64.replace(/^data:[^;]+;base64,/, ""), "base64");
