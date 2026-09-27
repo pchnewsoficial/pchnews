@@ -12,6 +12,25 @@ create table if not exists public.users (
   "lastSignedIn" timestamptz not null default now()
 );
 
+-- Compatibility helper used by the early RLS migrations.
+-- Later hardening moves authorization checks to private.is_admin().
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $
+  select exists (
+    select 1
+    from public.users
+    where "openId" = auth.uid()::text
+      and role = 'admin'
+  );
+$;
+
+revoke all on function public.is_admin() from public;
+
 create table if not exists public.articles (
   id text primary key,
   title text not null,
