@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import officialLogoUrl from "@/assets/pch-news-official-current.svg";
 import { ArrowLeft, ArrowRight, Bookmark, CalendarDays, ChevronDown, Clock3, Eye, MapPin, Menu, Search, Thermometer, UserRound, X } from "lucide-react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
@@ -6,8 +7,8 @@ import { EDITORIAL_CATEGORIES, EDITORIAL_SUBTHEMES, NewsArticle } from "@/lib/ne
 import "@/pch-redesign.css";
 import PublicFooter from "@/components/PublicFooter";
 
-const LOGO_URL = "/brand/pch-news-official-current.svg?v=20260927";
-const LOGO_FALLBACK_URL = "/brand/pch-news-official-current.svg?v=20260927";
+const LOGO_URL = officialLogoUrl;
+const LOGO_FALLBACK_URL = officialLogoUrl;
 const imageUrl = (article: NewsArticle) => {
   if (article.image) return article.image;
   if (article.sourceUrl?.startsWith("https://pchnews.hostingpress.com.br/materia/")) {
