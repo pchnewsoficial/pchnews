@@ -138,6 +138,25 @@ main { padding-top:18px; }
 .side-ad-slot p { margin:6px 0 10px; color:#b9c5cc; font-size:var(--pch-type-xs); line-height:1.4; }
 .side-ad-slot a { display:inline-flex; align-items:center; gap:5px; color:var(--pch-gold); font-size:var(--pch-type-xs); font-weight:800; text-decoration:none; }
 
+.side-ad-slot-secondary {
+  margin-top: -2px;
+  border-top: 1px solid rgba(244,183,45,.18);
+  border-bottom: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(244,183,45,.08));
+}
+.side-ad-slot-secondary strong { font-size:var(--pch-type-body); }
+.side-ad-slot-secondary p { max-width:30ch; }
+.side-ad-slot-secondary a { color:var(--pch-gold); }
+@media (max-width:980px) {
+  .side-ad-slot { margin-left:-18px; margin-right:-18px; }
+}
+@media (max-width:640px) {
+  .side-ad-slot { margin:0 -14px 10px; padding:14px 16px; }
+  .side-ad-slot-secondary { margin-top:2px; padding-top:14px; }
+  .side-ad-slot-secondary strong { font-size:var(--pch-type-body); }
+  .side-ad-slot-secondary p { max-width:none; }
+}
+
 .lead-layout {
   max-width:1440px;
   padding:0 42px;
