@@ -43,7 +43,7 @@ function Router() {
 
   if (normalizedPath === "/admin") return <ProtectedAdmin />;
   if (normalizedPath === "/admin/integracoes") return <ProtectedAdmin />;
-  if (normalizedPath === "/eventos") return <EventsAgenda />;
+  if (normalizedPath === "/eventos" || normalizedPath === "/agenda") return <EventsAgenda />;
   if (normalizedPath.startsWith("/eventos/")) return <EventDetail />;
 
   return <Switch><Route path="/" component={HomeOrAdmin} /><Route path="/login" component={Login} />
