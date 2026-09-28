@@ -1435,3 +1435,26 @@ section.container.ad-banner.ad-carousel { height:auto !important; min-height:0 !
   .mobile-app-nav .mobile-app-item:nth-child(3){flex-basis:48px;max-width:48px;}
   .mobile-app-nav .mobile-app-item:nth-child(3) span{width:23px;height:22px;}
 }
+
+
+/* ===== Mobile weather strip + expanded Mais menu — 2026-09-28 ===== */
+.mobile-weather-strip{display:none;}
+.more-menu-shortcuts .more-menu-link{display:flex;align-items:center;justify-content:center;min-height:40px;padding:9px 12px;border:1px solid var(--pch-line);border-radius:8px;text-decoration:none;font-weight:800;font-size:12px;color:inherit;background:rgba(255,255,255,.025);}
+.more-menu-shortcuts .more-menu-link:hover{border-color:rgba(244,183,45,.55);}
+@media (max-width:700px){
+  .mobile-weather-strip{display:block;border-top:1px solid var(--pch-line);border-bottom:1px solid var(--pch-line);background:rgba(8,22,36,.96);}
+  .mobile-weather-strip button{width:100%;min-height:34px;display:flex;align-items:center;justify-content:center;gap:7px;border:0;background:transparent;color:inherit;padding:5px 10px;font-size:10px;}
+  .mobile-weather-strip button svg{opacity:.9;}
+  .mobile-weather-strip button strong{font-size:13px;line-height:1;}
+  .mobile-weather-strip button span{font-weight:700;opacity:.88;}
+  .mobile-weather-strip button small{font-size:9px;opacity:.72;}
+  .more-menu{max-height:calc(100vh - 150px);overflow-y:auto;}
+  .more-menu-shortcuts .more-menu-grid{grid-template-columns:1fr 1fr;gap:7px;}
+  .more-menu-shortcuts .more-menu-link{min-height:38px;font-size:10px;text-align:center;line-height:1.15;}
+}
+@media (max-width:380px){
+  .mobile-weather-strip button{gap:5px;font-size:9px;}
+  .mobile-weather-strip button strong{font-size:12px;}
+  .mobile-weather-strip button small{font-size:8px;}
+  .more-menu-shortcuts .more-menu-grid{grid-template-columns:1fr;}
+}
