@@ -44,10 +44,10 @@ export default function InviteAccept() {
     setSending(true); setMessage("");
     const { error } = await supabase.auth.signInWithOtp({
       email: invitedEmail,
-      options: { shouldCreateUser: true, emailRedirectTo: `${window.location.origin}/admin` },
+      options: { shouldCreateUser: true, emailRedirectTo: `${window.location.origin}/convite/${encodeURIComponent(token)}` },
     });
     setSending(false);
-    setMessage(error ? `Não foi possível enviar o link: ${error.message}` : `Link de acesso enviado para ${invitedEmail}. Abra o e-mail neste mesmo navegador.`);
+    setMessage(error ? `Não foi possível enviar o link: ${error.message}` : `Link de acesso enviado para ${invitedEmail}. Abra o e-mail neste mesmo navegador; ele retornará ao convite para liberar diretamente o Admin Editorial.`);
   };
 
   if (isLoading || loading) return <main className="invite-shell"><section className="invite-card">Validando convite…</section></main>;
