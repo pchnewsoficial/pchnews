@@ -1204,3 +1204,11 @@ section.container.ad-banner.ad-carousel { height:auto !important; min-height:0 !
 .editor-advanced[open] > summary { padding-left:0; padding-right:0; }
 .header-weather { border:0; background:transparent; color:inherit; font:inherit; cursor:pointer; padding:0; }
 .header-weather:hover span { color:#f4b72d; }
+
+/* Admin: main image actions (upload / gallery / remove). */
+.cover-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:8px 0 10px; }
+.cover-actions button, .cover-upload-button { display:inline-flex; align-items:center; min-height:36px; padding:0 14px; border:1px solid #cfd8e3; border-radius:8px; background:#fff; color:#1d3350; font:inherit; font-size:13px; font-weight:700; cursor:pointer; }
+.cover-upload-button { background:#1d3a6b; border-color:#1d3a6b; color:#fff; }
+.cover-actions .cover-remove { color:#a33; border-color:#f0cccc; }
+.cover-actions small { color:#76818d; font-size:12px; }
+.picker-upload { margin:0 0 14px; }
