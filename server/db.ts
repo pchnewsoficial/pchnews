@@ -174,7 +174,7 @@ export async function createComment(row:Comment,accessToken?:string|null){const 
 export async function createAdRequest(input:{
   id:string; business:string; contactName:string; email:string; phone:string; city?:string|null;
   website?:string|null; socials?:string|null; adType:string; budget?:string|null; period?:string|null;
-  message:string; consentAtMs:number; status:"received"; createdAtMs:number;
+  message:string; creativeUrl?:string|null; creativeNeed?:"client_artwork"|"pch_creation"|"no_artwork_yet"; consentAtMs:number; status:"received"; createdAtMs:number;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database unavailable");
@@ -183,7 +183,7 @@ export async function createAdRequest(input:{
     packageName: input.adType, message: input.message, status: input.status, createdAtMs: input.createdAtMs,
     contactName: input.contactName, email: input.email, phone: input.phone, city: input.city || null,
     website: input.website || null, socials: input.socials || null, adType: input.adType,
-    budget: input.budget || null, period: input.period || null, consentAtMs: input.consentAtMs, source: "public-site",
+    budget: input.budget || null, period: input.period || null, creativeUrl: input.creativeUrl || null, creativeNeed: input.creativeNeed || "no_artwork_yet", consentAtMs: input.consentAtMs, source: "public-site",
   });
   if (error) throw error;
   return { ...input };
