@@ -13,6 +13,8 @@ const app = express();
 const ALLOWED_BROWSER_ORIGINS = new Set([
   "https://pchnews-oficial.pages.dev",
   "https://pchnewsoficial.pages.dev",
+  "https://pch-news.pages.dev",
+  "https://pchnews.pages.dev",
   "https://pchnews.com.br",
   "https://www.pchnews.com.br",
 ]);

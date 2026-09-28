@@ -413,10 +413,8 @@ export default function Admin() {
       { id: "overview", label: "Visão geral", icon: LayoutDashboard },
       { id: "articles", label: "Notícias", icon: FileText },
       { id: "pauta", label: "Pauta", icon: CalendarDays },
-      ...(isAdmin ? [{ id: "editorialRequests" as View, label: "Correções e respostas", icon: MessageCircle }] : []),
-    ]},
-    { label: "Agenda", items: [
       ...(canManageAgenda ? [{ id: "events" as View, label: "Agenda de eventos", icon: CalendarDays }] : []),
+      ...(isAdmin ? [{ id: "editorialRequests" as View, label: "Correções e respostas", icon: MessageCircle }] : []),
     ]},
     { label: "Equipe e conteúdo", items: [
       ...(isAdmin ? [{ id: "team" as View, label: "Colunistas e equipe", icon: Users }] : []),
@@ -424,17 +422,14 @@ export default function Admin() {
       { id: "comments", label: "Comentários", icon: MessageCircle },
       ...(isAdmin ? [{ id: "ads" as View, label: "Anúncios", icon: Megaphone }] : []),
     ]},
-    { label: "Ferramentas editoriais", items: [
+    { label: "Gestão e ferramentas", items: [
+      { id: "stats", label: "Estatísticas", icon: BarChart3 },
+      ...(isAdmin ? [{ id: "audit" as View, label: "Auditoria", icon: History }] : []),
       ...(isAdmin ? [{ id: "agents" as View, label: "Agentes editoriais", icon: Sparkles }] : []),
       ...(isAdmin ? [{ id: "apiHub" as View, label: "Integrações / API Hub", icon: Settings }] : []),
     ]},
-    { label: "Gestão", items: [
-      { id: "stats", label: "Estatísticas", icon: BarChart3 },
-      ...(isAdmin ? [{ id: "audit" as View, label: "Auditoria", icon: History }] : []),
-    ]},
     { label: "Conta", items: [
       { id: "profile", label: "Meu perfil", icon: UserCircle },
-      ...(isAdmin ? [{ id: "settings" as View, label: "Configurações", icon: Settings }] : []),
     ]},
   ];
 
