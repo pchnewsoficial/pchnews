@@ -1225,3 +1225,95 @@ section.container.ad-banner.ad-carousel { height:auto !important; min-height:0 !
 .field-note { display:block; margin-top:4px; color:#76818d; font-size:12px; font-weight:500; }
 #formatos, #proposta { scroll-margin-top:20px; }
 @media (max-width:760px) { .ad-format-cards { grid-template-columns:1fr; } }
+
+/* ===== Mobile UX consolidation — 2026-09-28 ===== */
+@media (max-width: 700px) {
+  body { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+  .breaking-bar { display:none; }
+  .site-header { position:relative; }
+  .header-main { min-height:64px; height:64px; padding:0 12px; gap:8px; }
+  .mobile-only { width:36px; height:36px; flex:0 0 36px; padding:0; display:inline-grid; place-items:center; }
+  .brand-lockup { flex:1 1 auto; min-width:0; gap:6px; }
+  .brand-lockup .official-logo { width:42px; height:42px; flex:0 0 42px; object-fit:contain; }
+  .brand-wordmark { display:inline; font-size:17px; }
+  .brand-caption,.header-motto,.header-live-info,.profile-link,.admin-link { display:none !important; }
+  .header-actions { margin-left:auto; gap:4px; }
+  .header-actions .icon-button { width:36px; height:36px; }
+  .nav-wrap { border-top:1px solid var(--pch-line); }
+  .primary-nav { padding:0 12px; gap:18px; min-height:42px; }
+  .primary-nav button { padding:12px 0 10px; font-size:11px; }
+  .more-trigger { display:inline-flex; align-items:center; gap:3px; }
+  .search-row { margin:8px 12px; width:auto; min-height:42px; }
+  .events-promo-home { margin:20px 0 16px; padding:0 12px; }
+  .events-promo-home .section-heading { margin-bottom:10px; }
+  .events-promo-rail { gap:10px; }
+  .events-promo-card { min-width:88%; min-height:118px; grid-template-columns:62px 1fr; padding:12px; border-radius:10px; }
+  .events-promo-date { padding-right:8px; }
+  .events-promo-card h3 { font-size:15px; line-height:1.2; }
+  .events-promo-card p { font-size:11px; }
+  .lead-layout { padding:0 12px; gap:14px; }
+  .lead-carousel,.lead-story { height:350px; min-height:350px; border-radius:10px; }
+  .story-overlay { padding:18px 16px 46px; }
+  .story-overlay h2 { font-size:24px; line-height:1.08; }
+  .story-overlay .lead-summary { font-size:13px; line-height:1.35; -webkit-line-clamp:2; margin-bottom:7px; }
+  .story-overlay .story-meta { display:flex; flex-wrap:wrap; gap:3px 6px; font-size:10px; }
+  .story-overlay .story-meta .meta-dot { display:none; }
+  .story-overlay .story-meta span:last-child { font-weight:800; }
+  .carousel-controls { right:10px; bottom:9px; }
+  .carousel-controls button { width:34px; height:34px; }
+  .carousel-dots { left:16px; bottom:20px; }
+  .recent-panel { padding:14px; border-radius:10px; }
+  .recent-panel .section-heading { margin-bottom:4px; }
+  .recent-item { grid-template-columns:76px minmax(0,1fr); gap:10px; padding:11px 0; }
+  .recent-thumb { height:64px; border-radius:6px; }
+  .recent-item h3 { font-size:13px; line-height:1.25; margin:3px 0 5px; }
+  .recent-item p { font-size:10px; }
+  .side-ad-slot { margin:0 -14px 8px; padding:12px 14px; }
+  .side-ad-slot strong { font-size:15px; }
+  .side-ad-slot p { font-size:11px; }
+  section.container.ad-banner.ad-carousel { width:calc(100% - 24px); margin:16px 12px; border-radius:10px; }
+  .ad-carousel .ad-slide { min-height:132px; padding:15px 16px 42px; }
+  .ad-copy h2 { font-size:21px; }
+  .ad-copy p { font-size:11px; max-width:32ch; }
+  .ad-carousel .gold-button { min-height:34px; font-size:11px; }
+  .ad-carousel-controls { bottom:8px; }
+  .quote-inner { min-height:96px; padding:18px 14px; gap:10px; }
+  .quote-mark { font-size:42px; }
+  .quote-inner p { font-size:17px; line-height:1.25; }
+  .pilulas-showcase,.columnist-showcase,.latest-section,.most-read-section,.editorial-sections,.services-section,.media-hub-section,.partners-section { padding-left:12px; padding-right:12px; }
+  .pilulas-rail,.columnist-rail { display:flex; overflow-x:auto; gap:10px; scroll-snap-type:x mandatory; padding-bottom:5px; }
+  .pilula-card,.columnist-card { flex:0 0 86%; scroll-snap-align:start; }
+  .columnist-card-image { height:170px; }
+  .latest-grid { grid-template-columns:1fr; gap:10px; }
+  .news-card { border-radius:10px; }
+  .news-image { height:190px; }
+  .news-copy { padding:14px; }
+  .news-copy h3 { font-size:18px; }
+  .most-read-list { border-radius:10px; }
+  .most-read-item { padding:13px 12px; grid-template-columns:auto minmax(0,1fr) auto; gap:10px; }
+  .most-read-item h3 { font-size:14px; }
+  .most-read-item > strong { font-size:11px; white-space:nowrap; }
+  .editorial-section-list { gap:10px; }
+  .editorial-category-block { border-radius:10px; }
+  .editorial-category-grid { grid-template-columns:1fr; }
+  .editorial-category-card { grid-template-columns:82px minmax(0,1fr); gap:10px; padding:10px; }
+  .editorial-category-image { width:82px; height:62px; }
+  .editorial-category-card h4 { font-size:13px; margin:3px 0 5px; }
+  .partner-card { border-radius:10px; }
+  .partners-section .partner-channel-list { grid-template-columns:1fr; }
+  .partners-section .partner-channel { min-height:44px; }
+  .services-grid { grid-template-columns:1fr; gap:10px; }
+  .mobile-app-nav { height:58px; border-radius:16px; left:8px; right:8px; bottom:max(8px,env(safe-area-inset-bottom)); }
+  .mobile-app-item span { width:30px; height:27px; }
+  .mobile-app-item small { font-size:9px; }
+}
+@media (max-width:380px) {
+  .header-main { padding:0 9px; }
+  .brand-lockup .official-logo { width:38px; height:38px; flex-basis:38px; }
+  .brand-wordmark { font-size:15px; }
+  .header-actions .icon-button { width:32px; height:32px; }
+  .primary-nav { gap:14px; }
+  .lead-carousel,.lead-story { height:320px; min-height:320px; }
+  .story-overlay h2 { font-size:21px; }
+  .events-promo-card { min-width:92%; }
+}
