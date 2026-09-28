@@ -23,10 +23,35 @@ import EditorialRequests from "./pages/EditorialRequests";
 import EditorialDataBridge from "./components/EditorialDataBridge";
 import PrivacyConsent from "./components/PrivacyConsent";
 import { useEffect, useState } from "react";
+import { ArrowDown, ArrowUp } from "lucide-react";
 import { supabase } from "./lib/supabase";
 import { clarityEvent } from "./lib/clarity";
 function AuthenticatedAdmin() { const { user, loading, error } = useAuth(); if (loading) return <div className="app-loading">Validando acesso seguro…</div>; if (error) return <div className="article-placeholder"><span className="admin-kicker">FALHA DE AUTENTICAÇÃO</span><h1>Não foi possível validar sua sessão.</h1><p>A sessão do Supabase foi encontrada, mas o servidor não conseguiu confirmar seu perfil. Verifique a configuração da API e tente novamente.</p><button className="primary-cta" onClick={() => window.location.reload()}>Tentar novamente</button></div>; if (!user) return <Login />; if (!(user.role === "admin" || ["editor", "journalist", "columnist", "reviewer"].includes(user.role))) return <div className="article-placeholder"><span className="admin-kicker">ACESSO RESTRITO</span><h1>Seu acesso ainda não foi liberado.</h1><p>Peça ao administrador do PCH News para liberar o papel editorial adequado à sua conta.</p><button className="primary-cta" onClick={() => window.location.assign("/login")}>Voltar ao acesso</button></div>; return <Admin />; }
 function ProtectedAdmin() { const [checkingSession, setCheckingSession] = useState(true); const [hasSession, setHasSession] = useState(false); useEffect(() => { let active = true; void supabase.auth.getSession().then(({ data }) => { if (!active) return; setHasSession(Boolean(data.session)); setCheckingSession(false); }); const { data } = supabase.auth.onAuthStateChange((event, session) => { if (!active) return; if (event === "SIGNED_OUT") setHasSession(false); else if (session) setHasSession(true); }); return () => { active = false; data.subscription.unsubscribe(); }; }, []); if (checkingSession) return <div className="app-loading">Abrindo acesso seguro…</div>; if (!hasSession) return <Login />; return <AuthenticatedAdmin />; }
+function ScrollDirectionButton() {
+  const [atTop, setAtTop] = useState(true);
+  useEffect(() => {
+    const update = () => {
+      const doc = document.documentElement;
+      const maxScroll = Math.max(0, doc.scrollHeight - window.innerHeight);
+      setAtTop(window.scrollY <= 24 || maxScroll <= 24);
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, []);
+  const go = () => {
+    if (atTop) window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" });
+    else window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  return <button type="button" className="scroll-direction-button" onClick={go} aria-label={atTop ? "Descer até o final da página" : "Voltar ao topo"} title={atTop ? "Ir para o final" : "Voltar ao topo"}>
+    {atTop ? <ArrowDown size={18} aria-hidden="true" /> : <ArrowUp size={18} aria-hidden="true" />}
+  </button>;
+}
 function ClarityRouteTracker() {
   const [location] = useLocation();
   useEffect(() => { clarityEvent("page_view"); }, [location]);
@@ -66,4 +91,4 @@ function Router() {
     <Route path="/cookies" component={CookiesPage} /><Route path="/cookies/" component={CookiesPage} />
     <Route path="/parceiros" component={PartnersPage} /><Route path="/parceiros/" component={PartnersPage} /><Route path="/correcoes" component={EditorialRequests} /><Route path="/correcoes/" component={EditorialRequests} /><Route path="/404" component={NotFound} /><Route component={NotFound} /></Switch>;
 }
-export default function App() { return <ErrorBoundary><EditorialDataBridge /><ClarityRouteTracker /><TooltipProvider><Toaster /><Router /></TooltipProvider><PrivacyConsent /></ErrorBoundary>; }
+export default function App() { return <ErrorBoundary><EditorialDataBridge /><ClarityRouteTracker /><TooltipProvider><Toaster /><Router /></TooltipProvider><PrivacyConsent /><ScrollDirectionButton /></ErrorBoundary>; }
