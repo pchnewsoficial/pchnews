@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import officialLogoUrl from "@/assets/pch-news-official-current.svg";
-import { ArrowLeft, ArrowRight, Bookmark, CalendarDays, ChevronDown, Clock3, Eye, MapPin, Menu, Search, Thermometer, UserRound, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bookmark, CalendarDays, ChevronDown, Clock3, Eye, Home as HomeIcon, MapPin, Menu, Search, Thermometer, UserRound, X } from "lucide-react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { EDITORIAL_CATEGORIES, EDITORIAL_SUBTHEMES, NewsArticle } from "@/lib/news";
@@ -429,7 +429,7 @@ export default function Home() {
         </section>}
 
       <nav className="mobile-app-nav" aria-label="Atalhos rápidos">
-        <Link href="/" className="mobile-app-item"><span><Bookmark size={18} /></span><small>Início</small></Link>
+        <Link href="/" className="mobile-app-item"><span><HomeIcon size={18} /></span><small>Início</small></Link>
         <Link href="/eventos" className="mobile-app-item"><span><CalendarDays size={18} /></span><small>Agenda</small></Link>
         <button type="button" className="mobile-app-item" onClick={() => { setSearchOpen(true); window.scrollTo({ top: 0, behavior: "smooth" }); }}><span><Search size={18} /></span><small>Buscar</small></button>
         <Link href="/anuncie" className="mobile-app-item"><span><ArrowRight size={18} /></span><small>Anuncie</small></Link>
