@@ -21,6 +21,7 @@ function Meta({ article }: { article: NewsArticle }) {
       <span>Por {article.author}</span>
       <span className="meta-dot">•</span>
       <span>{article.date}</span>
+      {article.views > 0 && <><span className="meta-dot">•</span><span><Eye size={12} /> {article.views.toLocaleString("pt-BR")} visualizações</span></>}
     </div>
   );
 }
@@ -407,15 +408,19 @@ export default function Home() {
             <div><span className="eyebrow">REDE PCH NEWS</span><h2>Parceiros</h2></div>
             <div className="heading-rule"><span>Distribuição e conexão editorial</span></div>
           </div>
-          <div className="partners-grid">
-            <Link className="partner-card" href="/parceiros">
-              <span className="partner-mark">HP</span>
-              <div><strong>HostingPRESS</strong><p>Portal de origem e infraestrutura parceira do PCH News.</p></div>
+          <div className="partners-network">
+            <Link className="partner-card partner-card-hostingpress" href="/parceiros">
+              <span className="partner-logo-wrap">
+                <img src="https://hostingpress.com.br/favicon.ico" alt="Logo HostingPRESS" className="partner-logo" />
+              </span>
+              <div><span className="partner-badge">PARCEIRO OFICIAL</span><strong>HostingPRESS</strong><p>Rede de mídia, tecnologia e distribuição de conteúdo parceira do PCH News.</p></div>
               <ArrowRight size={18} />
             </Link>
-            <div className="partner-card partner-card-next">
-              <span className="partner-mark">+</span>
-              <div><strong>Novos parceiros</strong><p>Este espaço já está preparado para receber os próximos portais parceiros.</p></div>
+            <div className="partner-channels">
+              <div className="partner-channels-heading"><div><span className="eyebrow">REDE HOSTINGPRESS</span><h3>Canais do parceiro</h3></div><a href="https://agencia.hostingpress.com.br/" target="_blank" rel="noreferrer">Ver rede <ArrowRight size={14} /></a></div>
+              <div className="partner-channel-list">
+                {["Doutor Imprensa Talk Show","Café de Negócios","Intelectualidade Online","Talento Gospel","Maternidade INFOCO","De Frente com Randal","Casa HUB Digital","Sofá Jurídico"].map((channel) => <a key={channel} href="https://agencia.hostingpress.com.br/" target="_blank" rel="noreferrer" className="partner-channel"><span>TV</span><strong>{channel}</strong><ArrowRight size={14} /></a>)}
+              </div>
             </div>
           </div>
         </section>}
