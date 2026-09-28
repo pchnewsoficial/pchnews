@@ -199,7 +199,35 @@ export const appRouter = router({
   editorial: router({
     bootstrap: publicProcedure.query(({ ctx }) => getEditorialSnapshot(Boolean(ctx.user && ["admin","editor","journalist","columnist","reviewer"].includes(ctx.user.role)), ctx.accessToken)),
     sync: adminProcedure.input(z.object({ articles: z.array(articleSchema), comments: z.array(commentSchema), profiles: z.array(profileSchema), adRequests: z.array(adSchema) })).mutation(async ({ input, ctx }) => { const db = await getDb(ctx.accessToken); if (!db) throw new Error("Database unavailable"); if (ctx.user.role !== "admin") { const snapshot = await getEditorialSnapshot(true, ctx.accessToken); const byId = new Map(snapshot.articles.map((row:any) => [row.id, row.authorOpenId])); for (const item of input.articles) { const owner = byId.get(item.id); const claimed = item.authorOpenId ?? (item.author === ctx.user.name ? ctx.user.openId : null); if (claimed !== ctx.user.openId || (owner !== undefined && owner !== ctx.user.openId)) throw new Error("Sincronização recusada: a publicação não pertence ao seu openId."); } } return syncEditorial({ ...input, articles: input.articles.map((item) => ({ ...item, authorOpenId: item.authorOpenId ?? (item.author === ctx.user.name ? ctx.user.openId : null), youtubeUrl: item.youtubeUrl ?? null, socialLinks: item.socialLinks ?? null, createdAt: item.createdAt ?? new Date(), updatedAt: item.updatedAt ?? new Date() })), profiles: input.profiles.map((item) => ({ ...item, updatedAt: item.updatedAt ?? new Date() })) }, ctx.accessToken); }),
-    saveArticle: columnistProcedure.input(articleInput).mutation(async ({ input, ctx }) => { const existing = await getArticle(input.id, ctx.accessToken); const effectiveScheduledAt = input.scheduledAt ?? existing?.scheduledAt ?? null; if (input.status === "scheduled" && !effectiveScheduledAt) throw new Error("Agendamento exige data e hora de publicação."); const owner = existing?.authorOpenId ?? (existing?.author === ctx.user.name ? ctx.user.openId : null); const nextOwner = input.authorOpenId ?? owner ?? (ctx.user.role === "columnist" ? ctx.user.openId : null); if (ctx.user.role !== "admin" && owner !== ctx.user.openId && !(owner === null && !existing)) throw new Error("Você só pode editar publicações vinculadas ao seu openId."); const effectiveChecklist = input.editorialChecklist ?? existing?.editorialChecklist ?? null; const alreadyLive = existing?.status === "published" || existing?.status === "scheduled"; if (!alreadyLive && (input.status === "published" || input.status === "scheduled") && (!effectiveChecklist || !Object.values(effectiveChecklist).every(Boolean))) throw new Error("Publicação bloqueada: complete o checklist editorial do Manual PCH News antes de publicar ou agendar.");
+    saveArticle: columnistProcedure.input(articleInput).mutation(async ({ input, ctx }) => {
+      const existing = await getArticle(input.id, ctx.accessToken);
+      const isPrivilegedEditor = ctx.user.role === "admin" || ctx.user.role === "editor";
+      const isAuthorRole = ctx.user.role === "journalist" || ctx.user.role === "columnist";
+      const owner = existing?.authorOpenId ?? null;
+
+      // Creation: journalists/columnists always become the owner of the new publication.
+      // Update: journalists/columnists must already be the recorded owner. Legacy rows
+      // without authorOpenId are intentionally read-only so ownership cannot be guessed
+      // from a display name shared by multiple people.
+      if (!isPrivilegedEditor && !isAuthorRole) {
+        throw new Error("Seu perfil não possui permissão para editar publicações.");
+      }
+      if (existing && !isPrivilegedEditor && owner !== ctx.user.openId) {
+        throw new Error("Você só pode editar publicações vinculadas ao seu próprio acesso.");
+      }
+      const nextOwner = isPrivilegedEditor
+        ? (input.authorOpenId ?? owner ?? null)
+        : (existing ? owner : ctx.user.openId);
+
+      const effectiveScheduledAt = input.scheduledAt ?? existing?.scheduledAt ?? null;
+      if (input.status === "scheduled" && !effectiveScheduledAt) throw new Error("Agendamento exige data e hora de publicação.");
+      const effectiveChecklist = input.editorialChecklist ?? existing?.editorialChecklist ?? null;
+      const alreadyLive = existing?.status === "published" || existing?.status === "scheduled";
+      if (!alreadyLive && (input.status === "published" || input.status === "scheduled") && (!effectiveChecklist || !Object.values(effectiveChecklist).every(Boolean))) throw new Error("Publicação bloqueada: complete o checklist editorial do Manual PCH News antes de publicar ou agendar.");
+
+      const before = existing ? { ...existing } : null;
+      const nowMs = Date.now();
+      await saveArticle({ ...input, authorOpenId: nextOwner, scheduledAt: effectiveScheduledAt, editorialChecklist: effectiveChecklist ?? undefined, createdAt: existing?.createdAt ?? new Date() }, ctx.accessToken);
       const before = existing ? { ...existing } : null;
       const nowMs = Date.now();
       await saveArticle({ ...input, authorOpenId: nextOwner, scheduledAt: effectiveScheduledAt, editorialChecklist: effectiveChecklist ?? undefined, createdAt: existing?.createdAt ?? new Date() }, ctx.accessToken);
