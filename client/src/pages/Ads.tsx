@@ -1,42 +1,74 @@
 import { useState } from "react";
-import { Megaphone, Send, ShieldCheck, Sparkles, Upload, ImagePlus, X } from "lucide-react";
+import { Megaphone, Upload, X, ShieldCheck, ExternalLink } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-const packages = [{ name:"Destaque local", price:"R$ 290", detail:"7 dias · chamada na home", accent:"blue" }, { name:"Marca em foco", price:"R$ 690", detail:"15 dias · home + editoria", accent:"gold" }, { name:"Especial PCH News", price:"R$ 1.290", detail:"30 dias · campanha editorial", accent:"navy" }];
+
 export default function Ads({ notify }:{notify:(message:string)=>void}) {
- const [form,setForm]=useState({business:"",contactName:"",email:"",phone:"",city:"",website:"",socials:"",adType:packages[0].name,budget:"",period:"",message:"",consent:false});
- const [selected,setSelected]=useState(form.adType);
- const submit=trpc.adRequests.create.useMutation({onSuccess:()=>{notify("Solicitação recebida. A equipe comercial entrará em contato.");setForm({...form,business:"",contactName:"",email:"",phone:"",city:"",website:"",socials:"",message:"",consent:false});}});
- const requests=trpc.adRequests.list.useQuery(undefined,{enabled:true,refetchInterval:30000});
- const update=trpc.adRequests.update.useMutation({onSuccess:()=>requests.refetch()});
+ const requests=trpc.adRequests.list.useQuery(undefined,{refetchInterval:30000});
+ const update=trpc.adRequests.update.useMutation({onSuccess:()=>{void requests.refetch();notify("Solicitação atualizada.");}});
  const campaigns=trpc.ads.list.useQuery(undefined,{retry:false,refetchInterval:30000});
- const createCampaign=trpc.ads.create.useMutation({onSuccess:()=>{void campaigns.refetch();notify("Banner cadastrado e salvo no banco.");}});
- const updateCampaign=trpc.ads.update.useMutation({onSuccess:()=>{void campaigns.refetch();notify("Banner atualizado.");}});\n const mediaUpload=trpc.media.upload.useMutation();\n const [bannerUploading,setBannerUploading]=useState(false);\n const uploadBanner=async(file:File)=>{\n  const allowed=["image/png","image/jpeg","image/webp","image/gif"];\n  if(!allowed.includes(file.type)){notify("Use uma imagem JPG, PNG, WebP ou GIF.");return;}\n  if(file.size>5*1024*1024){notify("O banner deve ter no máximo 5 MB.");return;}\n  setBannerUploading(true);\n  try{\n   const bytes=new Uint8Array(await file.arrayBuffer()); let binary=""; bytes.forEach(byte=>{binary+=String.fromCharCode(byte);});\n   const result=await mediaUpload.mutateAsync({fileName:file.name,contentType:file.type as "image/png"|"image/jpeg"|"image/webp"|"image/gif",base64:btoa(binary)});\n   setCampaignForm(current=>({...current,creativeUrl:result.url}));\n   notify("Arte do banner enviada com sucesso.");\n  }catch(error){notify(error instanceof Error?error.message:"Não foi possível enviar a arte do banner.");}\n  finally{setBannerUploading(false);}\n };
+ const createCampaign=trpc.ads.create.useMutation({onSuccess:()=>{void campaigns.refetch();notify("Campanha cadastrada e salva no banco.");}});
+ const updateCampaign=trpc.ads.update.useMutation({onSuccess:()=>{void campaigns.refetch();notify("Campanha atualizada.");}});
+ const mediaUpload=trpc.media.upload.useMutation();
+ const [bannerUploading,setBannerUploading]=useState(false);
  const [campaignForm,setCampaignForm]=useState({id:"",advertiserCompany:"",name:"",adType:"Banner lateral",creativeUrl:"",targetScope:"national",region:"",state:"",startsAtMs:null as number|null,endsAtMs:null as number|null,status:"draft" as "draft"|"approved"|"active"|"paused"|"finished"});
- const saveCampaign=(event:any)=>{event.preventDefault(); const payload={...campaignForm,creativeUrl:campaignForm.creativeUrl||null,region:campaignForm.region||null,state:campaignForm.state||null}; if(campaignForm.id){ updateCampaign.mutate(payload as any); } else { createCampaign.mutate(payload as any); }};
- const publishCampaignNow=()=>{ if(!campaignForm.advertiserCompany.trim()||!campaignForm.name.trim()||!campaignForm.adType.trim()) { notify("Preencha empresa, nome da campanha e tipo antes de publicar."); return; } const now=Date.now(); const payload={...campaignForm,status:"active" as const,startsAtMs:campaignForm.startsAtMs ?? now,creativeUrl:campaignForm.creativeUrl||null,region:campaignForm.region||null,state:campaignForm.state||null}; if(campaignForm.id){ updateCampaign.mutate(payload as any); } else { createCampaign.mutate(payload as any); } notify("Publicação direta solicitada: o banner ficará ativo imediatamente após salvar."); };
- return <div className="ads-page"><div className="admin-heading compact"><div><span className="admin-kicker">MONETIZAÇÃO EDITORIAL</span><h1>Anúncios<span>.</span></h1><p>Solicitações comerciais são registradas no banco editorial para acompanhamento da equipe.</p></div><span className="ad-safe-badge"><ShieldCheck size={15}/> Sem cobrança automática</span></div>
- <section className="ad-hero panel"><div><span className="admin-kicker">PCH NEWS ADS</span><h2>Sua marca em destaque.</h2><p>Escolha um formato, envie seu briefing e receba uma proposta. O pedido fica registrado para análise comercial.</p></div><Megaphone size={58}/></section>
- <div className="ad-layout"><section><div className="section-heading"><div><span className="admin-kicker">FORMATOS</span><h2>Pacotes de divulgação</h2></div></div><div className="ad-packages">{packages.map(item=><button type="button" key={item.name} className={`ad-package ${item.accent} ${selected===item.name?"selected":""}`} onClick={()=>{setSelected(item.name);setForm({...form,adType:item.name})}}><span>{item.name}</span><strong>{item.price}</strong><small>{item.detail}</small><Sparkles size={15}/></button>)}</div></section>
- <form className="panel ad-form" onSubmit={e=>{e.preventDefault();submit.mutate(form as any)}}><div className="panel-heading"><div><span className="admin-kicker">PRÓXIMO PASSO</span><h2>Solicitar proposta</h2></div><Send size={18}/></div>
- <label>Empresa<input required value={form.business} onChange={e=>setForm({...form,business:e.target.value})} placeholder="Nome da marca"/></label>
- <div className="form-two"><label>Nome do contato<input required value={form.contactName} onChange={e=>setForm({...form,contactName:e.target.value})}/></label><label>E-mail<input required type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})}/></label></div>
- <div className="form-two"><label>WhatsApp/telefone<input required value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})}/></label><label>Cidade<input value={form.city} onChange={e=>setForm({...form,city:e.target.value})}/></label></div>
- <div className="form-two"><label>Período<input value={form.period} onChange={e=>setForm({...form,period:e.target.value})} placeholder="Ex.: outubro/2026"/></label><label>Orçamento<input value={form.budget} onChange={e=>setForm({...form,budget:e.target.value})} placeholder="Opcional"/></label></div>
- <label>Site<input value={form.website} onChange={e=>setForm({...form,website:e.target.value})}/></label><label>Redes sociais<input value={form.socials} onChange={e=>setForm({...form,socials:e.target.value})}/></label><label>Briefing<textarea required minLength={10} value={form.message} onChange={e=>setForm({...form,message:e.target.value})} placeholder="Conte o que deseja divulgar"/></label>
- <label className="consent-line"><input type="checkbox" required checked={form.consent} onChange={e=>setForm({...form,consent:e.target.checked})}/><span>Autorizo o PCH News a usar estes dados para responder à solicitação comercial, conforme a política de privacidade.</span></label>
- {submit.error&&<small className="event-error">{submit.error.message}</small>}<button className="primary-cta" type="submit" disabled={submit.isPending}><Send size={15}/>{submit.isPending?" Enviando…":" Enviar interesse"}</button></form></div>
- <section className="panel ad-requests"><div className="panel-heading"><div><span className="admin-kicker">CRM COMERCIAL</span><h2>Solicitações recebidas</h2></div><span>{requests.data?.length||0} registro(s)</span></div>{requests.isLoading?<div className="media-empty compact-empty">Carregando solicitações…</div>:requests.data?.length?requests.data.map((item:any)=><div className="ad-request" key={item.id}><div><strong>{item.business}</strong><small>{item.contactName} · {item.email} · {item.adType}</small><small>{item.city||"Local não informado"} · {item.period||"Período não informado"}</small></div><select value={item.status} onChange={e=>update.mutate({id:item.id,status:e.target.value as any})}><option value="received">Recebido</option><option value="reviewing">Em análise</option><option value="approved">Aprovado</option></select></div>):<div className="media-empty compact-empty">Nenhuma solicitação comercial registrada.</div>}</section>
- <section className="panel ad-requests">
-  <div className="panel-heading"><div><span className="admin-kicker">GESTÃO DE BANNERS</span><h2>Banners e campanhas</h2></div><span>{campaigns.data?.length||0} campanha(s)</span></div>
-  <form className="ad-form" onSubmit={saveCampaign}>
-   <div className="form-two"><label>Empresa anunciante<input required value={campaignForm.advertiserCompany} onChange={e=>setCampaignForm({...campaignForm,advertiserCompany:e.target.value})}/></label><label>Nome da campanha<input required value={campaignForm.name} onChange={e=>setCampaignForm({...campaignForm,name:e.target.value})}/></label></div>
-   <div className="form-two"><label>Tipo<select value={campaignForm.adType} onChange={e=>setCampaignForm({...campaignForm,adType:e.target.value})}><option>Banner lateral</option><option>Banner mobile</option><option>Banner destaque</option><option>Patrocínio</option></select></label><label>Status<select value={campaignForm.status} onChange={e=>setCampaignForm({...campaignForm,status:e.target.value as any})}><option value="draft">Rascunho</option><option value="approved">Aprovado</option><option value="active">Ativo</option><option value="paused">Pausado</option><option value="finished">Finalizado</option></select></label></div>
-   <label>Arte do banner / link da peça<input type="url" value={campaignForm.creativeUrl} onChange={e=>setCampaignForm({...campaignForm,creativeUrl:e.target.value})} placeholder="Cole uma URL ou envie a arte abaixo"/></label>\n   <div className="banner-upload-box"><label className="secondary-cta banner-upload-button"><Upload size={15}/>{bannerUploading?"Enviando arte…":"Enviar arte do banner"}<input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={e=>{const file=e.target.files?.[0];if(file)void uploadBanner(file);e.currentTarget.value="";}} disabled={bannerUploading} hidden/></label><span>JPG, PNG, WebP ou GIF · até 5 MB</span>{campaignForm.creativeUrl&&<button type="button" className="banner-clear-button" onClick={()=>setCampaignForm({...campaignForm,creativeUrl:""})}><X size={14}/> Remover</button>}</div>\n   {campaignForm.creativeUrl&&<div className="banner-art-preview"><img src={campaignForm.creativeUrl} alt="Prévia da arte do banner"/><span>Prévia da peça que será publicada</span></div>}
-   <div className="form-two"><label>Início<input type="datetime-local" value={campaignForm.startsAtMs?new Date(campaignForm.startsAtMs).toISOString().slice(0,16):""} onChange={e=>setCampaignForm({...campaignForm,startsAtMs:e.target.value?new Date(e.target.value).getTime():null})}/></label><label>Fim<input type="datetime-local" value={campaignForm.endsAtMs?new Date(campaignForm.endsAtMs).toISOString().slice(0,16):""} onChange={e=>setCampaignForm({...campaignForm,endsAtMs:e.target.value?new Date(e.target.value).getTime():null})}/></label></div>
-   <div className="form-two"><label>Região<input value={campaignForm.region} onChange={e=>setCampaignForm({...campaignForm,region:e.target.value})}/></label><label>Estado<input value={campaignForm.state} onChange={e=>setCampaignForm({...campaignForm,state:e.target.value})}/></label></div>
-   <div className="form-two"><button className="secondary-cta" type="submit" disabled={createCampaign.isPending||updateCampaign.isPending}>Salvar {campaignForm.id?"alterações":"rascunho"}</button><button className="primary-cta" type="button" onClick={publishCampaignNow} disabled={createCampaign.isPending||updateCampaign.isPending}><Megaphone size={15}/> Publicar agora</button></div>
-  </form>
-  <div className="ad-requests">{campaigns.data?.map((item:any)=><div className="ad-request" key={item.id}><div><strong>{item.name}</strong><small>{item.adType} · {item.status}</small></div><button type="button" className="secondary-cta" onClick={()=>setCampaignForm({...campaignForm,...item,advertiserCompany:item.advertiserCompany||"",creativeUrl:item.creativeUrl||"",region:item.region||"",state:item.state||""})}>Editar</button></div>)}</div>
- </section>
+
+ const uploadBanner=async(file:File)=>{
+  const allowed=["image/png","image/jpeg","image/webp","image/gif"];
+  if(!allowed.includes(file.type)){notify("Use uma imagem JPG, PNG, WebP ou GIF.");return;}
+  if(file.size>5*1024*1024){notify("A arte deve ter no máximo 5 MB.");return;}
+  setBannerUploading(true);
+  try{
+   const bytes=new Uint8Array(await file.arrayBuffer()); let binary="";
+   bytes.forEach(byte=>{binary+=String.fromCharCode(byte);});
+   const result=await mediaUpload.mutateAsync({fileName:file.name,contentType:file.type as "image/png"|"image/jpeg"|"image/webp"|"image/gif",base64:btoa(binary)});
+   setCampaignForm(current=>({...current,creativeUrl:result.url}));
+   notify("Arte da campanha enviada com sucesso.");
+  }catch(error){notify(error instanceof Error?error.message:"Não foi possível enviar a arte.");}
+  finally{setBannerUploading(false);}
+ };
+
+ const saveCampaign=(event:any)=>{
+  event.preventDefault();
+  const payload={...campaignForm,creativeUrl:campaignForm.creativeUrl||null,region:campaignForm.region||null,state:campaignForm.state||null};
+  if(campaignForm.id) updateCampaign.mutate(payload as any); else createCampaign.mutate(payload as any);
+ };
+ const publishCampaignNow=()=>{
+  if(!campaignForm.advertiserCompany.trim()||!campaignForm.name.trim()||!campaignForm.adType.trim()){notify("Preencha empresa, nome da campanha e tipo antes de publicar.");return;}
+  const now=Date.now();
+  const payload={...campaignForm,status:"active" as const,startsAtMs:campaignForm.startsAtMs??now,creativeUrl:campaignForm.creativeUrl||null,region:campaignForm.region||null,state:campaignForm.state||null};
+  if(campaignForm.id) updateCampaign.mutate(payload as any); else createCampaign.mutate(payload as any);
+  notify("Campanha enviada para publicação imediata.");
+ };
+
+ return <div className="ads-page">
+  <div className="admin-heading compact">
+   <div><span className="admin-kicker">MONETIZAÇÃO EDITORIAL</span><h1>Anúncios<span>.</span></h1><p>Crie campanhas diretamente aqui ou analise solicitações recebidas pelo comercial.</p></div>
+   <span className="ad-safe-badge"><ShieldCheck size={15}/> Sem cobrança automática</span>
+  </div>
+
+  <section className="panel ad-requests">
+   <div className="panel-heading"><div><span className="admin-kicker">CRM COMERCIAL</span><h2>Solicitações recebidas</h2></div><span>{requests.data?.length||0} registro(s)</span></div>
+   <p className="field-note">Os pedidos vêm da área pública <strong>/anuncie</strong>. O cliente pode informar a arte própria ou pedir criação pelo PCH News.</p>
+   {requests.isLoading?<div className="media-empty compact-empty">Carregando solicitações…</div>:requests.data?.length?requests.data.map((item:any)=><div className="ad-request" key={item.id}>
+    <div><strong>{item.business}</strong><small>{item.contactName} · {item.email} · {item.phone}</small><small>{item.adType} · {item.city||"Local não informado"} · {item.period||"Período não informado"}</small><small>{item.creativeNeed==="pch_creation"?"🎨 Cliente pediu criação da arte":item.creativeNeed==="client_artwork"?"🖼️ Cliente enviou/pretende enviar arte própria":"📝 Ainda não definiu a arte"}</small>{item.creativeUrl&&<a href={item.creativeUrl} target="_blank" rel="noreferrer"><ExternalLink size={13}/> Ver arte enviada</a>}</div>
+    <select value={item.status} onChange={e=>update.mutate({id:item.id,status:e.target.value as any})}><option value="received">Recebido</option><option value="reviewing">Em análise</option><option value="approved">Aprovado</option></select>
+   </div>):<div className="media-empty compact-empty">Nenhuma solicitação comercial registrada.</div>}
+  </section>
+
+  <section className="panel ad-requests">
+   <div className="panel-heading"><div><span className="admin-kicker">GESTÃO DIRETA</span><h2>Criar campanha</h2></div><span>{campaigns.data?.length||0} campanha(s)</span></div>
+   <p className="field-note">Use este formulário quando a equipe já tiver as informações do anunciante. Você pode colar uma URL ou enviar a arte diretamente.</p>
+   <form className="ad-form" onSubmit={saveCampaign}>
+    <div className="form-two"><label>Empresa anunciante<input required value={campaignForm.advertiserCompany} onChange={e=>setCampaignForm({...campaignForm,advertiserCompany:e.target.value})}/></label><label>Nome da campanha<input required value={campaignForm.name} onChange={e=>setCampaignForm({...campaignForm,name:e.target.value})}/></label></div>
+    <div className="form-two"><label>Tipo<select value={campaignForm.adType} onChange={e=>setCampaignForm({...campaignForm,adType:e.target.value})}><option>Banner lateral</option><option>Banner mobile</option><option>Banner destaque</option><option>Patrocínio</option></select></label><label>Status<select value={campaignForm.status} onChange={e=>setCampaignForm({...campaignForm,status:e.target.value as any})}><option value="draft">Rascunho</option><option value="approved">Aprovado</option><option value="active">Ativo</option><option value="paused">Pausado</option><option value="finished">Finalizado</option></select></label></div>
+    <label>Arte do banner / link da peça<input type="url" value={campaignForm.creativeUrl} onChange={e=>setCampaignForm({...campaignForm,creativeUrl:e.target.value})} placeholder="Cole uma URL ou envie a arte abaixo"/></label>
+    <div className="banner-upload-box"><label className="secondary-cta banner-upload-button"><Upload size={15}/>{bannerUploading?"Enviando arte…":"Enviar arte do banner"}<input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={e=>{const file=e.target.files?.[0];if(file)void uploadBanner(file);e.currentTarget.value="";}} disabled={bannerUploading} hidden/></label><span>JPG, PNG, WebP ou GIF · até 5 MB</span>{campaignForm.creativeUrl&&<button type="button" className="banner-clear-button" onClick={()=>setCampaignForm({...campaignForm,creativeUrl:""})}><X size={14}/> Remover</button>}</div>
+    {campaignForm.creativeUrl&&<div className="banner-art-preview"><img src={campaignForm.creativeUrl} alt="Prévia da arte da campanha"/><span>Prévia da peça</span></div>}
+    <div className="form-two"><label>Início<input type="datetime-local" value={campaignForm.startsAtMs?new Date(campaignForm.startsAtMs).toISOString().slice(0,16):""} onChange={e=>setCampaignForm({...campaignForm,startsAtMs:e.target.value?new Date(e.target.value).getTime():null})}/></label><label>Fim<input type="datetime-local" value={campaignForm.endsAtMs?new Date(campaignForm.endsAtMs).toISOString().slice(0,16):""} onChange={e=>setCampaignForm({...campaignForm,endsAtMs:e.target.value?new Date(e.target.value).getTime():null})}/></label></div>
+    <div className="form-two"><label>Região<input value={campaignForm.region} onChange={e=>setCampaignForm({...campaignForm,region:e.target.value})}/></label><label>Estado<input value={campaignForm.state} onChange={e=>setCampaignForm({...campaignForm,state:e.target.value})}/></label></div>
+    <div className="form-two"><button className="secondary-cta" type="submit" disabled={createCampaign.isPending||updateCampaign.isPending}>Salvar {campaignForm.id?"alterações":"rascunho"}</button><button className="primary-cta" type="button" onClick={publishCampaignNow} disabled={createCampaign.isPending||updateCampaign.isPending}><Megaphone size={15}/> Publicar agora</button></div>
+   </form>
+   <div className="ad-requests">{campaigns.data?.map((item:any)=><div className="ad-request" key={item.id}><div><strong>{item.name}</strong><small>{item.advertiserCompany||"Anunciante não informado"} · {item.adType} · {item.status}</small></div><button type="button" className="secondary-cta" onClick={()=>setCampaignForm({...campaignForm,...item,advertiserCompany:item.advertiserCompany||"",creativeUrl:item.creativeUrl||"",region:item.region||"",state:item.state||""})}>Editar</button></div>)}</div>
+  </section>
  </div>;
 }
