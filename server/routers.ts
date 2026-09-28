@@ -180,6 +180,16 @@ export const appRouter = router({
     }),
   }),
   adRequests: router({
+    uploadAsset: publicProcedure.input(z.object({
+      fileName: z.string().regex(/\\.(png|jpe?g|webp|gif)$/i),
+      contentType: z.enum(["image/png", "image/jpeg", "image/webp", "image/gif"]),
+      base64: z.string().min(20).max(8_000_000),
+    })).mutation(async ({ input }) => {
+      const bytes = Buffer.from(input.base64.replace(/^data:[^;]+;base64,/, ""), "base64");
+      if (bytes.length > 5 * 1024 * 1024) throw new Error("A arte deve ter no máximo 5 MB.");
+      const safeName = input.fileName.replace(/[^a-zA-Z0-9._-]/g, "-");
+      return storagePut(`commercial-requests/${Date.now()}-${randomBytes(4).toString("hex")}/${safeName}`, bytes, input.contentType);
+    }),
     create: publicProcedure.input(z.object({
       business: z.string().trim().min(2).max(180), contactName: z.string().trim().min(2).max(120),
       email: z.string().trim().email().max(180), phone: z.string().trim().min(8).max(40),
@@ -187,10 +197,12 @@ export const appRouter = router({
       socials: z.string().trim().max(500).optional().default(""), adType: z.string().trim().min(2).max(120),
       budget: z.string().trim().max(120).optional().default(""), period: z.string().trim().max(120).optional().default(""),
       message: z.string().trim().min(10).max(5000), consent: z.literal(true),
+      creativeUrl: z.string().url().nullable().optional(), creativeNeed: z.enum(["client_artwork", "pch_creation", "no_artwork_yet"]).default("no_artwork_yet"),
     })).mutation(async ({ input }) => createAdRequest({
       id:`ad-${Date.now()}-${randomBytes(6).toString("hex")}`, business:input.business, contactName:input.contactName,
       email:input.email.toLowerCase(), phone:input.phone, city:input.city||null, website:input.website||null, socials:input.socials||null,
       adType:input.adType, budget:input.budget||null, period:input.period||null, message:input.message,
+      creativeUrl: input.creativeUrl || null, creativeNeed: input.creativeNeed,
       consentAtMs:Date.now(), status:"received", createdAtMs:Date.now(),
     })),
     list: adminProcedure.query(async ({ ctx }) => { const db=await getDb(ctx.accessToken); if(!db) throw new Error("Database unavailable"); const {data,error}=await db.from("adRequests").select("*").order("createdAtMs",{ascending:false}); if(error) throw error; return data||[]; }),
