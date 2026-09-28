@@ -1418,3 +1418,20 @@ section.container.ad-banner.ad-carousel { height:auto !important; min-height:0 !
   .site-header .header-actions { display:none !important; }
   .brand-lockup { justify-content:flex-start; }
 }
+
+
+/* ===== Mobile agenda shortcut — compact — 2026-09-28 ===== */
+@media (max-width:700px){
+  .mobile-app-nav .mobile-app-item:nth-child(3){
+    flex:0 0 52px;
+    max-width:52px;
+    padding-left:2px;
+    padding-right:2px;
+  }
+  .mobile-app-nav .mobile-app-item:nth-child(3) span{width:25px;height:23px;}
+  .mobile-app-nav .mobile-app-item:nth-child(3) small{font-size:8px;}
+}
+@media (max-width:380px){
+  .mobile-app-nav .mobile-app-item:nth-child(3){flex-basis:48px;max-width:48px;}
+  .mobile-app-nav .mobile-app-item:nth-child(3) span{width:23px;height:22px;}
+}
