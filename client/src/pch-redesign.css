@@ -1212,3 +1212,16 @@ section.container.ad-banner.ad-carousel { height:auto !important; min-height:0 !
 .cover-actions .cover-remove { color:#a33; border-color:#f0cccc; }
 .cover-actions small { color:#76818d; font-size:12px; }
 .picker-upload { margin:0 0 14px; }
+
+/* /anuncie: clickable ad format cards */
+.ad-format-cards { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:16px 0 18px; }
+.ad-format-card { display:grid; gap:6px; text-align:left; padding:14px 16px; border:1px solid #dfe4ea; border-radius:12px; background:#fff; color:#4d5966; font:inherit; font-size:13px; line-height:1.45; cursor:pointer; transition:border-color .15s, box-shadow .15s, transform .15s; }
+.ad-format-card:hover { border-color:#d3a946; box-shadow:0 8px 20px rgba(7,26,45,.08); transform:translateY(-1px); }
+.ad-format-card.is-selected { border-color:#f4b72d; background:#fffaf0; box-shadow:0 0 0 2px rgba(244,183,45,.35); }
+.ad-format-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.ad-format-top strong { color:#0e2238; font-size:15px; }
+.ad-format-top em { font-style:normal; font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:#071a2d; background:#f4b72d; border-radius:999px; padding:2px 8px; }
+.ad-format-card small { color:#9a741f; font-weight:800; }
+.field-note { display:block; margin-top:4px; color:#76818d; font-size:12px; font-weight:500; }
+#formatos, #proposta { scroll-margin-top:20px; }
+@media (max-width:760px) { .ad-format-cards { grid-template-columns:1fr; } }

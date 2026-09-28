@@ -191,9 +191,9 @@ export default function Home() {
   useEffect(() => setActiveSlide(0), [activeCategory, activeTopic, query]);
 
   const adSlides = (managedAds.length ? managedAds : [
-    { id: "house-1", eyebrow: "PCH NEWS • MÍDIA ESTRATÉGICA", title: "Sua marca pode ser", emphasis: "a próxima notícia.", text: "Apresente sua empresa, produto ou serviço para uma audiência que busca informação.", cta: "ANUNCIE NO PCH NEWS", href: "/anuncie" },
-    { id: "house-2", eyebrow: "PUBLICIDADE", title: "Sua campanha no", emphasis: "lugar certo.", text: "Home, editorias, patrocínios e projetos especiais com identificação clara.", cta: "CONHEÇA OS FORMATOS", href: "/anuncie" },
-    { id: "house-3", eyebrow: "REDE PCH NEWS", title: "Conecte sua marca ao", emphasis: "jornalismo digital.", text: "Planeje presença por período e, futuramente, por região, cidade e dispositivo.", cta: "FALE COM O PCH NEWS", href: "/anuncie" },
+    { id: "house-1", eyebrow: "PCH NEWS • MÍDIA ESTRATÉGICA", title: "Sua marca pode ser", emphasis: "a próxima notícia.", text: "Apresente sua empresa, produto ou serviço para uma audiência que busca informação.", cta: "ANUNCIE NO PCH NEWS", href: "/anuncie#formatos" },
+    { id: "house-2", eyebrow: "PUBLICIDADE", title: "Sua campanha no", emphasis: "lugar certo.", text: "Home, editorias, patrocínios e projetos especiais com identificação clara.", cta: "CONHEÇA OS FORMATOS", href: "/anuncie#formatos" },
+    { id: "house-3", eyebrow: "REDE PCH NEWS", title: "Conecte sua marca ao", emphasis: "jornalismo digital.", text: "Planeje presença por período e, futuramente, por região, cidade e dispositivo.", cta: "FALE COM O PCH NEWS", href: "/anuncie#formatos" },
   ]).map((slide: any) => ({
     ...slide,
     href: slide.href || slide.targetUrl || "/anuncie",
@@ -324,7 +324,7 @@ export default function Home() {
               <span className="ad-tag">PUBLICIDADE</span>
               <strong>Sua marca em destaque</strong>
               <p>Espaço lateral reservado para campanhas, parceiros e divulgação.</p>
-              <a href="#anuncie">Conheça os formatos <ArrowRight size={14} /></a>
+              <a href="/anuncie#formatos">Conheça os formatos <ArrowRight size={14} /></a>
             </div>
             <div className="side-ad-slot side-ad-slot-secondary" aria-label="Divulgação PCH News">
               <span className="ad-tag">DIVULGAÇÃO</span>
