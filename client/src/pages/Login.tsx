@@ -5,10 +5,9 @@ import { supabase } from "@/lib/supabase";
 import PageMeta from "@/components/PageMeta";
 
 const LOGO_URL = officialLogoUrl;
-const OWNER_EMAIL = "pchnews.oficial@gmail.com";
 
 export default function Login() {
-  const [email, setEmail] = useState(OWNER_EMAIL);
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [resetMode, setResetMode] = useState(false);
@@ -37,12 +36,6 @@ export default function Login() {
     setSending(true);
     setMessage("");
 
-    if (normalized !== OWNER_EMAIL) {
-      setSending(false);
-      setMessage("Este acesso por e-mail é exclusivo da conta administrativa. Colunistas entram pelo convite individual.");
-      return;
-    }
-
     const { error } = await supabase.auth.signInWithPassword({ email: normalized, password });
     setSending(false);
     if (error) {
@@ -58,7 +51,6 @@ export default function Login() {
 
   const handleForgotPassword = async () => {
     const normalized = email.trim().toLowerCase();
-    if (normalized !== OWNER_EMAIL) { setMessage("Use o e-mail administrativo cadastrado no PCH News."); return; }
     setSending(true); setMessage("");
     const redirectTo = typeof window !== "undefined" ? `${window.location.origin}/admin?reset=1` : undefined;
     const { error } = await supabase.auth.resetPasswordForEmail(
@@ -83,13 +75,13 @@ export default function Login() {
   const returnToLogin = () => {
     setResetMode(false); setResetPasswordMode(false); setMessage(""); setNewPassword("");
     window.history.replaceState({}, "", "/login");
-    setEmail(OWNER_EMAIL);
+    setEmail("");
     setPassword("");
   };
 
   const handleMagicLink = async () => {
     const normalized = email.trim().toLowerCase();
-    if (normalized !== OWNER_EMAIL) return;
+    if (!normalized) return;
     setSending(true);
     setMessage("");
 
@@ -174,7 +166,7 @@ export default function Login() {
           <span><strong>Ambiente editorial protegido</strong><small>Permissões administradas pelo Supabase. Nenhuma senha é armazenada nesta aplicação.</small></span>
         </div>
 
-        <p className="login-support">Conta administrativa: {OWNER_EMAIL}. Altere a senha provisória depois do primeiro acesso.</p>
+        <p className="login-support">Equipe editorial: entre com o e-mail do seu convite. Sem senha? Use o link de acesso por e-mail.</p>
       </section>
 
       <footer className="login-footer">© 2026 PCH News · Notícias para libertar a mente.</footer>

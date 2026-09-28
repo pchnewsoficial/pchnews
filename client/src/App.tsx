@@ -41,6 +41,19 @@ function Router() {
   const browserPath = typeof window !== "undefined" ? window.location.pathname : location;
   const normalizedPath = browserPath.replace(/\/+$/, "") || "/";
 
+  // Invite login round-trip: OAuth / magic link always land on /admin. If the
+  // callback carries a fresh session and an invite is pending, resume the
+  // invite page (forwarding the auth params so Supabase can finish sign-in).
+  if (normalizedPath === "/admin" && typeof window !== "undefined") {
+    let pending = "";
+    let startedAt = 0;
+    try { pending = localStorage.getItem("pch_pending_invite") || ""; startedAt = Number(localStorage.getItem("pch_invite_login_started") || 0); } catch { /* ignore */ }
+    if (pending && Date.now() - startedAt < 60 * 60 * 1000) {
+      try { localStorage.removeItem("pch_invite_login_started"); } catch { /* ignore */ }
+      window.location.replace(`/convite/${encodeURIComponent(pending)}${window.location.search}${window.location.hash}`);
+      return <div className="app-loading">Retomando seu convite…</div>;
+    }
+  }
   if (normalizedPath === "/admin") return <ProtectedAdmin />;
   if (normalizedPath === "/admin/integracoes") return <ProtectedAdmin />;
   if (normalizedPath === "/eventos" || normalizedPath === "/agenda") return <EventsAgenda />;
