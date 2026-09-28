@@ -147,7 +147,7 @@ export default {
       return handleAsNodeRequest(3000, request);
     }
 
-    const spaPath = url.pathname.replace(/\\/+$/, "") || "/";
+    const spaPath = url.pathname.replace(/\/+$/, "") || "/";
     const isSpaRoute =
       spaPath === "/admin" ||
       spaPath.startsWith("/admin/") ||
