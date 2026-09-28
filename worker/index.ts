@@ -7,6 +7,7 @@ import { appRouter } from "../server/routers";
 import { createContext } from "../server/_core/context";
 import { getApiHealth } from "../server/apiHub";
 import { getSupabaseAdmin } from "../server/_core/supabase";
+const SITE_ORIGIN = "https://pchnews.com.br";
 
 const app = express();
 
@@ -86,6 +87,11 @@ export default {
 
   async fetch(request: Request, env: { ASSETS: Fetcher }) {
     const url = new URL(request.url);
+    // Official address: https://pchnews.com.br (www and plain http redirect there).
+    if (url.hostname === "www.pchnews.com.br") {
+      url.hostname = "pchnews.com.br";
+      return Response.redirect(url.toString(), 301);
+    }
 
     if (url.pathname.startsWith("/legacy-image/")) {
       const encodedSource = url.pathname.slice("/legacy-image/".length);
@@ -120,14 +126,14 @@ export default {
     }
 
     if (url.pathname === "/robots.txt") {
-      return new Response(`User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /login\n\nSitemap: ${url.origin}/sitemap.xml\n`, { headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=3600" } });
+      return new Response(`User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /login\n\nSitemap: ${SITE_ORIGIN}/sitemap.xml\n`, { headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=3600" } });
     }
     if (url.pathname === "/sitemap.xml") {
       const esc = (v: string) => v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
-      const urls = ["/", "/institucional", "/anuncie", "/lei", "/eventos", "/colunista/evaldo-poeta"].map((p) => `${url.origin}${p}`);
+      const urls = ["/", "/institucional", "/anuncie", "/lei", "/eventos", "/colunista/evaldo-poeta"].map((p) => `${SITE_ORIGIN}${p}`);
       try {
         const { data } = await getSupabaseAdmin().from("articles").select("id,slug").eq("status", "published").limit(5000);
-        for (const row of (data || []) as Array<{ id: string; slug?: string | null }>) urls.push(`${url.origin}/materia/${row.slug || row.id}`);
+        for (const row of (data || []) as Array<{ id: string; slug?: string | null }>) urls.push(`${SITE_ORIGIN}/materia/${row.slug || row.id}`);
       } catch { /* serve static routes only */ }
       const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map((u) => `<url><loc>${esc(u)}</loc></url>`).join("")}</urlset>`;
       return new Response(xml, { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=900" } });
