@@ -1111,3 +1111,15 @@ main { padding-top:18px; }
 /* Design-system contrast corrections */
 .eyebrow:not(.gold), .admin-kicker { color: var(--pch-muted); }
 .events-hero .eyebrow.gold { color: #f4d06f; }
+
+/* Dark side panel: --pch-surface resolves to the dark ink token after the
+   token consolidation, which made every heading here unreadable. */
+.recent-panel,
+.recent-panel .section-heading h2,
+.recent-panel h3,
+.recent-panel .side-ad-slot strong { color:#f7f5ef; }
+.recent-panel .section-heading span,
+.recent-panel small,
+.recent-panel .recent-item span:not(.category-chip) { color:#b9c5cc; }
+.recent-panel .side-ad-slot a { color:#f4b72d; }
+.recent-panel .eyebrow { color:#f4b72d; }
