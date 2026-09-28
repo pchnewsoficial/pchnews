@@ -1715,26 +1715,33 @@ section.container.ad-banner.ad-carousel { height:auto !important; min-height:0 !
 }
 
 
-/* HostingPRESS partner rail — one continuous carousel */
-.hostingpress-partner-rail{display:flex;align-items:center;gap:16px;min-height:88px;padding:12px 16px;overflow:hidden;text-decoration:none;}
-.hostingpress-logo-wrap{width:62px;height:62px;flex:0 0 62px;display:grid;place-items:center;border:1px solid var(--pch-line);border-radius:10px;background:#fff;overflow:hidden;}
-.hostingpress-logo-wrap img{width:52px;height:52px;object-fit:contain;}
-.hostingpress-partner-copy{display:flex;flex-direction:column;gap:4px;flex:0 0 230px;}
-.hostingpress-partner-copy strong{font-size:14px;line-height:1.2;color:var(--pch-ink);}
-.hostingpress-channel-marquee{display:block;min-width:0;flex:1;overflow:hidden;mask-image:linear-gradient(90deg,transparent 0,#000 4%,#000 96%,transparent 100%);}
-.hostingpress-channel-track{display:flex;width:max-content;align-items:center;gap:8px;animation:hostingpressRail 28s linear infinite;}
-.hostingpress-channel-pill{display:inline-flex;align-items:center;min-height:38px;padding:0 13px;border:1px solid var(--pch-line);border-radius:999px;background:#fafbfc;color:var(--pch-ink);font-size:11px;font-weight:800;white-space:nowrap;}
-.hostingpress-partner-rail:hover .hostingpress-channel-track{animation-play-state:paused;}
-@keyframes hostingpressRail{from{transform:translateX(0)}to{transform:translateX(calc(-50% - 4px))}}
+/* HostingPRESS partner strip — compact identity + continuous channel rail */
+.hostingpress-section{margin-bottom:28px;}
+.hostingpress-mini-card{border:1px solid var(--pch-line);border-radius:10px;background:rgba(255,255,255,.92);overflow:hidden;}
+.hostingpress-mini-brand{display:flex;align-items:center;gap:12px;min-height:68px;padding:9px 14px;text-decoration:none;color:inherit;}
+.hostingpress-mini-logo{width:48px;height:48px;flex:0 0 48px;display:grid;place-items:center;border:1px solid #e5e7eb;border-radius:8px;background:#fff;overflow:hidden;}
+.hostingpress-mini-logo img{width:40px;height:40px;object-fit:contain;}
+.hostingpress-logo-fallback{display:none;font-size:9px;line-height:1.05;font-weight:900;letter-spacing:.08em;text-align:center;color:#111827;}
+.hostingpress-logo-fallback.is-visible{display:block;}
+.hostingpress-mini-copy{display:flex;flex-direction:column;min-width:0;gap:2px;}
+.hostingpress-mini-copy strong{font-size:15px;line-height:1.1;letter-spacing:.08em;color:var(--pch-ink);}
+.hostingpress-mini-copy small{font-size:10px;line-height:1.25;color:var(--pch-muted);}
+.hostingpress-mini-brand>svg{margin-left:auto;flex:0 0 auto;color:var(--pch-muted);}
+.hostingpress-channel-window{width:100%;overflow:hidden;border-top:1px solid var(--pch-line);padding:8px 0;background:#f8fafb;mask-image:linear-gradient(90deg,transparent 0,#000 3%,#000 97%,transparent 100%);}
+.hostingpress-channel-track{display:flex;width:max-content;align-items:center;gap:7px;padding-left:7px;animation:hostingpressRail 30s linear infinite;}
+.hostingpress-channel-pill{display:inline-flex;align-items:center;min-height:34px;padding:0 13px;border:1px solid #dfe5ea;border-radius:6px;background:#fff;color:var(--pch-ink);font-size:10px;font-weight:800;white-space:nowrap;}
+.hostingpress-mini-card:hover .hostingpress-channel-track{animation-play-state:paused;}
+@keyframes hostingpressRail{from{transform:translateX(0)}to{transform:translateX(calc(-50% - 3.5px))}}
 @media (prefers-reduced-motion:reduce){.hostingpress-channel-track{animation:none;}}
 @media (max-width:700px){
- .hostingpress-partner-rail{min-height:70px;padding:8px 10px;gap:9px;border-radius:10px;}
- .hostingpress-logo-wrap{width:44px;height:44px;flex-basis:44px;border-radius:8px;}
- .hostingpress-logo-wrap img{width:38px;height:38px;}
- .hostingpress-partner-copy{flex:0 0 120px;gap:2px;}
- .hostingpress-partner-copy .eyebrow{font-size:8px;}
- .hostingpress-partner-copy strong{font-size:11px;}
- .hostingpress-channel-pill{min-height:30px;padding:0 10px;font-size:9px;}
- .hostingpress-channel-track{gap:6px;animation-duration:22s;}
- .hostingpress-partner-rail>svg{width:15px;flex:0 0 15px;}
+ .hostingpress-section{margin-bottom:18px;}
+ .hostingpress-mini-brand{min-height:58px;padding:7px 10px;gap:9px;}
+ .hostingpress-mini-logo{width:40px;height:40px;flex-basis:40px;border-radius:7px;}
+ .hostingpress-mini-logo img{width:34px;height:34px;}
+ .hostingpress-mini-copy strong{font-size:12px;letter-spacing:.07em;}
+ .hostingpress-mini-copy small{font-size:9px;}
+ .hostingpress-mini-brand>svg{width:15px;height:15px;}
+ .hostingpress-channel-window{padding:6px 0;}
+ .hostingpress-channel-track{gap:6px;padding-left:6px;animation-duration:24s;}
+ .hostingpress-channel-pill{min-height:30px;padding:0 10px;border-radius:5px;font-size:9px;}
 }
