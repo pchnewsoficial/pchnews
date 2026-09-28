@@ -86,7 +86,10 @@ export default function Home() {
   }, [remoteEditorial]);
 
   const eventCarousel = trpc.events.carousel.useQuery({ limit: 6 }, { retry: false, staleTime: 60 * 1000 });
-  const weatherTemperature = (headerWeather.data as { current?: { temperature_2m?: number } } | undefined)?.current?.temperature_2m;
+  const weatherData = headerWeather.data as { current?: { temperature_2m?: number }; daily?: { temperature_2m_max?: number[]; temperature_2m_min?: number[] } } | undefined;
+  const weatherTemperature = weatherData?.current?.temperature_2m;
+  const weatherMax = weatherData?.daily?.temperature_2m_max?.[0];
+  const weatherMin = weatherData?.daily?.temperature_2m_min?.[0];
 
   const published = useMemo(() => articles.filter((article) => {
     if (!["published", "updated"].includes(article.status)) return false;
@@ -249,6 +252,14 @@ export default function Home() {
             <span className="brand-caption">Informação para<br /><strong>libertar a mente.</strong></span>
           </Link>
           <div className="header-motto">Jornalismo nacional, pensamento amplo <span>●</span></div>
+          <div className="mobile-weather-strip" aria-label="Previsão do tempo">
+            <button type="button" onClick={requestLocalWeather} title="Usar a previsão da sua localização">
+              <Thermometer size={14} aria-hidden="true" />
+              <strong>{weatherTemperature != null ? `${Math.round(Number(weatherTemperature))}°C` : "--°C"}</strong>
+              <span>{weatherPlace}</span>
+              {weatherMax != null && weatherMin != null && <small>máx. {Math.round(Number(weatherMax))}° · mín. {Math.round(Number(weatherMin))}°</small>}
+            </button>
+          </div>
           <div className="header-live-info" aria-label="Informações locais">
             <div className="header-live-item">
               <Clock3 size={15} aria-hidden="true" />
@@ -273,6 +284,12 @@ export default function Home() {
 
           </nav>
           {moreOpen && <div className="more-menu" role="menu">
+              <div className="more-menu-section more-menu-shortcuts"><span className="more-menu-label">ACESSOS RÁPIDOS</span><div className="more-menu-grid">
+                <Link href="/eventos" role="menuitem" className="more-menu-link">Agenda de eventos</Link>
+                <Link href="/anuncie" role="menuitem" className="more-menu-link">Anuncie no PCH News</Link>
+                <Link href="/parceiros" role="menuitem" className="more-menu-link">Parceiros</Link>
+                <Link href="/conhecimento-pch" role="menuitem" className="more-menu-link">Conhecimento PCH</Link>
+              </div></div>
               <div className="more-menu-section"><span className="more-menu-label">EDITORIAS</span><div className="more-menu-grid">
                 {moreCategories.map((category) => <button key={category} type="button" role="menuitem" className={activeCategory === category && !activeTopic ? "is-selected" : ""} onClick={() => { setActiveCategory(category); setActiveTopic(null); setMoreOpen(false); setMenuOpen(false); }}>{category}</button>)}
               </div></div>
