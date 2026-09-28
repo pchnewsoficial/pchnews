@@ -408,18 +408,21 @@ export default function Home() {
             <div><span className="eyebrow">REDE PCH NEWS</span><h2>Parceiros</h2></div>
             <div className="heading-rule"><span>Distribuição e conexão editorial</span></div>
           </div>
-          <div className="partners-network">
-            <Link className="partner-card partner-card-hostingpress" href="/parceiros">
-              <span className="partner-logo-wrap">
-                <img src="https://hostingpress.com.br/favicon.ico" alt="Logo HostingPRESS" className="partner-logo" />
+          <div style={{ display:"grid", gap:14 }}>
+            <Link className="partner-card" href="/parceiros" style={{ minHeight:112 }}>
+              <span style={{ width:64, height:64, display:"grid", placeItems:"center", flex:"none", border:"1px solid var(--pch-line)", borderRadius:10, background:"#fff", overflow:"hidden" }}>
+                <img src="https://hostingpress.com.br/favicon.ico" alt="Logo HostingPRESS" style={{ width:48, height:48, objectFit:"contain" }} />
               </span>
-              <div><span className="partner-badge">PARCEIRO OFICIAL</span><strong>HostingPRESS</strong><p>Rede de mídia, tecnologia e distribuição de conteúdo parceira do PCH News.</p></div>
+              <div><span style={{ display:"block", color:"#8a6914", fontSize:"var(--pch-type-xs)", fontWeight:900, letterSpacing:".12em", marginBottom:4 }}>PARCEIRO OFICIAL</span><strong>HostingPRESS</strong><p>Rede de mídia, tecnologia e distribuição de conteúdo parceira do PCH News.</p></div>
               <ArrowRight size={18} />
             </Link>
-            <div className="partner-channels">
-              <div className="partner-channels-heading"><div><span className="eyebrow">REDE HOSTINGPRESS</span><h3>Canais do parceiro</h3></div><a href="https://agencia.hostingpress.com.br/" target="_blank" rel="noreferrer">Ver rede <ArrowRight size={14} /></a></div>
-              <div className="partner-channel-list">
-                {["Doutor Imprensa Talk Show","Café de Negócios","Intelectualidade Online","Talento Gospel","Maternidade INFOCO","De Frente com Randal","Casa HUB Digital","Sofá Jurídico"].map((channel) => <a key={channel} href="https://agencia.hostingpress.com.br/" target="_blank" rel="noreferrer" className="partner-channel"><span>TV</span><strong>{channel}</strong><ArrowRight size={14} /></a>)}
+            <div style={{ border:"1px solid var(--pch-line)", borderRadius:8, padding:18, background:"var(--pch-surface)" }}>
+              <div style={{ display:"flex", alignItems:"flex-end", justifyContent:"space-between", gap:16, marginBottom:12 }}>
+                <div><span className="eyebrow">REDE HOSTINGPRESS</span><h3 style={{ margin:"4px 0 0", fontSize:"var(--pch-type-title)" }}>Canais do parceiro</h3></div>
+                <a href="https://agencia.hostingpress.com.br/" target="_blank" rel="noreferrer" style={{ display:"inline-flex", alignItems:"center", gap:6, color:"#315d9c", fontWeight:800, textDecoration:"none" }}>Ver rede <ArrowRight size={14} /></a>
+              </div>
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(4,minmax(0,1fr))", gap:8 }}>
+                {["Doutor Imprensa Talk Show","Café de Negócios","Intelectualidade Online","Talento Gospel","Maternidade INFOCO","De Frente com Randal","Casa HUB Digital","Sofá Jurídico"].map((channel) => <a key={channel} href="https://agencia.hostingpress.com.br/" target="_blank" rel="noreferrer" style={{ display:"flex", alignItems:"center", gap:8, minHeight:48, padding:"10px 12px", border:"1px solid var(--pch-line)", borderRadius:7, color:"var(--pch-ink)", textDecoration:"none", background:"#fafbfc" }}><span style={{ display:"grid", placeItems:"center", width:26, height:22, borderRadius:4, background:"#182c40", color:"#fff", fontSize:9, fontWeight:900 }}>TV</span><strong style={{ flex:1, fontSize:"var(--pch-type-xs)", lineHeight:1.2 }}>{channel}</strong><ArrowRight size={14} /></a>)}
               </div>
             </div>
           </div>
