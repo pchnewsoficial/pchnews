@@ -565,6 +565,7 @@ function InvitePanel() {
   const create = trpc.invites.create.useMutation({ onSuccess: (invite) => { refetch(); setEmail(""); setName(""); setLastUrl(`${window.location.origin}${invite.inviteUrl}`); setDelivery(invite.emailSent ? "E-mail enviado pelo SMTP." : invite.smtpConfigured ? "Convite criado, mas o SMTP não confirmou o envio." : "Convite criado. Use WhatsApp, e-mail ou copie o link abaixo."); } });
   const resend = trpc.invites.resend.useMutation({ onSuccess: (result) => { refetch(); setEditingInvite(null); setLastUrl(`${window.location.origin}${result.inviteUrl}`); setDelivery(result.emailSent ? "Convite reenviado pelo SMTP. A validade foi renovada por 7 dias." : result.smtpConfigured ? "Convite renovado, mas o SMTP não confirmou o envio." : "Convite renovado. Você pode enviar por WhatsApp, e-mail ou copiar o link."); }, onError: (error) => setDelivery(error.message) });
   const revoke = trpc.invites.revoke.useMutation({ onSuccess: () => refetch() });
+  const deleteInvite = trpc.invites.delete.useMutation({ onSuccess: () => { refetch(); setDelivery("Convite removido da lista administrativa."); } });
   const submit = (event: FormEvent) => { event.preventDefault(); create.mutate({ email, name, role: inviteRole }); };
   const messageFor = (invite: any, url: string) => `Olá, ${invite.name}! Você foi convidado(a) para fazer parte da equipe editorial do PCH News como ${invite.role === "columnist" ? "Colunista" : invite.role === "journalist" ? "Jornalista" : invite.role === "editor" ? "Editor" : "Revisor"}. Acesse este link para aceitar o convite: ${url}`;
   const shareWhatsApp = (invite: any, url = lastUrl) => { if (!url) return; window.open(`https://wa.me/?text=${encodeURIComponent(messageFor(invite, url))}`, "_blank", "noopener,noreferrer"); };
@@ -612,6 +613,7 @@ function InvitePanel() {
           {usable && !invite.acceptedAtMs && <button disabled={resend.isPending} onClick={() => editAndResend({ ...invite, role })}>Editar e reenviar</button>}
           {pending && <button disabled={resend.isPending} onClick={() => resendInvite({ ...invite, role })}>Reenviar</button>}
           {pending && <button onClick={() => revoke.mutate({ id: invite.id })}>Revogar</button>}
+          {!invite.acceptedAtMs && (invite.revokedAtMs || invite.expiresAtMs < Date.now()) && <button disabled={deleteInvite.isPending} onClick={() => { if (window.confirm("Excluir este convite da lista? O e-mail poderá ser convidado novamente no futuro.")) deleteInvite.mutate({ id: invite.id }); }}><Trash2 size={13} /> Apagar</button>}
           {lastUrl && invite.id === editingInvite?.id && <><button onClick={() => shareWhatsApp({ ...invite, role }, lastUrl)}><MessageCircle size={13} /> WhatsApp</button><button onClick={() => shareEmail({ ...invite, role }, lastUrl)}><Mail size={13} /> E-mail</button></>}
           {url && <button onClick={() => copyLink(url)}><Copy size={13} /> Copiar</button>}
         </span>
