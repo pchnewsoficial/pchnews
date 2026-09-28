@@ -294,7 +294,7 @@ export default function Admin() {
       notify("Selecione uma imagem principal antes de publicar ou agendar.");
       return;
     }
-    if ((draft.status === "published" || draft.status === "scheduled") && !Object.values(draft.editorialChecklist || {}).every(Boolean)) { notify("Publicação bloqueada: complete o checklist editorial do Manual PCH News."); return; }
+    if ((draft.status === "published" || draft.status === "scheduled") && !(editing && (editing.status === "published" || editing.status === "scheduled")) && !Object.values(draft.editorialChecklist || {}).every(Boolean)) { notify("Publicação bloqueada: complete o checklist editorial do Manual PCH News."); return; }
     if (draft.status === "scheduled" && !draft.scheduledAt) {
       notify("Defina a data e o horário exatos do agendamento.");
       return;
