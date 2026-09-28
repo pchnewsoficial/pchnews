@@ -181,7 +181,7 @@ export const appRouter = router({
   }),
   adRequests: router({
     uploadAsset: publicProcedure.input(z.object({
-      fileName: z.string().regex(/\\.(png|jpe?g|webp|gif)$/i),
+      fileName: z.string().regex(/\.(png|jpe?g|webp|gif)$/i),
       contentType: z.enum(["image/png", "image/jpeg", "image/webp", "image/gif"]),
       base64: z.string().min(20).max(8_000_000),
     })).mutation(async ({ input }) => {
