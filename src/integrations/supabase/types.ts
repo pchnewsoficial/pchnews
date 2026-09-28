@@ -77,6 +77,8 @@ export type Database = {
           business: string
           city: string | null
           consentAtMs: number | null
+          creativeNeed: string
+          creativeUrl: string | null
           contact: string
           contactName: string | null
           createdAtMs: number
@@ -97,6 +99,8 @@ export type Database = {
           business: string
           city?: string | null
           consentAtMs?: number | null
+          creativeNeed?: string
+          creativeUrl?: string | null
           contact: string
           contactName?: string | null
           createdAtMs: number
@@ -117,6 +121,8 @@ export type Database = {
           business?: string
           city?: string | null
           consentAtMs?: number | null
+          creativeNeed?: string
+          creativeUrl?: string | null
           contact?: string
           contactName?: string | null
           createdAtMs?: number
