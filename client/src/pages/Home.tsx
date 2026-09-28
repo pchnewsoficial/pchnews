@@ -44,12 +44,23 @@ export default function Home() {
   const [adPaused, setAdPaused] = useState(false);
   const { data: managedAds = [] } = trpc.ads.active.useQuery(undefined, { retry: false, staleTime: 60_000 });
   const [now, setNow] = useState(() => new Date());
+  // Weather defaults to São Paulo; the visitor's own location is only used when
+  // permission was already granted or after clicking the weather chip.
   const [coordinates, setCoordinates] = useState<{ latitude: number; longitude: number } | null>(null);
+  const weatherPlace = coordinates ? "Sua região" : "São Paulo";
 
   const headerWeather = trpc.apiHub.weather.useQuery(
-    { latitude: coordinates?.latitude ?? 0, longitude: coordinates?.longitude ?? 0 },
-    { enabled: Boolean(coordinates), retry: false, refetchInterval: 15 * 60 * 1000, staleTime: 10 * 60 * 1000 },
+    { latitude: coordinates?.latitude ?? -23.5505, longitude: coordinates?.longitude ?? -46.6333 },
+    { retry: false, refetchInterval: 15 * 60 * 1000, staleTime: 10 * 60 * 1000 },
   );
+  const requestLocalWeather = () => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => setCoordinates({ latitude: coords.latitude, longitude: coords.longitude }),
+      () => undefined,
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 15 * 60 * 1000 },
+    );
+  };
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 1000);
@@ -57,12 +68,11 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(
-      ({ coords }) => setCoordinates({ latitude: coords.latitude, longitude: coords.longitude }),
-      () => setCoordinates(null),
-      { enableHighAccuracy: false, timeout: 8000, maximumAge: 15 * 60 * 1000 },
-    );
+    // No permission prompt on page load: only reuse an existing "granted" decision.
+    navigator.permissions?.query({ name: "geolocation" as PermissionName }).then((status) => {
+      if (status.state === "granted") requestLocalWeather();
+    }).catch(() => undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -243,10 +253,11 @@ export default function Home() {
               <Clock3 size={15} aria-hidden="true" />
               <span>{new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2-digit" }).format(now)}</span>
             </div>
-            <div className="header-live-item" title={coordinates ? "Clima da sua localização" : "Autorize a localização para consultar o clima"}>
-              {coordinates ? <Thermometer size={15} aria-hidden="true" /> : <MapPin size={15} aria-hidden="true" />}
-              <span>{weatherTemperature != null ? `${Math.round(Number(weatherTemperature))}°C` : coordinates ? "Clima..." : "Localização"}</span>
-            </div>
+            <button type="button" className="header-live-item header-weather" onClick={requestLocalWeather} title={coordinates ? "Clima da sua região" : "Clima em São Paulo — clique para usar a sua localização"}>
+              <Thermometer size={15} aria-hidden="true" />
+              <span>{weatherTemperature != null ? `${weatherPlace} ${Math.round(Number(weatherTemperature))}°C` : weatherPlace}</span>
+              {!coordinates && <MapPin size={13} aria-hidden="true" />}
+            </button>
           </div>
           <div className="header-actions">
             <button className="icon-button" aria-label="Buscar" onClick={() => setSearchOpen((open) => !open)}><Search size={18} /></button>
