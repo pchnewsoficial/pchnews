@@ -119,6 +119,11 @@ export default function Admin() {
   const [comments, setComments] = useState<ReaderComment[]>([]);
   const [profiles, setProfiles] = useState<Record<string, ProfileData>>({});
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [currentTime, setCurrentTime] = useState(() => new Date());
+  useEffect(() => {
+    const timer = window.setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const { user, logout: oauthLogout } = useAuth();
   const currentRole = user?.role || "user";
@@ -403,22 +408,34 @@ export default function Admin() {
     notify("Arquivo de notícias exportado.");
   };
 
-  const navItems: { id: View; label: string; icon: typeof LayoutDashboard }[] = [
-    { id: "overview", label: "Visão geral", icon: LayoutDashboard },
-    { id: "articles", label: "Notícias", icon: FileText },
-    { id: "pauta", label: "Pauta", icon: CalendarDays },
-    ...(canManageAgenda ? [{ id: "events" as View, label: "Agenda de eventos", icon: CalendarDays }] : []),
-    ...(isAdmin ? [{ id: "editorialRequests" as View, label: "Correções e respostas", icon: MessageCircle }] : []),
-    { id: "agents", label: "Agentes editoriais", icon: Sparkles },
-    ...(isAdmin ? [{ id: "apiHub" as View, label: "Integrações / API Hub", icon: Settings }] : []),
-    ...(isAdmin ? [{ id: "team" as View, label: "Colunistas e equipe", icon: Users }] : []),
-    { id: "media", label: "Mídia", icon: FolderOpen },
-    { id: "stats", label: "Estatísticas", icon: BarChart3 },
-    { id: "audit", label: "Auditoria", icon: History },
-    { id: "comments", label: "Comentários", icon: MessageCircle },
-    { id: "ads", label: "Anúncios", icon: Megaphone },
-    { id: "profile", label: "Meu perfil", icon: UserCircle },
-    { id: "settings", label: "Configurações", icon: Settings },
+  const navGroups: { label: string; items: { id: View; label: string; icon: typeof LayoutDashboard }[] }[] = [
+    { label: "Redação", items: [
+      { id: "overview", label: "Visão geral", icon: LayoutDashboard },
+      { id: "articles", label: "Notícias", icon: FileText },
+      { id: "pauta", label: "Pauta", icon: CalendarDays },
+      ...(isAdmin ? [{ id: "editorialRequests" as View, label: "Correções e respostas", icon: MessageCircle }] : []),
+    ]},
+    { label: "Agenda", items: [
+      ...(canManageAgenda ? [{ id: "events" as View, label: "Agenda de eventos", icon: CalendarDays }] : []),
+    ]},
+    { label: "Equipe e conteúdo", items: [
+      ...(isAdmin ? [{ id: "team" as View, label: "Colunistas e equipe", icon: Users }] : []),
+      { id: "media", label: "Mídia", icon: FolderOpen },
+      { id: "comments", label: "Comentários", icon: MessageCircle },
+      ...(isAdmin ? [{ id: "ads" as View, label: "Anúncios", icon: Megaphone }] : []),
+    ]},
+    { label: "Ferramentas editoriais", items: [
+      ...(isAdmin ? [{ id: "agents" as View, label: "Agentes editoriais", icon: Sparkles }] : []),
+      ...(isAdmin ? [{ id: "apiHub" as View, label: "Integrações / API Hub", icon: Settings }] : []),
+    ]},
+    { label: "Gestão", items: [
+      { id: "stats", label: "Estatísticas", icon: BarChart3 },
+      ...(isAdmin ? [{ id: "audit" as View, label: "Auditoria", icon: History }] : []),
+    ]},
+    { label: "Conta", items: [
+      { id: "profile", label: "Meu perfil", icon: UserCircle },
+      ...(isAdmin ? [{ id: "settings" as View, label: "Configurações", icon: Settings }] : []),
+    ]},
   ];
 
   return (
@@ -426,12 +443,12 @@ export default function Admin() {
       <aside className={`admin-sidebar ${sidebarOpen ? "is-open" : ""}`}>
         <div className="admin-brand"><img src={LOGO_URL} alt="PCH News" /><span>STUDIO</span></div>
         <div className="workspace-switcher"><div className="workspace-avatar">PN</div><div><strong>PCH News</strong><small>Redação principal</small></div><ChevronDown size={15} /></div>
-        <nav className="admin-nav" aria-label="Navegação do painel"><span className="nav-label">WORKSPACE</span>{navItems.filter((item) => isAdmin || !["settings", "ads"].includes(item.id)).map(({ id, label, icon: Icon }) => <button key={id} className={view === id ? "active" : ""} onClick={() => { setView(id); setSidebarOpen(false); }}><Icon size={17} /><span>{label}</span>{id === "articles" && <em>{articles.length}</em>}</button>)}</nav>
+        <nav className="admin-nav" aria-label="Navegação do painel">{navGroups.map((group) => group.items.length ? <div key={group.label} className="admin-nav-group"><span className="nav-label">{group.label}</span>{group.items.map(({ id, label, icon: Icon }) => <button key={id} className={view === id ? "active" : ""} onClick={() => { setView(id); setSidebarOpen(false); }}><Icon size={17} /><span>{label}</span>{id === "articles" && <em>{articles.length}</em>}</button>)}</div> : null)}</nav>
         <div className="sidebar-bottom"><div className="user-chip"><div className="user-avatar">{displayInitials}</div><div><strong>{displayName}</strong><small>{roleLabels[currentRole as AccessUser["role"]] || "Equipe editorial"}</small></div><MoreHorizontal size={16} /></div><Link className="back-public" href="/"><ExternalLink size={14} /> Ver site público</Link><button className="logout-button" onClick={logout}><LogOut size={14} /> Sair do painel</button></div>
       </aside>
 
       <div className="admin-main">
-        <header className="admin-topbar"><button className="admin-mobile-menu" aria-label="Abrir menu" onClick={() => setSidebarOpen((open) => !open)}><Menu size={20} /></button><div className="breadcrumbs"><span>Studio</span><b>/</b><strong>{navItems.find((item) => item.id === view)?.label}</strong>{!isAdmin && <span className="author-badge">{currentAuthor}</span>}</div><div className="topbar-actions"><span className="role-badge">{roleLabels[currentRole as AccessUser["role"]] || "Equipe editorial"}</span><span className="autosave"><span className="online-dot" /> Alterações salvas</span><div className="notification-wrap"><button className="top-icon" aria-label="Notificações" onClick={() => setNotificationsOpen((open) => !open)}><Bell size={18} />{comments.filter((comment) => comment.status === "pending").length + adRequests.length > 0 && <i />}</button>{notificationsOpen && <div className="notification-popover"><strong>Notificações</strong>{comments.filter((comment) => comment.status === "pending").length > 0 && <button onClick={() => { setView("comments"); setNotificationsOpen(false); }}><MessageCircle size={14} /><span><b>{comments.filter((comment) => comment.status === "pending").length} comentário(s)</b><small>Aguardando moderação</small></span></button>}{adRequests.length > 0 && <button onClick={() => { setView("ads"); setNotificationsOpen(false); }}><Megaphone size={14} /><span><b>{adRequests.length} solicitação(ões)</b><small>Interesse em anúncios</small></span></button>}{comments.filter((comment) => comment.status === "pending").length === 0 && adRequests.length === 0 && <small className="notification-empty">Tudo em dia por aqui.</small>}</div>}</div><div className="top-avatar" aria-label={displayName}>{displayInitials}</div></div></header>
+        <header className="admin-topbar"><button className="admin-mobile-menu" aria-label="Abrir menu" onClick={() => setSidebarOpen((open) => !open)}><Menu size={20} /></button><div className="breadcrumbs"><span>Studio</span><b>/</b><strong>{navGroups.flatMap((group) => group.items).find((item) => item.id === view)?.label}</strong>{!isAdmin && <span className="author-badge">{currentAuthor}</span>}</div><div className="topbar-actions"><div className="topbar-clock" aria-label="Horário da redação"><div className="topbar-clock-time">{currentTime.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</div><div className="topbar-clock-date">{currentTime.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "short" })}</div></div><span className="role-badge">{roleLabels[currentRole as AccessUser["role"]] || "Equipe editorial"}</span><span className="autosave"><span className="online-dot" /> Alterações salvas</span><div className="notification-wrap"><button className="top-icon" aria-label="Notificações" onClick={() => setNotificationsOpen((open) => !open)}><Bell size={18} />{comments.filter((comment) => comment.status === "pending").length + adRequests.length > 0 && <i />}</button>{notificationsOpen && <div className="notification-popover"><strong>Notificações</strong>{comments.filter((comment) => comment.status === "pending").length > 0 && <button onClick={() => { setView("comments"); setNotificationsOpen(false); }}><MessageCircle size={14} /><span><b>{comments.filter((comment) => comment.status === "pending").length} comentário(s)</b><small>Aguardando moderação</small></span></button>}{adRequests.length > 0 && <button onClick={() => { setView("ads"); setNotificationsOpen(false); }}><Megaphone size={14} /><span><b>{adRequests.length} solicitação(ões)</b><small>Interesse em anúncios</small></span></button>}{comments.filter((comment) => comment.status === "pending").length === 0 && adRequests.length === 0 && <small className="notification-empty">Tudo em dia por aqui.</small>}</div>}</div><div className="top-avatar" aria-label={displayName}>{displayInitials}</div></div></header>
 
         <main className="admin-content">
           {view === "overview" && <><div className="admin-heading"><div><span className="admin-kicker">{formatToday()}</span><h1>{getGreeting()}, {displayName.split(" ")[0]}<span>.</span></h1><p>Centralize pauta, produção, revisão, publicação e audiência em uma única redação.</p></div><div className="heading-actions"><button className="secondary-cta" disabled={syncPilulas.isPending} onClick={() => syncPilulas.mutate()}><Sparkles size={16} /> {syncPilulas.isPending ? "Importando acervo…" : "Importar acervo de Pílulas"}</button><button className="primary-cta" onClick={openCreate}><Plus size={17} /> Nova notícia</button></div></div><section className="metrics-grid"><MetricCard label="Visualizações totais" value={totalViews.toLocaleString("pt-BR")} delta="Fonte: Supabase" icon={BarChart3} accent="blue" /><MetricCard label="Publicadas" value={String(publishedCount).padStart(2, "0")} delta="Fonte: Supabase" icon={Check} accent="green" /><MetricCard label="Em produção" value={String(draftCount + reviewCount + scheduledCount).padStart(2, "0")} delta={reviewCount ? reviewCount + " em revisão" : draftCount + " rascunhos"} icon={Pencil} accent="gold" /><MetricCard label="Pendências" value={String(pendingTasks).padStart(2, "0")} delta={pendingComments ? pendingComments + " comentários" : "Tudo em dia"} icon={Bell} accent="blue" /></section><section className="panel readiness-panel"><div className="panel-heading"><div><span className="admin-kicker">PRONTIDÃO V2</span><h2>Redação pronta para produção</h2><p>Checklist técnico baseado no escopo editorial consolidado.</p></div><span className="readiness-live">{editorialRemote ? "SUPABASE CONECTADO" : "VERIFICANDO"}</span></div><div className="readiness-grid"><div className="readiness-item"><span className="readiness-dot ok" /><div><strong>Workflow editorial</strong><small>Rascunho → revisão → revisada → aprovada → agendada → publicada → atualizada</small></div></div><div className="readiness-item"><span className="readiness-dot ok" /><div><strong>Autosave</strong><small>Salvamento automático com debounce no Supabase</small></div></div><div className="readiness-item"><span className="readiness-dot ok" /><div><strong>IA editorial</strong><small>Execuções persistidas + aceitar/rejeitar por achado</small></div></div><div className="readiness-item"><span className="readiness-dot ok" /><div><strong>Mídia</strong><small>Supabase Storage para imagens editoriais</small></div></div><div className="readiness-item"><span className="readiness-dot ok" /><div><strong>SEO</strong><small>Slug, meta, canonical, OG, palavra-chave e noindex</small></div></div><div className="readiness-item"><span className="readiness-dot ok" /><div><strong>Busca</strong><small>Busca por título, editoria, autor e tags</small></div></div><div className="readiness-item"><span className="readiness-dot ok" /><div><strong>Analytics</strong><small>Views e eventos persistidos no banco</small></div></div><div className="readiness-item"><span className="readiness-dot ok" /><div><strong>Permissões e auditoria</strong><small>Roles + RLS + histórico de alterações</small></div></div></div></section><section className="dashboard-grid"><div className="panel featured-panel"><div className="panel-heading"><div><span className="admin-kicker">DESEMPENHO EDITORIAL</span><h2>Histórias que estão movendo o Brasil</h2></div><button className="ghost-button" onClick={() => setView("articles")}>Ver todas <ArrowIcon /></button></div><div className="featured-list">{articles.filter((article) => article.status === "published").slice(0, 4).map((article, index) => <div className="featured-row" key={article.id}><span className="rank">0{index + 1}</span><img src={article.image} alt={article.title} /><div className="featured-copy"><span>{article.category}</span><h3>{article.title}</h3><small>{article.author} · {article.updated}</small></div><strong>{article.views.toLocaleString("pt-BR")} <small>views</small></strong></div>)}</div></div><div className="panel activity-panel"><div className="panel-heading"><div><span className="admin-kicker">ATIVIDADE</span><h2>Ritmo da redação</h2></div><button className="more-button" aria-label="Mais opções"><MoreHorizontal size={18} /></button></div><div className="activity-chart"><div className="chart-y"><span>Mais lidas</span></div><div className="chart-area real-bars">{articles.slice().sort((a,b)=>b.views-a.views).slice(0,5).map((article,index)=><div className="real-bar-row" key={article.id}><span>{index+1}. {article.title.slice(0,34)}</span><i style={{ width: `${totalViews ? Math.max(6, Math.round((article.views / Math.max(1, totalViews)) * 100)) : 6}%` }} /><b>{article.views.toLocaleString("pt-BR")}</b></div>)}</div></div><div className="chart-total"><strong>{totalViews.toLocaleString("pt-BR")}</strong><span>visualizações registradas no banco</span></div></div></section><section className="panel quick-panel"><div className="panel-heading"><div><span className="admin-kicker">ATENÇÃO</span><h2>Próximos passos</h2></div><span className="progress-label">2 de 4 concluídos</span></div><div className="progress-track"><span style={{ width: "50%" }} /></div><div className="checklist"><button onClick={() => notify("Tarefa marcada como concluída.")}><span className="check-empty" /> Revisar matéria sobre jardins urbanos <small>hoje</small></button><button className="done" onClick={() => notify("Tarefa já concluída.")}><span className="check-done"><Check size={12} /></span> Atualizar chamada principal <small>concluído</small></button><button className="done" onClick={() => notify("Tarefa já concluída.")}><span className="check-done"><Check size={12} /></span> Conferir calendário editorial <small>concluído</small></button><button onClick={() => notify("Tarefa marcada como concluída.")}><span className="check-empty" /> Selecionar pauta de cultura <small>amanhã</small></button></div></section></>}

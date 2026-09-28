@@ -2,6 +2,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+.topbar-clock { min-width: 104px; padding: 5px 12px; border-left: 1px solid #e3e7ed; border-right: 1px solid #e3e7ed; text-align: right; }.topbar-clock-time { color: #17233a; font-family: 'Oswald',sans-serif; font-size: 19px; font-weight: 600; line-height: 1; letter-spacing: .02em; }.topbar-clock-date { margin-top: 4px; color: #8190a3; font-size: 10px; line-height: 1; text-transform: capitalize; }
+
 :root { --ink: #111722; --navy: #122b69; --navy-2: #0d1d42; --gold: #f4b72d; --paper: #f7f6f2; --line: #deddd8; --muted: #767b86; --blue-soft: #e9eef8; --green: #2f8a69; --orange: #b97730; --panel: #fff; --admin-bg: #f3f5f8; --radius: 10px; }
 * { box-sizing: border-box; }
 html, body, #root { min-width: 320px; min-height: 100%; margin: 0; }
