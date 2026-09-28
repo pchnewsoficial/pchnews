@@ -125,7 +125,7 @@ export default function Home() {
   const gridStories = useMemo(
     () => [...visible]
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime() || b.views - a.views)
-      .filter((article) => article.id !== leadId && !sideIds.has(article.id))
+      .filter((article) => article.id !== leadId && (published.length < 8 || !sideIds.has(article.id)))
       .slice(0, 6),
     [visible, leadId, sideIds],
   );
@@ -361,15 +361,15 @@ export default function Home() {
           </div>
         </section>}
 
-        <section className="container latest-section" id="ultimas">
+        {gridStories.length > 0 && <section className="container latest-section" id="ultimas">
           <div className="section-heading large-heading"><div><span className="eyebrow">CURADORIA PCH NEWS</span><h2>{activeCategory === "Todas" ? "Últimas notícias" : activeCategory}</h2></div><div className="heading-rule"><span>{visible.length} histórias</span></div></div>
           <div className="latest-grid">{gridStories.map((article) => <article className="news-card" key={article.id}><Link href={`/materia/${article.id}`}><div className="news-image"><img src={imageUrl(article)} alt={article.title} onError={(event) => { event.currentTarget.src = LOGO_URL; }} /><span className="category-tag">{article.category}</span></div><div className="news-copy"><h3>{article.title}</h3><p>{article.summary}</p><div className="tag-row">{(article.tags || []).slice(0, 3).map((tag) => <span key={tag}>#{tag}</span>)}</div><Meta article={article} /><span className="read-more">Ler matéria <ArrowRight size={14} /></span></div></Link></article>)}</div>
-        </section>
+        </section>}
 
-        <section className="container most-read-section">
+        {mostRead.length >= 3 && <section className="container most-read-section">
           <div className="section-heading large-heading"><div><span className="eyebrow">AUDIÊNCIA</span><h2>Mais lidas</h2></div><div className="heading-rule"><span>Por visualizações</span></div></div>
           <div className="most-read-list">{mostRead.map((article, index) => <Link href={`/materia/${article.id}`} className="most-read-item" key={article.id}><span className="most-read-rank">{String(index + 1).padStart(2, "0")}</span><div><span className="item-category">{article.category}</span><h3>{article.title}</h3><Meta article={article} /></div><strong><Eye size={13} /> {article.views.toLocaleString("pt-BR")}</strong></Link>)}</div>
-        </section>
+        </section>}
 
         {categorySections.length > 0 && <section className="container editorial-sections">
           <div className="section-heading large-heading"><div><span className="eyebrow">EDITORIAS PCH NEWS</span><h2>Notícias por tema</h2></div><div className="heading-rule"><span>Curadoria editorial</span></div></div>
@@ -388,7 +388,7 @@ export default function Home() {
       </main>
 
 
-        <section className="container services-section" id="servicos"><div className="section-heading large-heading"><div><span className="eyebrow">UTILIDADE PÚBLICA</span><h2>Serviços PCH News</h2></div><div className="heading-rule"><span>Informação que ajuda no dia a dia</span></div></div><div className="services-grid"><Link href="/eventos" className="service-card"><CalendarDays size={24}/><div><strong>Agenda de eventos</strong><p>Encontre eventos por cidade, estado e proximidade.</p></div><ArrowRight size={16}/></Link><Link href="/conhecimento-pch" className="service-card service-card-knowledge"><span className="service-icon service-icon-pch"><strong>PCH</strong><small>CONHECIMENTO</small></span><div><span className="service-eyebrow">IDEIAS · CULTURA · DESENVOLVIMENTO</span><strong>Conhecimento PCH</strong><p>Um espaço próprio para conhecimento, ideias e conteúdos especiais do PCH News.</p></div><ArrowRight size={16}/></Link></div></section>
+        <section className="container services-section" id="servicos"><div className="section-heading large-heading"><div><span className="eyebrow">UTILIDADE PÚBLICA</span><h2>Serviços PCH News</h2></div><div className="heading-rule"><span>Informação que ajuda no dia a dia</span></div></div><div className="services-grid"><Link href="/eventos" className="service-card"><CalendarDays size={24}/><div><strong>Agenda de eventos</strong><p>Encontre eventos por cidade, estado e proximidade.</p></div><ArrowRight size={16}/></Link><Link href="/conhecimento-pch" className="service-card service-card-knowledge"><span className="service-icon service-icon-pch"><strong>PCH</strong></span><div><span className="service-eyebrow">IDEIAS · CULTURA · DESENVOLVIMENTO</span><strong>Conhecimento PCH</strong><p>Um espaço próprio para conhecimento, ideias e conteúdos especiais do PCH News.</p></div><ArrowRight size={16}/></Link></div></section>
 
         {(published.some((article) => article.youtubeUrl) || published.some((article) => (article.tags || []).some((tag) => /podcast/i.test(tag)))) && <section className="container media-hub-section" id="midia"><div className="section-heading large-heading"><div><span className="eyebrow">PCH NEWS · VÍDEOS E PODCASTS</span><h2>Programas e conversas</h2></div><div className="heading-rule"><span>Conteúdo audiovisual</span></div></div><div className="media-hub-grid">{published.filter((article) => article.youtubeUrl || (article.tags || []).some((tag) => /podcast/i.test(tag))).slice(0,6).map((article) => <Link key={article.id} href={`/materia/${article.id}`} className="media-hub-card"><div className="media-hub-label">{article.youtubeUrl ? "VÍDEO" : "PODCAST"}</div><h3>{article.title}</h3><p>{article.summary}</p><span>Assistir / ouvir <ArrowRight size={14}/></span></Link>)}</div></section>}
         {published.length >= 2 && <section className="container partners-section" id="parceiros">

@@ -1123,3 +1123,58 @@ main { padding-top:18px; }
 .recent-panel .recent-item span:not(.category-chip) { color:#b9c5cc; }
 .recent-panel .side-ad-slot a { color:#f4b72d; }
 .recent-panel .eyebrow { color:#f4b72d; }
+
+/* ===== UI review 2026-09-28 ===== */
+/* Header logo: the old round-badge ring was drawn around the wide lockup. */
+.brand-lockup .official-logo { border-radius:0; box-shadow:none; }
+
+/* Ad carousel: stay on the page grid and never show neighbouring slides. */
+section.container.ad-banner.ad-carousel { padding:0; width:calc(100% - 60px); max-width:1180px; margin-left:auto; margin-right:auto; }
+.ad-carousel .ad-slide { flex:0 0 100%; min-width:0; box-sizing:border-box; padding:16px 26px; overflow:hidden; grid-template-columns:minmax(0,1fr) 200px 150px; }
+.ad-carousel .ad-slide .ad-copy { min-width:0; }
+
+/* Knowledge service card icon */
+.service-card-knowledge .service-icon-pch strong { font-size:15px; letter-spacing:.04em; }
+
+/* Article cover: keep the full artwork (Pílulas are 16:9 cards with text). */
+.article-cover { max-height:none; height:auto; aspect-ratio:16/9; object-fit:cover; }
+.article-byline { flex-wrap:wrap; row-gap:4px; }
+
+/* Privacy consent banner (styles had been removed) */
+.privacy-consent { position:fixed; left:16px; right:16px; bottom:16px; z-index:120; max-width:980px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:20px; padding:16px 20px; border:1px solid rgba(244,183,45,.35); border-radius:14px; background:#071a2d; color:#f7f5ef; box-shadow:0 18px 44px rgba(0,0,0,.3); font-size:14px; }
+.privacy-consent-title { display:flex; align-items:center; gap:8px; font-weight:800; color:#f4b72d; }
+.privacy-consent-copy p { margin:6px 0; color:#c9d3da; line-height:1.45; max-width:560px; }
+.privacy-consent-links { display:flex; gap:14px; font-size:12px; }
+.privacy-consent-links a { color:#f7f5ef; text-decoration:underline; }
+.privacy-consent-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; position:relative; }
+.privacy-consent-options { display:grid; gap:6px; width:100%; margin-bottom:6px; }
+.privacy-consent-options label { display:flex; align-items:center; gap:8px; }
+.privacy-btn { display:inline-flex; align-items:center; gap:6px; min-height:38px; padding:0 14px; border-radius:8px; font:inherit; font-size:13px; font-weight:700; cursor:pointer; }
+.privacy-btn.primary { border:0; background:#f4b72d; color:#071a2d; }
+.privacy-btn.outline { border:1px solid rgba(255,255,255,.35); background:transparent; color:#f7f5ef; }
+.privacy-btn.ghost { border:0; background:transparent; color:#c9d3da; text-decoration:underline; }
+.privacy-close { position:absolute; top:-6px; right:-8px; border:0; background:transparent; color:#f7f5ef; cursor:pointer; }
+
+@media (max-width:900px) {
+  .header-motto { display:none; }
+  section.container.ad-banner.ad-carousel { width:calc(100% - 24px); }
+  .ad-carousel .ad-slide { grid-template-columns:1fr; padding:16px 18px 44px; }
+  .ad-carousel .ad-slide .ad-device { display:none; }
+}
+@media (max-width:600px) {
+  .brand-wordmark, .breaking-date { display:none; }
+  .privacy-consent { flex-direction:column; align-items:stretch; left:10px; right:10px; bottom:84px; padding:14px; }
+  .privacy-consent-actions .privacy-btn { flex:1 1 auto; justify-content:center; }
+}
+
+/* Admin: the sidebar is taller than common laptop screens. */
+.admin-sidebar { overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; }
+
+/* Admin invite panel: aligned three-column form with the send button below. */
+.invite-panel { padding:22px 24px; }
+.invite-panel .invite-intro { margin:4px 0 16px; color:#66717f; max-width:640px; }
+.invite-form { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr) minmax(0,1.2fr); gap:14px 16px; align-items:end; }
+.invite-form label { display:grid; gap:6px; font-size:13px; font-weight:700; color:#26364a; }
+.invite-form input, .invite-form select { width:100%; box-sizing:border-box; min-height:42px; }
+.invite-form button[type=submit] { grid-column:1 / -1; justify-self:start; min-width:220px; }
+@media (max-width:760px) { .invite-form { grid-template-columns:1fr; } .invite-form button[type=submit] { width:100%; } }

@@ -22,13 +22,20 @@ export async function upsertUser(user: InsertUser, _accessToken?: string | null)
   })();
 
   const existing = publicDb
-    ? await publicDb.from("users").select("openId,role").eq("openId", user.openId).maybeSingle()
+    ? await publicDb.from("users").select("openId,role,name").eq("openId", user.openId).maybeSingle()
     : { data: null, error: null };
   if (existing.error) throw existing.error;
 
+  const isOwner = (user.email ?? "").trim().toLowerCase() === "pchnews.oficial@gmail.com";
+
   if (existing.data) {
-    const { error } = await publicDb!.from("users").update({
-      name: user.name ?? null,
+    // Keep the owner account as admin even if its role was changed by mistake
+    // (e.g. accepting a test invite or editing the team list).
+    const writer = adminDb ?? publicDb!;
+    const { error } = await writer.from("users").update({
+      ...(isOwner && existing.data.role !== "admin" && adminDb ? { role: "admin" } : {}),
+      // Never overwrite a name edited in the panel with the provider/e-mail fallback.
+      name: existing.data.name || user.name || null,
       email: user.email ?? null,
       loginMethod: user.loginMethod ?? "supabase",
       lastSignedIn: new Date(),
