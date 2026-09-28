@@ -24,7 +24,7 @@ export default function PageMeta({ title, description, canonicalPath, imageUrl, 
     set('meta[name="description"]', { name: "description", content: description });
     set('meta[property="og:title"]', { property: "og:title", content: title });
     set('meta[property="og:description"]', { property: "og:description", content: description });
-    const defaultImage = "https://wsrv.nl/?url=https%3A%2F%2Fpch-news.pages.dev%2Fbrand%2Fpch-news-official-current.svg&output=png&w=1200&h=630&fit=contain&bg=071a2d";
+    const defaultImage = "https://wsrv.nl/?url=https%3A%2F%2Fpchnews.pchnews-oficial.workers.dev%2Fbrand%2Fpch-news-official-current.svg&output=png&w=1200&h=630&fit=contain&bg=071a2d";
     set('meta[property="og:image"]', { property: "og:image", content: imageUrl || defaultImage });
     set('meta[property="og:image:type"]', { property: "og:image:type", content: "image/png" });
     set('meta[property="og:type"]', { property: "og:type", content: type });

@@ -30,17 +30,10 @@ queryClient.getMutationCache().subscribe(event => {
 });
 
 const apiBaseUrl = (() => {
+  // The pchnews Worker serves the site and the API on the same origin
+  // (workers.dev and the custom domain), so the API is always same-origin.
   const configured = import.meta.env.VITE_API_BASE_URL?.trim().replace(/\/$/, "");
-  if (configured) return configured;
-  if (typeof window !== "undefined") {
-    const host = window.location.hostname;
-    // Static/production hosts route public and editorial API traffic to the PCH News Worker.
-    if (host.endsWith(".pages.dev") || host === "pchnews.com.br" || host === "www.pchnews.com.br") {
-      return "https://pchnews.pchnews-oficial.workers.dev";
-    }
-    if (host.endsWith(".pchnews-oficial.workers.dev")) return "";
-  }
-  return "";
+  return configured || "";
 })();
 
 const trpcClient = trpc.createClient({

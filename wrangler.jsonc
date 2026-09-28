@@ -25,6 +25,8 @@
       "/manus-storage/*",
       "/legacy-image/*",
       "/healthz",
+      "/robots.txt",
+      "/sitemap.xml",
       "/admin",
       "/admin/*",
       "/eventos",
