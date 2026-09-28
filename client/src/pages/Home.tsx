@@ -427,7 +427,7 @@ export default function Home() {
           </div>
 
           <div className="hostingpress-mini-card">
-            <Link className="hostingpress-mini-brand" href="/parceiros" aria-label="Conheça o parceiro oficial HostingPRESS">
+            <a className="hostingpress-mini-brand" href="https://hostingpress.com.br/" target="_blank" rel="noopener noreferrer" aria-label="Visitar o site oficial da HostingPRESS">
               <span className="hostingpress-mini-logo" aria-hidden="true">
                 <img
                   src="https://hostingpress.com.br/favicon.ico"
