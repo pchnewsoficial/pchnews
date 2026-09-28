@@ -420,22 +420,39 @@ export default function Home() {
         <section className="container services-section" id="servicos"><div className="section-heading large-heading"><div><span className="eyebrow">UTILIDADE PÚBLICA</span><h2>Serviços PCH News</h2></div><div className="heading-rule"><span>Informação que ajuda no dia a dia</span></div></div><div className="services-grid"><Link href="/eventos" className="service-card"><CalendarDays size={24}/><div><strong>Agenda de eventos</strong><p>Encontre eventos por cidade, estado e proximidade.</p></div><ArrowRight size={16}/></Link><Link href="/conhecimento-pch" className="service-card service-card-knowledge"><span className="service-icon service-icon-pch"><strong>PCH</strong></span><div><span className="service-eyebrow">IDEIAS · CULTURA · DESENVOLVIMENTO</span><strong>Conhecimento PCH</strong><p>Um espaço próprio para conhecimento, ideias e conteúdos especiais do PCH News.</p></div><ArrowRight size={16}/></Link></div></section>
 
         {(published.some((article) => article.youtubeUrl) || published.some((article) => (article.tags || []).some((tag) => /podcast/i.test(tag)))) && <section className="container media-hub-section" id="midia"><div className="section-heading large-heading"><div><span className="eyebrow">PCH NEWS · VÍDEOS E PODCASTS</span><h2>Programas e conversas</h2></div><div className="heading-rule"><span>Conteúdo audiovisual</span></div></div><div className="media-hub-grid">{published.filter((article) => article.youtubeUrl || (article.tags || []).some((tag) => /podcast/i.test(tag))).slice(0,6).map((article) => <Link key={article.id} href={`/materia/${article.id}`} className="media-hub-card"><div className="media-hub-label">{article.youtubeUrl ? "VÍDEO" : "PODCAST"}</div><h3>{article.title}</h3><p>{article.summary}</p><span>Assistir / ouvir <ArrowRight size={14}/></span></Link>)}</div></section>}
-        {published.length >= 2 && <section className="container partners-section" id="parceiros">
+        {published.length >= 2 && <section className="container partners-section hostingpress-section" id="parceiros">
           <div className="section-heading large-heading">
             <div><span className="eyebrow">REDE PCH NEWS</span><h2>Parceiro oficial</h2></div>
             <div className="heading-rule"><span>HostingPRESS</span></div>
           </div>
-          <Link className="partner-card hostingpress-partner-rail" href="/parceiros">
-            <span className="hostingpress-logo-wrap"><img src="https://hostingpress.com.br/favicon.ico" alt="Logo oficial HostingPRESS" /></span>
-            <span className="hostingpress-partner-copy"><span className="eyebrow">HOSTINGPRESS</span><strong>Rede de mídia, tecnologia e distribuição</strong></span>
-            <span className="hostingpress-channel-marquee" aria-label="Canais HostingPRESS">
-              <span className="hostingpress-channel-track">
+
+          <div className="hostingpress-mini-card">
+            <Link className="hostingpress-mini-brand" href="/parceiros" aria-label="Conheça o parceiro oficial HostingPRESS">
+              <span className="hostingpress-mini-logo" aria-hidden="true">
+                <img
+                  src="https://hostingpress.com.br/favicon.ico"
+                  alt=""
+                  onError={(event) => {
+                    event.currentTarget.style.display = "none";
+                    event.currentTarget.nextElementSibling?.classList.add("is-visible");
+                  }}
+                />
+                <span className="hostingpress-logo-fallback">HOSTINGPRESS</span>
+              </span>
+              <span className="hostingpress-mini-copy">
+                <strong>HOSTINGPRESS</strong>
+                <small>Rede de mídia, tecnologia e distribuição</small>
+              </span>
+              <ArrowRight size={16} aria-hidden="true" />
+            </Link>
+
+            <div className="hostingpress-channel-window" aria-label="Canais do parceiro HostingPRESS">
+              <div className="hostingpress-channel-track">
                 {["Doutor Imprensa Talk Show","Café de Negócios","Intelectualidade Online","Talento Gospel","Maternidade INFOCO","De Frente com Randal","Casa HUB Digital","Sofá Jurídico"].map((channel) => <span key={channel} className="hostingpress-channel-pill">{channel}</span>)}
                 {["Doutor Imprensa Talk Show","Café de Negócios","Intelectualidade Online","Talento Gospel","Maternidade INFOCO","De Frente com Randal","Casa HUB Digital","Sofá Jurídico"].map((channel) => <span key={channel+"-clone"} className="hostingpress-channel-pill">{channel}</span>)}
-              </span>
-            </span>
-            <ArrowRight size={18} />
-          </Link>
+              </div>
+            </div>
+          </div>
         </section>}
 
       <nav className="mobile-app-nav" aria-label="Atalhos rápidos">
