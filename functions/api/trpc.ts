@@ -10,6 +10,16 @@ type Env = {
   PCH_ADMIN_EMAILS?: string;
 };
 
+const DEFAULT_SUPABASE_URL = "https://dlfipxqtbzmmbuksppvk.supabase.co";
+const DEFAULT_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_LQbform0fOesGsuiNWzd8Q_18RYf86V";
+
+function supabaseConfig(env: Env) {
+  return {
+    url: env.SUPABASE_URL?.trim() || DEFAULT_SUPABASE_URL,
+    publishableKey: env.SUPABASE_PUBLISHABLE_KEY || env.SUPABASE_ANON_KEY || DEFAULT_SUPABASE_PUBLISHABLE_KEY,
+  };
+}
+
 type Article = {
   id: string; title: string; category: string; author: string; authorOpenId?: string | null;
   summary: string; date: string; updated: string; status: "published"|"draft"|"scheduled"|"archived";
@@ -68,9 +78,9 @@ function getBearerToken(request: Request) {
 }
 
 function createPublicUserClient(env: Env, token: string) {
-  const key = env.SUPABASE_PUBLISHABLE_KEY || env.SUPABASE_ANON_KEY;
-  if (!env.SUPABASE_URL || !key) return null;
-  return createClient(env.SUPABASE_URL, key, {
+  const { url, publishableKey: key } = supabaseConfig(env);
+  if (!url || !key) return null;
+  return createClient(url, key, {
     auth: { persistSession: false, autoRefreshToken: false },
     global: { headers: { Authorization: `Bearer ${token}` } },
   });
@@ -80,9 +90,10 @@ async function currentUser(request: Request, env: Env, required = false) {
   const token = getBearerToken(request);
   if (!token) { if (required) throw new Error("UNAUTHORIZED"); return null; }
 
+  const { url } = supabaseConfig(env);
   const serverKey = env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SECRET_KEY;
   const db = serverKey
-    ? createClient(env.SUPABASE_URL, serverKey, { auth: { persistSession: false, autoRefreshToken: false } })
+    ? createClient(url, serverKey, { auth: { persistSession: false, autoRefreshToken: false } })
     : createPublicUserClient(env, token);
 
   if (!db) {
@@ -126,9 +137,10 @@ async function currentUser(request: Request, env: Env, required = false) {
 
 async function handleProcedure(path: string, request: Request, env: Env, input: any) {
   const token = getBearerToken(request);
+  const { url } = supabaseConfig(env);
   const serverKey = env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SECRET_KEY;
   const db = serverKey
-    ? createClient(env.SUPABASE_URL, serverKey, { auth: { persistSession: false, autoRefreshToken: false } })
+    ? createClient(url, serverKey, { auth: { persistSession: false, autoRefreshToken: false } })
     : (token ? createPublicUserClient(env, token) : null);
   if (!db) throw new Error("Supabase is not configured for this request.");
   const STAFF_ROLES = ["admin", "editor", "journalist", "columnist", "reviewer"] as const;
