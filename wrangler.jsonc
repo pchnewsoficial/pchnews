@@ -38,7 +38,13 @@
       "/404",
       "/materia/*",
       "/colunista/*",
-      "/convite/*"
+      "/convite/*",
+      "/conhecimento-pch",
+      "/conhecimento-pch/*",
+      "/correcoes",
+      "/correcoes/*",
+      "/painel-editorial",
+      "/painel-editorial/*"
     ]
   }
 }
