@@ -160,7 +160,7 @@ export default {
       url.pathname.startsWith("/materia/") ||
       url.pathname.startsWith("/colunista/") ||
       url.pathname.startsWith("/convite/") ||
-      url.pathname === "/institucional" || url.pathname === "/anuncie" || url.pathname === "/lei" || url.pathname === "/privacidade" || url.pathname === "/termos" || url.pathname === "/cookies" || url.pathname === "/parceiros";
+      url.pathname === "/institucional" || url.pathname === "/anuncie" || url.pathname === "/lei" || url.pathname === "/privacidade" || url.pathname === "/termos" || url.pathname === "/cookies" || url.pathname === "/parceiros" || url.pathname === "/conhecimento-pch" || url.pathname === "/correcoes";
 
     // Canonicalize the legacy editorial route at the Worker boundary. This prevents
     // any stale/client-side router from ever resolving /painel-editorial as Agenda.
