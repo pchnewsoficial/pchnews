@@ -1046,7 +1046,7 @@ main { padding-top:18px; }
 
 /* PCH News — mobile app navigation + Knowledge/Agenda polish */
 .service-card-knowledge{position:relative;overflow:hidden;min-height:118px;background:linear-gradient(135deg,#fffdf7 0%,#fff8e7 58%,#fffdf7 100%);border-color:#dfc477;box-shadow:0 8px 22px rgba(132,94,16,.08)}
-.service-card-knowledge:before{content:"";position:absolute;right:-34px;top:-48px;width:130px;height:130px;border-radius:50%;border:1px solid rgba(211,169,70,.25)}
+.service-card-knowledge:before{content:"";position:absolute;right:-34px;top:-24px;width:130px;height:130px;border-radius:50%;border:1px solid rgba(211,169,70,.25)}
 .service-card-knowledge>svg{color:#8e691c}
 .service-card-knowledge .service-icon-pch{width:54px;height:54px;border:0;border-radius:12px;background:var(--pch-navy);color:var(--pch-gold);display:grid;place-items:center;align-content:center;gap:1px;box-shadow:0 8px 18px rgba(7,26,45,.16);flex:0 0 54px}
 .service-card-knowledge .service-icon-pch strong{font-size:var(--pch-type-sm);line-height:1;letter-spacing:.02em}.service-card-knowledge .service-icon-pch small{font-size:var(--pch-type-xs);letter-spacing:.1em;color:var(--pch-surface);opacity:.72}
