@@ -1477,3 +1477,239 @@ section.container.ad-banner.ad-carousel { height:auto !important; min-height:0 !
   .site-header .brand-wordmark{font-size:15px;}
   .site-header .primary-nav{gap:14px;}
 }
+
+
+/* ===== Desktop editorial redesign 2.0 — 2026-09-28 ===== */
+@media (min-width:981px){
+  .site-header{
+    background:linear-gradient(180deg,#071a2d 0%,#0b2740 100%);
+  }
+  .header-main{
+    height:82px;
+    max-width:1440px;
+    padding:0 42px;
+    gap:24px;
+  }
+  .brand-lockup{
+    min-width:300px;
+    gap:12px;
+  }
+  .brand-lockup .official-logo{
+    width:64px;
+    height:64px;
+    flex:0 0 64px;
+  }
+  .brand-wordmark{
+    display:inline;
+    font-size:22px;
+    letter-spacing:-.045em;
+  }
+  .header-live-info{
+    margin-left:auto;
+    gap:10px;
+    font-size:12px;
+  }
+  .header-live-item{
+    min-height:34px;
+    padding:0 10px;
+    border-left:1px solid rgba(255,255,255,.12);
+  }
+  .header-weather{
+    padding-right:0;
+  }
+  .header-weather span{
+    font-size:12px;
+    font-weight:800;
+  }
+  .header-weather svg:first-child{
+    width:17px;
+    height:17px;
+  }
+  .nav-wrap{
+    background:#061827;
+  }
+  .primary-nav{
+    min-height:46px;
+    padding:0 42px;
+    gap:27px;
+  }
+  .primary-nav button{
+    padding:15px 0 13px;
+    font-size:11px;
+  }
+
+  main{padding-top:14px;}
+
+  /* Advertising becomes a slim commercial strip, not the main visual. */
+  section.container.ad-banner.ad-carousel{
+    width:calc(100% - 84px);
+    max-width:1356px;
+    min-height:112px;
+    margin:0 auto 18px;
+    padding:14px 24px;
+    border-radius:6px;
+  }
+  .ad-carousel .ad-slide{
+    min-height:112px;
+    padding:10px 0;
+    grid-template-columns:minmax(0,1fr) 170px 145px;
+    column-gap:18px;
+  }
+  .ad-copy h2{
+    font-size:25px;
+    margin:4px 0 5px;
+  }
+  .ad-copy p{
+    font-size:12px;
+    line-height:1.35;
+    margin-bottom:7px;
+  }
+  .ad-device{min-height:76px;}
+  .ad-side{padding-left:16px;}
+  .ad-side strong{font-size:18px;}
+
+  /* Main editorial stage: one dominant story + a compact newsroom rail. */
+  .lead-layout{
+    max-width:1440px;
+    padding:0 42px;
+    grid-template-columns:minmax(0,1fr) 386px;
+    gap:18px;
+  }
+  .lead-carousel,.lead-story{
+    height:410px;
+  }
+  .lead-carousel{
+    border-radius:6px;
+  }
+  .story-overlay{
+    padding:34px 38px;
+    background:linear-gradient(90deg,rgba(2,12,18,.94) 0%,rgba(2,12,18,.62) 54%,rgba(2,12,18,.08) 100%);
+  }
+  .story-overlay h2{
+    max-width:720px;
+    margin:10px 0 9px;
+    font-size:clamp(34px,3.25vw,50px);
+    line-height:1.02;
+  }
+  .story-overlay .lead-summary{
+    max-width:650px;
+    margin-bottom:12px;
+    font-size:15px;
+    line-height:1.4;
+  }
+  .carousel-controls{
+    right:16px;
+    bottom:14px;
+  }
+  .recent-panel{
+    border-radius:6px;
+    padding:18px 18px;
+    display:flex;
+    flex-direction:column;
+  }
+  .recent-panel .section-heading{
+    margin-bottom:6px;
+  }
+  .recent-panel .section-heading h2{
+    font-size:23px;
+  }
+  .recent-item{
+    grid-template-columns:92px minmax(0,1fr);
+    gap:11px;
+    padding:10px 0;
+    min-height:0;
+  }
+  .recent-thumb{
+    height:68px;
+  }
+  .recent-item h3{
+    font-size:13px;
+    line-height:1.2;
+    margin:3px 0 4px;
+    display:-webkit-box;
+    -webkit-line-clamp:3;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  .recent-item p{
+    font-size:10px;
+    line-height:1.3;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  .item-category{font-size:9px;}
+
+  /* Make the first desktop content after the hero feel like a newsroom, not a template grid. */
+  .quote-strip{
+    margin-top:18px;
+  }
+  .quote-inner{
+    min-height:100px;
+    padding:20px 42px;
+  }
+  .quote-inner p{
+    font-size:23px;
+  }
+
+  .columnist-showcase,.latest-section,.most-read-section{
+    max-width:1440px;
+    padding:38px 42px 0;
+  }
+  .section-heading.large-heading{
+    margin-bottom:16px;
+  }
+  .section-heading h2{
+    font-size:25px;
+  }
+  .columnist-rail{
+    grid-template-columns:minmax(1.35fr,1.35fr) repeat(3,minmax(0,1fr));
+    gap:14px;
+  }
+  .columnist-card:first-child{
+    grid-row:span 2;
+  }
+  .columnist-card:first-child .columnist-card-image{
+    height:250px;
+  }
+  .columnist-card-image{
+    height:160px;
+  }
+  .columnist-card-copy{
+    padding:13px 14px;
+  }
+  .latest-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:14px;
+  }
+  .news-image{
+    height:165px;
+  }
+  .news-copy{
+    padding:14px;
+  }
+  .news-copy h3{
+    font-size:18px;
+  }
+  .news-copy p{
+    font-size:12px;
+    line-height:1.4;
+  }
+  .most-read-section{
+    padding-bottom:42px;
+  }
+  .most-read-item{
+    padding:14px 18px;
+  }
+}
+
+/* Desktop only: make the temperature a visible identity cue without adding another bar. */
+@media (min-width:981px){
+  .header-live-item.header-weather{
+    border-left:1px solid rgba(244,183,45,.35);
+  }
+  .header-live-item.header-weather svg{
+    color:var(--pch-gold);
+  }
+}
