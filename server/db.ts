@@ -174,7 +174,7 @@ export async function createComment(row:Comment,accessToken?:string|null){const 
 export async function createAdRequest(input:{
   id:string; business:string; contactName:string; email:string; phone:string; city?:string|null;
   website?:string|null; socials?:string|null; adType:string; budget?:string|null; period?:string|null;
-  message:string; creativeUrl?:string|null; creativeNeed?:"client_artwork"|"pch_creation"|"no_artwork_yet"; consentAtMs:number; status:"received"; createdAtMs:number;
+  message:string; destinationUrl?:string|null; creativeUrl?:string|null; creativeNeed?:"client_artwork"|"pch_creation"|"no_artwork_yet"; consentAtMs:number; status:"received"; createdAtMs:number;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database unavailable");
