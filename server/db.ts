@@ -40,7 +40,10 @@ export async function getUserByOpenId(openId:string, accessToken?: string | null
   if(error) throw error; return data ?? undefined;
 }
 export async function getEditorialSnapshot(includePrivate=false, accessToken?: string | null) {
-  // Public editorial reads must not depend on a browser/session JWT. The Admin is authenticated,\n  // while the public homepage is anonymous; both must see the same published editorial data.\n  const db=includePrivate ? await getDb(accessToken) : getSupabaseAdmin();\n  if(!db) return {articles:[],comments:[],profiles:[],adRequests:[]};
+  // Public editorial reads must not depend on a browser/session JWT. The Admin is authenticated,
+  // while the public homepage is anonymous; both must see the same published editorial data.
+  const db=includePrivate ? await getDb(accessToken) : getSupabaseAdmin();
+  if(!db) return {articles:[],comments:[],profiles:[],adRequests:[]};
   // Scheduled publication is owned by the Cloudflare Worker cron. This read path
   // must never perform implicit editorial writes, especially for authenticated
   // columnists/reviewers whose RLS role does not grant publication writes.

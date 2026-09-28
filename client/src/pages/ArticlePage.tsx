@@ -80,7 +80,7 @@ export default function ArticlePage() {
   const [viewCount, setViewCount] = useState(0);
   const [commentForm, setCommentForm] = useState({ name: "", text: "" });
   const article = useMemo(() => {
-    const remote = data?.articles?.map(mapServerArticle).find((item) => item.id === params?.slug || slugify(item.title) === params?.slug);
+    const remote = data?.articles?.map(mapServerArticle).find((item: NewsArticle) => item.id === params?.slug || slugify(item.title) === params?.slug);
     return remote;
   }, [data, params?.slug]);
   useEffect(() => {
