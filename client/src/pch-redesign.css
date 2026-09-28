@@ -1178,3 +1178,18 @@ section.container.ad-banner.ad-carousel { padding:0; width:calc(100% - 60px); ma
 .invite-form input, .invite-form select { width:100%; box-sizing:border-box; min-height:42px; }
 .invite-form button[type=submit] { grid-column:1 / -1; justify-self:start; min-width:220px; }
 @media (max-width:760px) { .invite-form { grid-template-columns:1fr; } .invite-form button[type=submit] { width:100%; } }
+
+/* UI review follow-up: override older fixed heights. */
+section.container.ad-banner.ad-carousel { height:auto !important; min-height:0 !important; }
+.ad-carousel .ad-slide { align-items:center; height:auto; min-height:150px; }
+.article-reader .article-cover, img.article-cover { height:auto !important; max-height:none !important; aspect-ratio:16/9; }
+.article-byline > span { display:inline-flex; align-items:center; gap:4px; }
+@media (max-width:900px) { .site-header .header-motto { display:none !important; } }
+@media (max-width:600px) { .site-header .brand-wordmark, .breaking-bar .breaking-date { display:none !important; } }
+/* Ad carousel renders only the active slide; headings are h2 in the markup. */
+.ad-carousel .ad-carousel-track { display:block; transform:none; }
+.ad-carousel .ad-slide { display:grid; width:100%; column-gap:24px; }
+.ad-copy h2 { margin:6px 0 6px; color:#fff; font-family:'Oswald',sans-serif; font-size:clamp(22px,2.4vw,32px); font-weight:600; line-height:1.02; text-transform:uppercase; letter-spacing:-.01em; }
+.ad-copy h2 em { color:#f4b72d; font-style:normal; }
+.ad-copy .ad-tag { color:#f4b72d; border-color:rgba(244,183,45,.5); }
+.ad-copy p { color:#c3ccd4; }
