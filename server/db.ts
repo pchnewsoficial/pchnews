@@ -12,9 +12,36 @@ export async function upsertUser(user: InsertUser, _accessToken?: string | null)
   if (!user.openId) throw new Error("User openId is required for upsert");
 
   // Authentication has already been validated against Supabase Auth before this
-  // function is reached. Persist the synchronized profile with the server-only
-  // service-role client instead of calling a public SECURITY DEFINER RPC.
-  const adminDb = getSupabaseAdmin();
+  // function is reached. Existing users must be able to refresh their profile on
+  // Cloudflare even when the service-role secret is intentionally unavailable.
+  // Use the authenticated user's JWT for the normal profile sync path; reserve the
+  // server-only client for first-time provisioning / privileged role assignment.
+  const publicDb = _accessToken ? getSupabaseServer(_accessToken) : null;
+  const adminDb = (() => {
+    try { return getSupabaseAdmin(); } catch { return null; }
+  })();
+
+  const existing = publicDb
+    ? await publicDb.from("users").select("openId,role").eq("openId", user.openId).maybeSingle()
+    : { data: null, error: null };
+  if (existing.error) throw existing.error;
+
+  if (existing.data) {
+    const { error } = await publicDb!.from("users").update({
+      name: user.name ?? null,
+      email: user.email ?? null,
+      loginMethod: user.loginMethod ?? "supabase",
+      lastSignedIn: new Date(),
+    }).eq("openId", user.openId);
+    if (error) throw error;
+    return;
+  }
+
+  // New-account provisioning requires the server-only key because an anonymous
+  // user must not be able to create or elevate an editorial account.
+  if (!adminDb) {
+    throw new Error("New account provisioning requires SUPABASE_SERVICE_ROLE_KEY.");
+  }
   const { error } = await adminDb.from("users").upsert({
     openId: user.openId,
     name: user.name ?? null,
