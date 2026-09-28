@@ -228,9 +228,6 @@ export const appRouter = router({
       const before = existing ? { ...existing } : null;
       const nowMs = Date.now();
       await saveArticle({ ...input, authorOpenId: nextOwner, scheduledAt: effectiveScheduledAt, editorialChecklist: effectiveChecklist ?? undefined, createdAt: existing?.createdAt ?? new Date() }, ctx.accessToken);
-      const before = existing ? { ...existing } : null;
-      const nowMs = Date.now();
-      await saveArticle({ ...input, authorOpenId: nextOwner, scheduledAt: effectiveScheduledAt, editorialChecklist: effectiveChecklist ?? undefined, createdAt: existing?.createdAt ?? new Date() }, ctx.accessToken);
       await recordArticleAudit({ id: `audit-${nowMs}-${randomBytes(4).toString("hex")}`, articleId: input.id, actorOpenId: ctx.user.openId, actorName: ctx.user.name || ctx.user.email || "Usuário", action: before ? "updated" : "created", beforeJson: before ? JSON.stringify(before) : null, afterJson: JSON.stringify(input) }, ctx.accessToken);
       const workflowDb = await getDb(ctx.accessToken);
       if (workflowDb) {
