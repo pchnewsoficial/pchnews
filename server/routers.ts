@@ -129,7 +129,7 @@ export const appRouter = router({
     active: publicProcedure.query(async () => {
       const db = getSupabaseAdmin();
       const now = Date.now();
-      const { data, error } = await db.from("adCampaigns").select("id,name,adType,creativeUrl,targetScope,region,state,startsAtMs,endsAtMs,status").in("status", ["approved","active"]).or(`startsAtMs.is.null,startsAtMs.lte.${now}`).or(`endsAtMs.is.null,endsAtMs.gte.${now}`).order("updatedAtMs", { ascending: false }).limit(8);
+      const { data, error } = await db.from("adCampaigns").select("id,name,adType,creativeUrl,destinationUrl,targetScope,region,state,startsAtMs,endsAtMs,status").in("status", ["approved","active"]).or(`startsAtMs.is.null,startsAtMs.lte.${now}`).or(`endsAtMs.is.null,endsAtMs.gte.${now}`).order("updatedAtMs", { ascending: false }).limit(8);
       if (error) throw error;
       return (data || []).map((item: any) => ({
         id: item.id,
@@ -138,7 +138,7 @@ export const appRouter = router({
         emphasis: item.creativeUrl ? "Confira a campanha." : "Sua marca em destaque.",
         text: item.creativeUrl ? "Conheça esta campanha no PCH News." : "Espaço comercial administrado pela redação.",
         cta: "CONHEÇA A CAMPANHA",
-        href: item.creativeUrl || "/anuncie",
+        href: item.destinationUrl || "/anuncie",
       }));
     }),
     list: adminProcedure.query(async () => {
@@ -149,7 +149,7 @@ export const appRouter = router({
     }),
     create: adminProcedure.input(z.object({
       id: z.string().min(2), advertiserCompany: z.string().min(2), name: z.string().min(2), adType: z.string().min(2),
-      creativeUrl: z.string().url().nullable().optional(), targetScope: z.string().default("national"),
+      creativeUrl: z.string().url().nullable().optional(), destinationUrl: z.string().url().nullable().optional(), targetScope: z.string().default("national"),
       region: z.string().nullable().optional(), state: z.string().nullable().optional(),
       startsAtMs: z.number().int().nullable().optional(), endsAtMs: z.number().int().nullable().optional(),
       status: z.enum(["draft","approved","active","paused","finished"]).default("draft"),
@@ -160,7 +160,7 @@ export const appRouter = router({
       const { error: advertiserError } = await db.from("advertisers").upsert({ id: advertiserId, company: input.advertiserCompany, status: "active", createdAtMs: now, updatedAtMs: now }, { onConflict: "id" });
       if (advertiserError) throw advertiserError;
       const { advertiserCompany: _advertiserCompany, ...campaignInput } = input;
-      const row = { ...campaignInput, advertiserId, creativeUrl: input.creativeUrl || null, region: input.region || null, state: input.state || null, startsAtMs: input.startsAtMs ?? null, endsAtMs: input.endsAtMs ?? null, createdAtMs: now, updatedAtMs: now };
+      const row = { ...campaignInput, advertiserId, creativeUrl: input.creativeUrl || null, destinationUrl: input.destinationUrl || null, region: input.region || null, state: input.state || null, startsAtMs: input.startsAtMs ?? null, endsAtMs: input.endsAtMs ?? null, createdAtMs: now, updatedAtMs: now };
       const { data, error } = await db.from("adCampaigns").insert(row).select("*").single();
       if (error) throw error;
       return data;
@@ -174,7 +174,7 @@ export const appRouter = router({
     })).mutation(async ({ input }) => {
       const db = getSupabaseAdmin();
       const { id, ...rest } = input;
-      const { data, error } = await db.from("adCampaigns").update({ ...rest, creativeUrl: rest.creativeUrl || null, region: rest.region || null, state: rest.state || null, startsAtMs: rest.startsAtMs ?? null, endsAtMs: rest.endsAtMs ?? null, updatedAtMs: Date.now() }).eq("id", id).select("*").single();
+      const { data, error } = await db.from("adCampaigns").update({ ...rest, creativeUrl: rest.creativeUrl || null, destinationUrl: rest.destinationUrl || null, region: rest.region || null, state: rest.state || null, startsAtMs: rest.startsAtMs ?? null, endsAtMs: rest.endsAtMs ?? null, updatedAtMs: Date.now() }).eq("id", id).select("*").single();
       if (error) throw error;
       return data;
     }),
@@ -196,7 +196,7 @@ export const appRouter = router({
       city: z.string().trim().max(120).optional().default(""), website: z.string().trim().max(300).optional().default(""),
       socials: z.string().trim().max(500).optional().default(""), adType: z.string().trim().min(2).max(120),
       budget: z.string().trim().max(120).optional().default(""), period: z.string().trim().max(120).optional().default(""),
-      message: z.string().trim().min(10).max(5000), consent: z.literal(true),
+      message: z.string().trim().min(10).max(5000), destinationUrl: z.string().url().nullable().optional(), consent: z.literal(true),
       creativeUrl: z.string().url().nullable().optional(), creativeNeed: z.enum(["client_artwork", "pch_creation", "no_artwork_yet"]).default("no_artwork_yet"),
     })).mutation(async ({ input }) => createAdRequest({
       id:`ad-${Date.now()}-${randomBytes(6).toString("hex")}`, business:input.business, contactName:input.contactName,
