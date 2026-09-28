@@ -1408,3 +1408,13 @@ section.container.ad-banner.ad-carousel { height:auto !important; min-height:0 !
  .events-hero-actions{grid-template-columns:1fr;}
  .events-hero-actions .gold-button{grid-column:auto;}
 }
+
+
+/* ===== Mobile navigation deduplication — 2026-09-28 ===== */
+@media (max-width:700px) {
+  /* Menu and search live in the fixed mobile bar; do not repeat them in the header. */
+  .site-header .mobile-only,
+  .site-header .header-actions .icon-button { display:none !important; }
+  .site-header .header-actions { display:none !important; }
+  .brand-lockup { justify-content:flex-start; }
+}
