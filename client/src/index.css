@@ -502,3 +502,18 @@ button { border: 0; }
 
 /* Design-system contrast corrections */
 .events-hero .eyebrow.gold { color: #f4d06f; }
+
+
+/* Upload de arte para campanhas — 2026-09-28 */
+.banner-upload-box{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:-6px;padding:10px 12px;border:1px dashed rgba(244,183,45,.38);border-radius:8px;background:rgba(244,183,45,.045);}
+.banner-upload-button{display:inline-flex!important;align-items:center;gap:7px;cursor:pointer;margin:0!important;}
+.banner-upload-box>span{font-size:11px;opacity:.7;}
+.banner-clear-button{display:inline-flex;align-items:center;gap:5px;border:0;background:transparent;color:inherit;cursor:pointer;font-size:11px;opacity:.8;}
+.banner-art-preview{display:grid;grid-template-columns:180px minmax(0,1fr);align-items:center;gap:12px;margin-top:8px;padding:10px;border:1px solid rgba(255,255,255,.09);border-radius:8px;background:rgba(0,0,0,.12);}
+.banner-art-preview img{display:block;width:180px;height:82px;object-fit:cover;border-radius:5px;background:#fff;}
+.banner-art-preview span{font-size:11px;opacity:.72;}
+@media(max-width:700px){
+ .banner-art-preview{grid-template-columns:1fr;}
+ .banner-art-preview img{width:100%;height:auto;max-height:180px;object-fit:contain;}
+ .banner-upload-box{align-items:flex-start;}
+}
