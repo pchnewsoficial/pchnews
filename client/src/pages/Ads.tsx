@@ -10,7 +10,7 @@ export default function Ads({ notify }:{notify:(message:string)=>void}) {
  const updateCampaign=trpc.ads.update.useMutation({onSuccess:()=>{void campaigns.refetch();notify("Campanha atualizada.");}});
  const mediaUpload=trpc.media.upload.useMutation();
  const [bannerUploading,setBannerUploading]=useState(false);
- const [campaignForm,setCampaignForm]=useState({id:"",advertiserCompany:"",name:"",adType:"Banner lateral",creativeUrl:"",targetScope:"national",region:"",state:"",startsAtMs:null as number|null,endsAtMs:null as number|null,status:"draft" as "draft"|"approved"|"active"|"paused"|"finished"});
+ const [campaignForm,setCampaignForm]=useState({id:"",advertiserCompany:"",name:"",adType:"Banner lateral",creativeUrl:"",destinationUrl:"",targetScope:"national",region:"",state:"",startsAtMs:null as number|null,endsAtMs:null as number|null,status:"draft" as "draft"|"approved"|"active"|"paused"|"finished"});
 
  const uploadBanner=async(file:File)=>{
   const allowed=["image/png","image/jpeg","image/webp","image/gif"];
@@ -29,13 +29,13 @@ export default function Ads({ notify }:{notify:(message:string)=>void}) {
 
  const saveCampaign=(event:any)=>{
   event.preventDefault();
-  const payload={...campaignForm,creativeUrl:campaignForm.creativeUrl||null,region:campaignForm.region||null,state:campaignForm.state||null};
+  const payload={...campaignForm,creativeUrl:campaignForm.creativeUrl||null,destinationUrl:campaignForm.destinationUrl||null,region:campaignForm.region||null,state:campaignForm.state||null};
   if(campaignForm.id) updateCampaign.mutate(payload as any); else createCampaign.mutate(payload as any);
  };
  const publishCampaignNow=()=>{
   if(!campaignForm.advertiserCompany.trim()||!campaignForm.name.trim()||!campaignForm.adType.trim()){notify("Preencha empresa, nome da campanha e tipo antes de publicar.");return;}
   const now=Date.now();
-  const payload={...campaignForm,status:"active" as const,startsAtMs:campaignForm.startsAtMs??now,creativeUrl:campaignForm.creativeUrl||null,region:campaignForm.region||null,state:campaignForm.state||null};
+  const payload={...campaignForm,status:"active" as const,startsAtMs:campaignForm.startsAtMs??now,creativeUrl:campaignForm.creativeUrl||null,destinationUrl:campaignForm.destinationUrl||null,region:campaignForm.region||null,state:campaignForm.state||null};
   if(campaignForm.id) updateCampaign.mutate(payload as any); else createCampaign.mutate(payload as any);
   notify("Campanha enviada para publicação imediata.");
  };
@@ -61,14 +61,14 @@ export default function Ads({ notify }:{notify:(message:string)=>void}) {
    <form className="ad-form" onSubmit={saveCampaign}>
     <div className="form-two"><label>Empresa anunciante<input required value={campaignForm.advertiserCompany} onChange={e=>setCampaignForm({...campaignForm,advertiserCompany:e.target.value})}/></label><label>Nome da campanha<input required value={campaignForm.name} onChange={e=>setCampaignForm({...campaignForm,name:e.target.value})}/></label></div>
     <div className="form-two"><label>Tipo<select value={campaignForm.adType} onChange={e=>setCampaignForm({...campaignForm,adType:e.target.value})}><option>Banner lateral</option><option>Banner mobile</option><option>Banner destaque</option><option>Patrocínio</option></select></label><label>Status<select value={campaignForm.status} onChange={e=>setCampaignForm({...campaignForm,status:e.target.value as any})}><option value="draft">Rascunho</option><option value="approved">Aprovado</option><option value="active">Ativo</option><option value="paused">Pausado</option><option value="finished">Finalizado</option></select></label></div>
-    <label>Arte do banner / link da peça<input type="url" value={campaignForm.creativeUrl} onChange={e=>setCampaignForm({...campaignForm,creativeUrl:e.target.value})} placeholder="Cole uma URL ou envie a arte abaixo"/></label>
+    <label>Arte do banner<input type="url" value={campaignForm.creativeUrl} onChange={e=>setCampaignForm({...campaignForm,creativeUrl:e.target.value})} placeholder="URL da imagem/arte ou envie a arte abaixo"/></label>
     <div className="banner-upload-box"><label className="secondary-cta banner-upload-button"><Upload size={15}/>{bannerUploading?"Enviando arte…":"Enviar arte do banner"}<input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={e=>{const file=e.target.files?.[0];if(file)void uploadBanner(file);e.currentTarget.value="";}} disabled={bannerUploading} hidden/></label><span>JPG, PNG, WebP ou GIF · até 5 MB</span>{campaignForm.creativeUrl&&<button type="button" className="banner-clear-button" onClick={()=>setCampaignForm({...campaignForm,creativeUrl:""})}><X size={14}/> Remover</button>}</div>
     {campaignForm.creativeUrl&&<div className="banner-art-preview"><img src={campaignForm.creativeUrl} alt="Prévia da arte da campanha"/><span>Prévia da peça</span></div>}
     <div className="form-two"><label>Início<input type="datetime-local" value={campaignForm.startsAtMs?new Date(campaignForm.startsAtMs).toISOString().slice(0,16):""} onChange={e=>setCampaignForm({...campaignForm,startsAtMs:e.target.value?new Date(e.target.value).getTime():null})}/></label><label>Fim<input type="datetime-local" value={campaignForm.endsAtMs?new Date(campaignForm.endsAtMs).toISOString().slice(0,16):""} onChange={e=>setCampaignForm({...campaignForm,endsAtMs:e.target.value?new Date(e.target.value).getTime():null})}/></label></div>
     <div className="form-two"><label>Região<input value={campaignForm.region} onChange={e=>setCampaignForm({...campaignForm,region:e.target.value})}/></label><label>Estado<input value={campaignForm.state} onChange={e=>setCampaignForm({...campaignForm,state:e.target.value})}/></label></div>
     <div className="form-two"><button className="secondary-cta" type="submit" disabled={createCampaign.isPending||updateCampaign.isPending}>Salvar {campaignForm.id?"alterações":"rascunho"}</button><button className="primary-cta" type="button" onClick={publishCampaignNow} disabled={createCampaign.isPending||updateCampaign.isPending}><Megaphone size={15}/> Publicar agora</button></div>
    </form>
-   <div className="ad-requests">{campaigns.data?.map((item:any)=><div className="ad-request" key={item.id}><div><strong>{item.name}</strong><small>{item.advertiserCompany||"Anunciante não informado"} · {item.adType} · {item.status}</small></div><button type="button" className="secondary-cta" onClick={()=>setCampaignForm({...campaignForm,...item,advertiserCompany:item.advertiserCompany||"",creativeUrl:item.creativeUrl||"",region:item.region||"",state:item.state||""})}>Editar</button></div>)}</div>
+   <div className="ad-requests">{campaigns.data?.map((item:any)=><div className="ad-request" key={item.id}><div><strong>{item.name}</strong><small>{item.advertiserCompany||"Anunciante não informado"} · {item.adType} · {item.status}</small></div><button type="button" className="secondary-cta" onClick={()=>setCampaignForm({...campaignForm,...item,advertiserCompany:item.advertiserCompany||"",creativeUrl:item.creativeUrl||"",destinationUrl:item.destinationUrl||"",region:item.region||"",state:item.state||""})}>Editar</button></div>)}</div>
   </section>
  </div>;
 }
