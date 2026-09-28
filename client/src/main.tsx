@@ -36,9 +36,9 @@ const apiBaseUrl = (() => {
     const host = window.location.hostname;
     // Static/production hosts route public and editorial API traffic to the PCH News Worker.
     if (host.endsWith(".pages.dev") || host === "pchnews.com.br" || host === "www.pchnews.com.br") {
-      return "https://pch-news.pchnews-oficial.workers.dev";
+      return "https://pchnews.pchnews-oficial.workers.dev";
     }
-    if (host === "pch-news.pchnews-oficial.workers.dev") return "";
+    if (host.endsWith(".pchnews-oficial.workers.dev")) return "";
   }
   return "";
 })();

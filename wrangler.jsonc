@@ -1,8 +1,15 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "pch-news",
+  "name": "pchnews",
   "main": "./worker/index.ts",
   "compatibility_date": "2026-09-24",
+  // Public (non-secret) runtime config. SUPABASE_SECRET_KEY must be set as a
+  // Worker secret in the Cloudflare dashboard (Settings -> Variables and Secrets).
+  "vars": {
+    "SUPABASE_URL": "https://dlfipxqtbzmmbuksppvk.supabase.co",
+    "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_LQbform0fOesGsuiNWzd8Q_18RYf86V",
+    "SUPABASE_ANON_KEY": "sb_publishable_LQbform0fOesGsuiNWzd8Q_18RYf86V"
+  },
   "triggers": { "crons": ["*/5 * * * *"] },
   "compatibility_flags": [
     "nodejs_compat",

@@ -42,17 +42,17 @@ export default defineConfig({
     host: true,
     proxy: {
       "/api": {
-        target: process.env.PCH_PREVIEW_API_TARGET || "https://pch-news.pchnews-oficial.workers.dev",
+        target: process.env.PCH_PREVIEW_API_TARGET || "https://pchnews.pchnews-oficial.workers.dev",
         changeOrigin: true,
         secure: true,
       },
       "/manus-storage": {
-        target: process.env.PCH_PREVIEW_API_TARGET || "https://pch-news.pchnews-oficial.workers.dev",
+        target: process.env.PCH_PREVIEW_API_TARGET || "https://pchnews.pchnews-oficial.workers.dev",
         changeOrigin: true,
         secure: true,
       },
       "/legacy-image": {
-        target: process.env.PCH_PREVIEW_API_TARGET || "https://pch-news.pchnews-oficial.workers.dev",
+        target: process.env.PCH_PREVIEW_API_TARGET || "https://pchnews.pchnews-oficial.workers.dev",
         changeOrigin: true,
         secure: true,
       },

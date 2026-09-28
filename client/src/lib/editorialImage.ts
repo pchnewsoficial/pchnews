@@ -1,7 +1,7 @@
 import officialLogoUrl from "@/assets/pch-news-official-current.svg";
 
 const HOSTINGPRESS_ORIGIN = "https://pchnews.hostingpress.com.br";
-const WORKER_IMAGE_ORIGIN = import.meta.env.VITE_WORKER_IMAGE_ORIGIN?.trim() || "https://pch-news.pchnews-oficial.workers.dev";
+const WORKER_IMAGE_ORIGIN = import.meta.env.VITE_WORKER_IMAGE_ORIGIN?.trim() || "https://pchnews.pchnews-oficial.workers.dev";
 
 /**
  * Resolve editorial artwork without depending on /brand/media files from the
