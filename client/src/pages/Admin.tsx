@@ -157,7 +157,7 @@ export default function Admin() {
   const mediaList = trpc.media.list.useQuery(undefined, { enabled: Boolean(user), retry: false });
   const mediaUpload = trpc.media.upload.useMutation();
   const mediaDelete = trpc.media.delete.useMutation({ onSuccess: () => { void mediaList.refetch(); notify("Mídia removida do armazenamento."); }, onError: (error) => notify(error.message) });
-  const canManageArticle = (article: NewsArticle) => isAdmin || (["editor", "journalist", "columnist"].includes(user?.role || "") && article.author === currentAuthor);
+  const canManageArticle = (article: NewsArticle) => isAdmin || currentRole === "editor" || ((currentRole === "journalist" || currentRole === "columnist") && Boolean(article.authorOpenId) && article.authorOpenId === user?.openId);
   const [, navigate] = useLocation();
 
   const saveProfile = (profile: ProfileData) => { const next = { ...profiles, [profile.slug]: profile }; setProfiles(next); profileSave.mutate(profile, { onSuccess: () => notify("Perfil atualizado e publicado no banco."), onError: () => notify("Não foi possível salvar o perfil agora.") }); };
