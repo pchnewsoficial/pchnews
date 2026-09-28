@@ -1,4 +1,4 @@
-import { saveArticle } from "./db";
+import { getArticle, getDb, saveArticle } from "./db";
 import { storagePut } from "./storage";
 
 const SOURCE = "https://pchnews.hostingpress.com.br";
@@ -74,6 +74,7 @@ export async function syncHostingPressPilulas(accessToken?: string | null) {
   if (!links.length) throw new Error("Nenhuma matéria /materia/ foi encontrada na fonte HostingPRESS.");
 
   const imported: string[] = [];
+  let preserved = 0;
   for (const url of links) {
     try {
       const response = await fetch(url, { headers: { "user-agent": USER_AGENT }, redirect: "follow" });
@@ -104,8 +105,36 @@ export async function syncHostingPressPilulas(accessToken?: string | null) {
       const articleBody = typeof ld?.articleBody === "string" ? ld.articleBody.trim() : "";
       const bodyHtml = articleBody ? toBodyHtml(articleBody) : (description ? "<p>" + escapeHtml(description) + "</p>" : "<p>Conteúdo sincronizado da fonte editorial.</p>");
       const slug = url.split("/materia/")[1]?.replace(/\/$/, "") || headline.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      const articleId = "hostingpress-pilula-" + slug;
+      // One-time archive import: never overwrite editorial work on items that
+      // already exist (views, status, featured, manual artwork, edited text).
+      // Existing records only receive fields that are still empty.
+      let existing: any = await getArticle(articleId, accessToken).catch(() => undefined);
+      if (!existing) {
+        // The native archive (evaldo-pilula-NN-*) uses different ids: match by
+        // slug or title so the import never duplicates an existing Pílula.
+        const db: any = await getDb(accessToken);
+        const normTitle = headline.trim();
+        const { data: matches } = db
+          ? await db.from("articles").select("*").or(`slug.eq."${slug.replace(/"/g, "")}",title.ilike."${normTitle.replace(/["\\]/g, "")}"`).limit(1)
+          : { data: [] };
+        existing = matches?.[0];
+      }
+      if (existing) {
+        const patch: Record<string, unknown> = {};
+        if (!existing.image && image) patch.image = image;
+        if (existing.editionNumber == null && editionNumber != null) patch.editionNumber = editionNumber;
+        if (!existing.contentType) patch.contentType = "pilula";
+        if (Object.keys(patch).length) {
+          await saveArticle({ ...existing, ...patch, updated: new Date().toISOString() }, accessToken);
+          imported.push(headline + " (completada)");
+        } else {
+          preserved++;
+        }
+        continue;
+      }
       await saveArticle({
-        id: "hostingpress-pilula-" + slug,
+        id: articleId,
         title: headline,
         category: "Colunas",
         author: "Evaldo Poeta",
@@ -121,7 +150,7 @@ export async function syncHostingPressPilulas(accessToken?: string | null) {
         tags: ["Pílula do Poeta", "Evaldo Poeta", "reflexão"],
         scope: "national",
         language: "pt-BR",
-        featured: true,
+        featured: false,
         sourceUrl: url,
         sourceName: "PCH News / HostingPRESS",
         slug,
@@ -133,6 +162,6 @@ export async function syncHostingPressPilulas(accessToken?: string | null) {
       console.warn("[PCH] Pílula sync skipped:", url, error);
     }
   }
-  if (!imported.length) throw new Error("A fonte respondeu, mas nenhuma Pílula do Poeta de Evaldo Poeta pôde ser importada.");
-  return { success: true, imported, count: imported.length, source: SOURCE };
+  if (!imported.length && !preserved) throw new Error("A fonte respondeu, mas nenhuma Pílula do Poeta de Evaldo Poeta pôde ser importada.");
+  return { success: true, imported, count: imported.length, preserved, source: SOURCE };
 }
