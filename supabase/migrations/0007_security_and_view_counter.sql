@@ -32,7 +32,7 @@ begin
     into current_views
     from public."articles"
    where "id" = p_article_id
-     and "status" = 'published';
+     and "status" in ('published', 'updated');
 
   if current_views is null then
     return jsonb_build_object('counted', false, 'views', 0);
@@ -62,7 +62,7 @@ begin
      set "views" = "views" + 1,
          "updatedAt" = now()
    where "id" = p_article_id
-     and "status" = 'published'
+     and "status" in ('published', 'updated')
    returning "views" into current_views;
 
   return jsonb_build_object(
