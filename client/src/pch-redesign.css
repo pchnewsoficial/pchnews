@@ -1392,3 +1392,19 @@ section.container.ad-banner.ad-carousel { height:auto !important; min-height:0 !
   .recent-panel .side-ad-slot { margin-left:-10px; margin-right:-10px; }
   .news-image { height:112px; }
 }
+
+
+/* Agenda share controls — clearer on small screens */
+.events-hero-actions .event-share-button,.events-hero-actions .event-copy-button{min-height:42px;}
+@media (max-width:700px){
+ .events-hero-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+ .events-hero-actions .gold-button{grid-column:1 / -1;justify-content:center;}
+ .events-hero-actions .event-share-button{justify-content:center;}
+ .events-hero-actions .event-copy-button{justify-content:center;}
+ .events-hero-actions .outline-event-button{width:100%;padding:9px 10px;font-size:11px;}
+ .near-status{font-size:10px;line-height:1.35;}
+}
+@media (max-width:380px){
+ .events-hero-actions{grid-template-columns:1fr;}
+ .events-hero-actions .gold-button{grid-column:auto;}
+}
