@@ -147,20 +147,29 @@ export default {
       return handleAsNodeRequest(3000, request);
     }
 
+    const spaPath = url.pathname.replace(/\\/+$/, "") || "/";
     const isSpaRoute =
-      url.pathname === "/admin" ||
-      url.pathname.startsWith("/admin/") ||
-      url.pathname === "/eventos" ||
-      url.pathname.startsWith("/eventos/") ||
-      url.pathname === "/agenda" ||
-      url.pathname.startsWith("/agenda/") ||
-      url.pathname === "/login" ||
-      url.pathname === "/perfil" ||
-      url.pathname === "/404" ||
-      url.pathname.startsWith("/materia/") ||
-      url.pathname.startsWith("/colunista/") ||
-      url.pathname.startsWith("/convite/") ||
-      url.pathname === "/institucional" || url.pathname === "/anuncie" || url.pathname === "/lei" || url.pathname === "/privacidade" || url.pathname === "/termos" || url.pathname === "/cookies" || url.pathname === "/parceiros" || url.pathname === "/conhecimento-pch" || url.pathname === "/correcoes";
+      spaPath === "/admin" ||
+      spaPath.startsWith("/admin/") ||
+      spaPath === "/eventos" ||
+      spaPath.startsWith("/eventos/") ||
+      spaPath === "/agenda" ||
+      spaPath.startsWith("/agenda/") ||
+      spaPath === "/login" ||
+      spaPath === "/perfil" ||
+      spaPath === "/404" ||
+      spaPath.startsWith("/materia/") ||
+      spaPath.startsWith("/colunista/") ||
+      spaPath.startsWith("/convite/") ||
+      spaPath === "/institucional" ||
+      spaPath === "/anuncie" ||
+      spaPath === "/lei" ||
+      spaPath === "/privacidade" ||
+      spaPath === "/termos" ||
+      spaPath === "/cookies" ||
+      spaPath === "/parceiros" ||
+      spaPath === "/conhecimento-pch" ||
+      spaPath === "/correcoes";
 
     // Canonicalize the legacy editorial route at the Worker boundary. This prevents
     // any stale/client-side router from ever resolving /painel-editorial as Agenda.
