@@ -196,7 +196,7 @@ export default function Admin() {
       createdAt: comment.createdAt || new Date(Number(comment.createdAtMs || Date.now())).toLocaleString("pt-BR"),
       repliedAt: comment.repliedAt || (comment.repliedAtMs ? new Date(Number(comment.repliedAtMs)).toLocaleString("pt-BR") : undefined),
     })));
-    setProfiles(Object.fromEntries((editorialRemote.profiles || []).map((profile: any) => [profile.slug, profile])));
+    setProfiles(Object.fromEntries((editorialRemote.profiles || []).map((profile: any) => [profile.slug, { ...profile, productsJson: typeof profile.productsJson === "string" ? profile.productsJson : JSON.stringify(profile.productsJson || []) }])));
   }, [editorialRemote]);
   const totalViews = articles.reduce((total, article) => total + article.views, 0);
 
