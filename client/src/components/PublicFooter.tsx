@@ -247,11 +247,6 @@ export default function PublicFooter() {
         </section>
       )}
 
-      <div className="container footer-bottom">
-        <span>PCH News · Brasil e mundo</span>
-        <span>Notícia, análise, opinião e publicidade identificada.</span>
-      </div>
-
       {columnists.length > 0 && (
         <section className="container footer-columnists" aria-label="Colunistas PCH News">
           <div className="footer-columnists-heading">
