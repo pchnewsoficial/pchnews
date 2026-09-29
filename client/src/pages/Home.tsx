@@ -310,10 +310,6 @@ export default function Home() {
               <div className="events-promo-date"><CalendarDays size={15}/><strong>{new Intl.DateTimeFormat("pt-BR",{day:"2-digit",month:"short"}).format(new Date(Number(event.startAtMs)))}</strong><span>{new Intl.DateTimeFormat("pt-BR",{hour:"2-digit",minute:"2-digit"}).format(new Date(Number(event.startAtMs)))}</span></div>
               <div><span className="item-category">{event.eventType}</span><h3>{event.title}</h3><p><MapPin size={12}/> {event.city}/{event.state}</p></div>
               {event.sponsored && <span className="event-sponsored-label">PATROCINADO</span>}
-            </Link>)}{(eventCarousel.data || []).map((event:any) => <Link key={event.id+"-clone"} href={`/eventos/${event.id}`} className="events-promo-card">
-              <div className="events-promo-date"><CalendarDays size={15}/><strong>{new Intl.DateTimeFormat("pt-BR",{day:"2-digit",month:"short"}).format(new Date(Number(event.startAtMs)))}</strong><span>{new Intl.DateTimeFormat("pt-BR",{hour:"2-digit",minute:"2-digit"}).format(new Date(Number(event.startAtMs)))}</span></div>
-              <div><span className="item-category">{event.eventType}</span><h3>{event.title}</h3><p><MapPin size={12}/> {event.city}/{event.state}</p></div>
-              {event.sponsored && <span className="event-sponsored-label">PATROCINADO</span>}
             </Link>)}</div>
           </div>
         </section>}
