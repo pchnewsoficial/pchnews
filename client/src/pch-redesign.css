@@ -405,39 +405,34 @@
 }
 
 
-/* Desktop: header actions stay in the fourth grid area of the top row. */
+/* Desktop header final contract: actions belong to the top row, never the category row. */
 @media (min-width:981px){
   .site-header .header-main{
-    display:grid!important;
-    grid-template-columns:minmax(230px,250px) minmax(240px,1fr) auto max-content!important;
-    grid-template-rows:72px!important;
+    display:flex!important;
+    height:72px!important;
+    min-height:72px!important;
     align-items:center!important;
-    column-gap:14px!important;
+    gap:14px!important;
     position:relative!important;
     z-index:300!important;
     overflow:visible!important;
   }
-  .site-header .brand-lockup{grid-column:1;grid-row:1;min-width:0!important;width:100%!important;}
-  .site-header .header-motto{grid-column:2;grid-row:1;min-width:0!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0!important;}
-  .site-header .header-live-info{grid-column:3;grid-row:1;min-width:max-content!important;}
+  .site-header .brand-lockup{flex:0 0 250px!important;min-width:250px!important;max-width:250px!important;}
+  .site-header .header-motto{flex:1 1 auto!important;min-width:0!important;margin:0!important;padding:0!important;text-align:left!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+  .site-header .header-live-info{flex:0 0 auto!important;min-width:max-content!important;}
   .site-header .header-actions{
-    grid-column:4!important;
-    grid-row:1!important;
+    flex:0 0 auto!important;
+    min-width:max-content!important;
+    margin:0 0 0 auto!important;
     position:relative!important;
     inset:auto!important;
     transform:none!important;
-    margin:0!important;
-    min-width:max-content!important;
-    justify-self:end!important;
-    align-self:center!important;
     display:flex!important;
     align-items:center!important;
-    justify-content:flex-end!important;
-    z-index:500!important;
     visibility:visible!important;
     opacity:1!important;
-    pointer-events:auto!important;
+    z-index:500!important;
   }
   .site-header .header-actions>*{position:relative!important;z-index:501!important;}
-  .site-header .nav-wrap{position:relative!important;z-index:20!important;margin-top:0!important;clear:both!important;}
+  .site-header .nav-wrap{position:relative!important;z-index:20!important;display:block!important;clear:both!important;}
 }
