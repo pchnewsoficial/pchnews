@@ -508,6 +508,7 @@ export default function Admin() {
   return <section className="editor-review-panel" style={{ marginBottom: 18 }}>
     <div className="panel-heading"><div><span className="admin-kicker">PCH NEWS · ALÉM DA NOTÍCIA</span><h3>Segunda leitura editorial</h3></div></div>
     <p>{beyond.output?.editorialQuestion}</p>
+    {Array.isArray(beyond.output?.guideQuestions) && <div className="editor-review-item"><b>PERGUNTAS-GUIA</b><span>{beyond.output.guideQuestions.map((question: string, index: number) => <span key={"beyond-question-" + index} style={{ display: "block", marginTop: index ? 6 : 0 }}>{index + 1}. {question}</span>)}</span></div>}
     <div className="editor-review-item"><b>{beyond.status === "pass" ? "OK" : "REVISAR"}</b><span>Contexto: {beyond.output?.checks?.hasContext ? "identificado" : "não identificado"} · Dimensão humana: {beyond.output?.checks?.hasHumanDimension ? "identificada" : "não identificada"} · Camada além da notícia: {beyond.output?.checks?.hasBeyondQuestion ? "identificada" : "não identificada"}.</span></div>
     {(beyond.findings || []).map((finding: any, index: number) => <div className="editor-review-item" key={"beyond-" + index}><b>{finding.severity.toUpperCase()}</b><span>{finding.message}{finding.suggestion ? " " + finding.suggestion : ""}</span></div>)}
   </section>;
