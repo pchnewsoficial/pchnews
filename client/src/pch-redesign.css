@@ -175,3 +175,86 @@
 .beyond-news-question p{margin:0;color:rgba(255,255,255,.78);font-size:11px;line-height:1.45;}
 @media(max-width:900px){.beyond-news-question-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
 @media(max-width:600px){.beyond-news-questions{margin-top:14px;padding-top:13px;}.beyond-news-questions-heading h3{font-size:16px;}.beyond-news-question-grid{grid-template-columns:1fr;gap:7px;}.beyond-news-question{padding:10px 11px;}}
+
+/* Final mobile header correction — overrides legacy responsive rules above. */
+@media(max-width:700px){
+  .site-header .header-main{
+    height:60px!important;
+    min-height:60px!important;
+    padding:0 12px!important;
+    gap:8px!important;
+    display:flex!important;
+    align-items:center!important;
+  }
+  .site-header .header-main > .mobile-only{
+    display:inline-flex!important;
+    flex:0 0 36px!important;
+    width:36px!important;
+    min-width:36px!important;
+    height:36px!important;
+    min-height:36px!important;
+    margin:0!important;
+    padding:0!important;
+    align-items:center!important;
+    justify-content:center!important;
+    border:1px solid rgba(255,255,255,.28)!important;
+    border-radius:8px!important;
+    background:rgba(255,255,255,.06)!important;
+    color:#fff!important;
+  }
+  .site-header .brand-lockup{
+    display:flex!important;
+    min-width:0!important;
+    flex:1 1 auto!important;
+    gap:0!important;
+    overflow:hidden!important;
+  }
+  .site-header .official-logo{
+    width:96px!important;
+    height:42px!important;
+    min-width:96px!important;
+    flex:0 0 96px!important;
+    object-fit:contain!important;
+    object-position:left center!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+  }
+  .site-header .brand-wordmark,
+  .site-header .brand-caption,
+  .site-header .header-motto,
+  .site-header .header-live-info,
+  .site-header .mobile-weather-strip,
+  .site-header .profile-link,
+  .site-header .admin-link{
+    display:none!important;
+  }
+  .site-header .header-actions{
+    display:flex!important;
+    align-items:center!important;
+    gap:7px!important;
+    margin-left:auto!important;
+    flex:0 0 auto!important;
+  }
+  .site-header .header-actions .icon-button{
+    display:inline-flex!important;
+    flex:0 0 36px!important;
+    width:36px!important;
+    min-width:36px!important;
+    height:36px!important;
+    min-height:36px!important;
+    margin:0!important;
+    padding:0!important;
+    align-items:center!important;
+    justify-content:center!important;
+    border:1px solid rgba(255,255,255,.28)!important;
+    border-radius:8px!important;
+    background:rgba(255,255,255,.06)!important;
+    color:#fff!important;
+  }
+  .site-header .header-main > .mobile-only svg,
+  .site-header .header-actions .icon-button svg{
+    display:block!important;
+    width:19px!important;
+    height:19px!important;
+  }
+}
