@@ -55,7 +55,34 @@ function ScrollDirectionButton() {
 }
 function ClarityRouteTracker() {
   const [location] = useLocation();
-  useEffect(() => { clarityEvent("page_view"); }, [location]);
+  useEffect(() => {
+    clarityEvent("page_view");
+  }, [location]);
+  return null;
+}
+
+function ContentScrollController() {
+  const [location] = useLocation();
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if ("scrollRestoration" in window.history) window.history.scrollRestoration = "manual";
+    if (window.location.hash) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      // Internal navigation always starts at the beginning of the actual content,
+      // rather than preserving an arbitrary scroll position from the previous page.
+      const content = document.querySelector("main, article, [role='main']");
+      if (content instanceof HTMLElement) {
+        content.scrollIntoView({ behavior: "instant", block: "start" });
+      } else {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      }
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [location]);
+
   return null;
 }
 function HomeOrAdmin() { return <Home />; }
@@ -92,4 +119,4 @@ function Router() {
     <Route path="/cookies" component={CookiesPage} /><Route path="/cookies/" component={CookiesPage} />
     <Route path="/parceiros" component={PartnersPage} /><Route path="/parceiros/" component={PartnersPage} /><Route path="/correcoes" component={EditorialRequests} /><Route path="/correcoes/" component={EditorialRequests} /><Route path="/404" component={NotFound} /><Route component={NotFound} /></Switch>;
 }
-export default function App() { return <ErrorBoundary><EditorialDataBridge /><ClarityRouteTracker /><TooltipProvider><Toaster /><Router /></TooltipProvider><PrivacyConsent /><ScrollDirectionButton /></ErrorBoundary>; }
+export default function App() { return <ErrorBoundary><EditorialDataBridge /><ClarityRouteTracker /><ContentScrollController /><TooltipProvider><Toaster /><Router /></TooltipProvider><PrivacyConsent /><ScrollDirectionButton /></ErrorBoundary>; }
