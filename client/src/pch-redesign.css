@@ -580,3 +580,96 @@
     overflow:visible!important;
   }
 }
+
+
+/* MOBILE HEADER — composição compacta e estável; desktop permanece intocado. */
+@media(max-width:700px){
+  .site-header .header-main{
+    height:60px!important;
+    min-height:60px!important;
+    padding:6px 10px!important;
+    display:flex!important;
+    align-items:center!important;
+    gap:8px!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+  }
+  .site-header .header-main>.mobile-only{
+    order:1!important;
+    flex:0 0 32px!important;
+    width:32px!important;
+    min-width:32px!important;
+    height:32px!important;
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    margin:0!important;
+  }
+  .site-header .brand-lockup{
+    order:2!important;
+    flex:1 1 auto!important;
+    min-width:0!important;
+    width:auto!important;
+    height:48px!important;
+    display:flex!important;
+    align-items:center!important;
+    gap:5px!important;
+    overflow:hidden!important;
+  }
+  .site-header .official-logo{
+    width:42px!important;
+    height:38px!important;
+    flex:0 0 42px!important;
+    object-fit:contain!important;
+  }
+  .site-header .brand-wordmark,
+  .site-header .brand-caption,
+  .site-header .header-motto,
+  .site-header .header-live-info,
+  .site-header .mobile-weather-strip,
+  .site-header .profile-link,
+  .site-header .admin-link{
+    display:none!important;
+  }
+  .site-header .header-actions{
+    order:3!important;
+    flex:0 0 34px!important;
+    width:34px!important;
+    min-width:34px!important;
+    height:34px!important;
+    margin:0!important;
+    padding:0!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:0!important;
+  }
+  .site-header .header-actions .icon-button{
+    display:inline-flex!important;
+    flex:0 0 32px!important;
+    width:32px!important;
+    min-width:32px!important;
+    height:32px!important;
+    min-height:32px!important;
+    margin:0!important;
+    padding:0!important;
+    align-items:center!important;
+    justify-content:center!important;
+    border-radius:8px!important;
+  }
+  .site-header .nav-wrap,
+  .site-header .nav-wrap.is-open{
+    width:100%!important;
+    box-sizing:border-box!important;
+  }
+  .site-header .nav-wrap.is-open{
+    display:block!important;
+  }
+  .site-header .primary-nav{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:0!important;
+    padding:7px 10px 9px!important;
+    box-sizing:border-box!important;
+  }
+}
