@@ -9,7 +9,7 @@ import PublicFooter from "@/components/PublicFooter";
 const LOGO_URL = officialLogoUrl;
 const imageUrl = (article: NewsArticle) => editorialImageUrl(article);
 const slugify = (value: string) => value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-function readProducts(profile:any){ try { const value=profile?.productsJson; const parsed=typeof value==="string"?JSON.parse(value||"[]"):value; return Array.isArray(parsed)?parsed.filter((item:any)=>item?.active!==false && item?.url):[]; } catch { return []; } }
+function readProducts(profile:any){ if(!profile?.commercialApproved) return []; try { const value=profile?.productsJson; const parsed=typeof value==="string"?JSON.parse(value||"[]"):value; return Array.isArray(parsed)?parsed.filter((item:any)=>item?.active!==false && item?.url):[]; } catch { return []; } }
 function externalUrl(value:string){ return /^https?:\/\//.test(value) ? value : "https://"+value.replace(/^\/+/, ""); }
 export default function ColumnistProfile() {
   const [, columnistParams] = useRoute("/colunista/:slug");
