@@ -171,6 +171,7 @@ export const appRouter = router({
       region: z.string().nullable().optional(), state: z.string().nullable().optional(),
       startsAtMs: z.number().int().nullable().optional(), endsAtMs: z.number().int().nullable().optional(),
       status: z.enum(["draft","approved","active","paused","finished"]),
+      destinationUrl: z.string().url().nullable().optional(),
     })).mutation(async ({ input }) => {
       const db = getSupabaseAdmin();
       const { id, ...rest } = input;
