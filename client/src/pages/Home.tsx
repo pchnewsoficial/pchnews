@@ -20,7 +20,7 @@ function Meta({ article }: { article: NewsArticle }) {
       <span>Por {article.author}</span>
       <span className="meta-dot">•</span>
       <span>{article.date}</span>
-      {article.views > 0 && <><span className="meta-dot">•</span><span><Eye size={12} /> {article.views.toLocaleString("pt-BR")} visualizações</span></>}
+      <><span className="meta-dot">•</span><span className="story-views"><Eye size={12} /> {Number(article.views || 0).toLocaleString("pt-BR")} visualizações</span></>
     </div>
   );
 }
