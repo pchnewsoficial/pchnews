@@ -107,8 +107,10 @@ jobs:
           pnpm dlx wrangler@4.38.0 deploy 2>&1 | tee /tmp/wrangler-deploy.log
           WORKER_URL="$(grep -Eo 'https://[A-Za-z0-9.-]+\.workers\.dev' /tmp/wrangler-deploy.log | tail -n 1 || true)"
           if [ -z "$WORKER_URL" ]; then
-            echo "Could not determine the deployed workers.dev URL from Wrangler output."
-            exit 1
+            WORKER_URL="https://pchnews.com.br"
+            echo "No workers.dev hostname was emitted; using the configured production custom domain: $WORKER_URL"
+          else
+            echo "Using Wrangler workers.dev hostname: $WORKER_URL"
           fi
           echo "worker_url=$WORKER_URL" >> "$GITHUB_OUTPUT"
 
