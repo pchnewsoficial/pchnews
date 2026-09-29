@@ -1,5 +1,6 @@
 import { getSupabaseAdmin, getSupabasePublic, getSupabaseServer } from "./_core/supabase";
 import { ENV } from "./_core/env";
+import { randomBytes } from "node:crypto";
 import type { AdRequest, Article, ArticleAudit, ColumnistInvite, ColumnistProfile, Comment, InsertUser, User } from "../drizzle/schema";
 
 export async function getDb(accessToken?: string | null) {
