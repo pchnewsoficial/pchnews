@@ -199,7 +199,6 @@ export default {
       // HTML entrypoint must always point the browser at the newest deployment.
       headers.set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
       headers.set("Pragma", "no-cache");
-      headers.set("X-PCH-Deployment", "a30acee330edd446a81e1efc63d1638147f491bd");
       return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
     }
     return env.ASSETS.fetch(request);
