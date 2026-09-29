@@ -55,6 +55,7 @@ export default function PublicFooter() {
         <div className="footer-column">
           <span>EDITORIAL</span>
           <Link href="/#ultimas">Últimas notícias</Link>
+          <Link href="/equipe">Equipe PCH News</Link>
           <Link href="/colunista/evaldo-poeta">Colunistas</Link>
           <a href="/admin">Painel editorial</a>
         </div>
