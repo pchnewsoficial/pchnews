@@ -885,22 +885,38 @@ function MediaPickerModal({ media, mode, onUpload, onClose, onSelect }: { media:
 }
 
 function HostingPressPanel() {
-  return <section className="panel" style={{ padding: 0, overflow: "hidden" }}>
-    <div className="panel-heading" style={{ padding: "20px 22px", margin: 0 }}>
+  return <section className="panel">
+    <div className="panel-heading">
       <div>
-        <span className="admin-kicker">PUBLICAÇÃO EXTERNA</span>
+        <span className="admin-kicker">INTEGRAÇÃO</span>
         <h2>HostingPress</h2>
-        <p>Área de acesso da HostingPress dentro do painel do PCH News.</p>
+        <p>Acesse o painel da HostingPress sem sair do fluxo de administração do PCH News.</p>
       </div>
-      <a className="secondary-cta" href="https://hostingpress.com.br/login" target="_blank" rel="noopener noreferrer"><ExternalLink size={15} /> Abrir em nova aba</a>
     </div>
-    <div style={{ minHeight: "calc(100vh - 230px)", background: "var(--background, #fff)" }}>
-      <iframe
-        title="HostingPress"
-        src="https://hostingpress.com.br/login"
-        style={{ width: "100%", height: "calc(100vh - 230px)", minHeight: 620, border: 0, display: "block" }}
-        referrerPolicy="strict-origin-when-cross-origin"
-      />
+    <div className="panel-body" style={{ padding: 24 }}>
+      <div style={{ display: "grid", gap: 16, maxWidth: 760 }}>
+        <div style={{ border: "1px solid var(--border, #e5e7eb)", borderRadius: 16, padding: 22, background: "var(--card, #fff)" }}>
+          <span className="admin-kicker">PAINEL HOSTINGPRESS</span>
+          <h3 style={{ margin: "8px 0 8px" }}>Abrir HostingPress</h3>
+          <p style={{ margin: "0 0 18px", lineHeight: 1.6 }}>
+            O painel da HostingPress não permite carregamento dentro de outra página. Por isso, o acesso é aberto em uma nova aba, preservando a sessão e a segurança do serviço.
+          </p>
+          <a
+            className="primary-cta"
+            href="https://hostingpress.com.br/login"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <ExternalLink size={16} /> Entrar na HostingPress
+          </a>
+        </div>
+        <div style={{ borderRadius: 14, padding: 16, background: "var(--muted, #f8fafc)" }}>
+          <strong>Próxima etapa</strong>
+          <p style={{ margin: "6px 0 0", lineHeight: 1.5 }}>
+            Depois de validarmos o acesso, podemos conectar a publicação do PCH News à HostingPress por integração oficial, sem depender de iframe.
+          </p>
+        </div>
+      </div>
     </div>
   </section>;
 }
