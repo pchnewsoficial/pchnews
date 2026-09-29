@@ -11,7 +11,7 @@ type Agent = {
   icon: typeof Sparkles;
 };
 
-const AGENTS: Agent[] = [
+export const EDITORIAL_AGENTS: Agent[] = [
   { id: "pauta-triage", name: "Agente de Pauta", description: "Organiza prioridade, ângulo, tags e checklist de apuração.", icon: FileCheck2 },
   { id: "workflow-gate", name: "Agente de Fluxo Editorial", description: "Confere a etapa atual e indica o próximo passo sem publicar sozinho.", icon: CheckCircle2 },
   { id: "source-readiness", name: "Agente de Fontes", description: "Identifica links e atribuições que precisam de conferência humana.", icon: SearchCheck },
@@ -77,7 +77,7 @@ export default function EditorialAgents({ articles, isAdmin, currentAuthor, noti
         {visible.map((item) => <option key={item.id} value={item.id}>{item.title} — {statusLabels[item.status] || item.status}</option>)}
       </select>
       <div className="agent-grid">
-        {AGENTS.map((agent) => { const Icon = agent.icon; return <button type="button" key={agent.id} className={selectedAgent === agent.id ? "agent-card active" : "agent-card"} onClick={() => execute(agent.id)} disabled={run.isPending}>
+        {EDITORIAL_AGENTS.map((agent) => { const Icon = agent.icon; return <button type="button" key={agent.id} className={selectedAgent === agent.id ? "agent-card active" : "agent-card"} onClick={() => execute(agent.id)} disabled={run.isPending}>
           <span className="agent-card-icon"><Icon size={18} /></span><strong>{agent.name}</strong><small>{agent.description}</small><em>{run.isPending && selectedAgent === agent.id ? "Executando…" : "Executar"}</em>
         </button>; })}
       </div>
