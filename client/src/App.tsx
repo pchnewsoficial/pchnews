@@ -30,12 +30,16 @@ import { clarityEvent } from "./lib/clarity";
 function AuthenticatedAdmin() { const { user, loading, error } = useAuth(); if (loading) return <div className="app-loading">Validando acesso seguro…</div>; if (error) return <div className="article-placeholder"><span className="admin-kicker">FALHA DE AUTENTICAÇÃO</span><h1>Não foi possível validar sua sessão.</h1><p>A sessão do Supabase foi encontrada, mas o servidor não conseguiu confirmar seu perfil. Verifique a configuração da API e tente novamente.</p><button className="primary-cta" onClick={() => window.location.reload()}>Tentar novamente</button></div>; if (!user) return <Login />; if (!(user.role === "admin" || ["editor", "journalist", "columnist", "reviewer"].includes(user.role))) return <div className="article-placeholder"><span className="admin-kicker">ACESSO RESTRITO</span><h1>Seu acesso ainda não foi liberado.</h1><p>Peça ao administrador do PCH News para liberar o papel editorial adequado à sua conta.</p><button className="primary-cta" onClick={() => window.location.assign("/login")}>Voltar ao acesso</button></div>; return <Admin />; }
 function ProtectedAdmin() { const [checkingSession, setCheckingSession] = useState(true); const [hasSession, setHasSession] = useState(false); useEffect(() => { let active = true; void supabase.auth.getSession().then(({ data }) => { if (!active) return; setHasSession(Boolean(data.session)); setCheckingSession(false); }); const { data } = supabase.auth.onAuthStateChange((event, session) => { if (!active) return; if (event === "SIGNED_OUT") setHasSession(false); else if (session) setHasSession(true); }); return () => { active = false; data.subscription.unsubscribe(); }; }, []); if (checkingSession) return <div className="app-loading">Abrindo acesso seguro…</div>; if (!hasSession) return <Login />; return <AuthenticatedAdmin />; }
 function ScrollDirectionButton() {
-  const [atTop, setAtTop] = useState(true);
+  const [showTop, setShowTop] = useState(false);
+  const [showBottom, setShowBottom] = useState(true);
+
   useEffect(() => {
     const update = () => {
       const doc = document.documentElement;
       const maxScroll = Math.max(0, doc.scrollHeight - window.innerHeight);
-      setAtTop(window.scrollY <= 24 || maxScroll <= 24);
+      const y = window.scrollY;
+      setShowTop(y > 160);
+      setShowBottom(maxScroll > 160 && y < maxScroll - 160);
     };
     update();
     window.addEventListener("scroll", update, { passive: true });
@@ -45,13 +49,16 @@ function ScrollDirectionButton() {
       window.removeEventListener("resize", update);
     };
   }, []);
-  const go = () => {
-    if (atTop) window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" });
-    else window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-  return <button type="button" className="scroll-direction-button" onClick={go} aria-label={atTop ? "Descer até o final da página" : "Voltar ao topo"} title={atTop ? "Ir para o final" : "Voltar ao topo"}>
-    {atTop ? <ArrowDown size={18} aria-hidden="true" /> : <ArrowUp size={18} aria-hidden="true" />}
-  </button>;
+
+  const goTop = () => window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+  const goBottom = () => window.scrollTo({ top: document.documentElement.scrollHeight, left: 0, behavior: "smooth" });
+
+  return (
+    <div className="scroll-navigation" aria-label="Navegação rápida da página">
+      {showTop && <button type="button" className="scroll-navigation-button scroll-navigation-top" onClick={goTop} aria-label="Voltar ao topo" title="Voltar ao topo"><ArrowUp size={18} aria-hidden="true" /></button>}
+      {showBottom && <button type="button" className="scroll-navigation-button scroll-navigation-bottom" onClick={goBottom} aria-label="Ir para o final da página" title="Ir para o final da página"><ArrowDown size={18} aria-hidden="true" /></button>}
+    </div>
+  );
 }
 function ClarityRouteTracker() {
   const [location] = useLocation();
