@@ -354,12 +354,6 @@ export default function Home() {
                 <p>Espaço lateral reservado para campanhas, parceiros e divulgação.</p>
                 <a href="/anuncie#formatos">Conheça os formatos <ArrowRight size={14} /></a>
               </div>
-              <div className="side-ad-slot side-ad-slot-secondary" aria-label="Divulgação PCH News">
-                <span className="ad-tag">DIVULGAÇÃO</span>
-                <strong>Leve o PCH News com você</strong>
-                <p>Compartilhe o portal e encontre as principais notícias, colunas e a agenda em um só lugar.</p>
-                <a href="/" onClick={(event) => { event.preventDefault(); void navigator.share?.({ title: "PCH News", text: "Confira o PCH News.", url: window.location.origin }); }}>Compartilhar PCH News <ArrowRight size={14} /></a>
-              </div>
             </div>
           </aside>
         </section>
