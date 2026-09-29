@@ -181,6 +181,33 @@ export const appRouter = router({
       return data;
     }),
   }),
+  adAnalytics: router({
+    record: publicProcedure.input(z.object({ campaignId:z.string().min(1), eventType:z.enum(["impression","click"]) })).mutation(async ({ input, ctx }) => {
+      const db = getSupabaseAdmin();
+      const visitorSeed = String(ctx.req.headers["x-forwarded-for"] || ctx.req.headers["user-agent"] || "anonymous");
+      const visitorHash = createHash("sha256").update(visitorSeed).digest("hex").slice(0,32);
+      const deviceType = /mobile|android|iphone|ipad/i.test(String(ctx.req.headers["user-agent"] || "")) ? "mobile" : "desktop";
+      const id = `ad-event-${Date.now()}-${randomBytes(5).toString("hex")}`;
+      const { error } = await db.from("adCampaignEvents").insert({ id, campaignId:input.campaignId, eventType:input.eventType, occurredAtMs:Date.now(), visitorHash, deviceType, referrer:String(ctx.req.headers.referer || "") || null });
+      if (error) throw error;
+      return { success:true };
+    }),
+    report: publicProcedure.input(z.object({ token:z.string().min(20) })).query(async ({ input }) => {
+      const db = getSupabaseAdmin();
+      const tokenHash = hashToken(input.token);
+      const { data: access, error: accessError } = await db.from("adCampaignAccess").select("campaignId,expiresAtMs,revokedAtMs").eq("tokenHash",tokenHash).maybeSingle();
+      if (accessError) throw accessError;
+      if (!access || access.revokedAtMs || (access.expiresAtMs && Number(access.expiresAtMs) < Date.now())) throw new Error("Link de acompanhamento inválido ou expirado.");
+      const { data: campaign, error: campaignError } = await db.from("adCampaigns").select("id,name,adType,startsAtMs,endsAtMs,status").eq("id",access.campaignId).maybeSingle();
+      if (campaignError) throw campaignError;
+      const { data: events, error: eventsError } = await db.from("adCampaignEvents").select("eventType,occurredAtMs,deviceType,visitorHash").eq("campaignId",access.campaignId).order("occurredAtMs",{ascending:false}).limit(5000);
+      if (eventsError) throw eventsError;
+      const rows=events||[];
+      const impressions=rows.filter((e:any)=>e.eventType==="impression").length;
+      const clicks=rows.filter((e:any)=>e.eventType==="click").length;
+      return { campaign, impressions, clicks, ctr: impressions ? Number(((clicks/impressions)*100).toFixed(2)) : 0, events: rows.map((e:any)=>({ eventType:e.eventType, occurredAtMs:e.occurredAtMs, deviceType:e.deviceType })) };
+    }),
+  }),
   adRequests: router({
     uploadAsset: publicProcedure.input(z.object({
       fileName: z.string().regex(/\.(png|jpe?g|webp|gif)$/i),
