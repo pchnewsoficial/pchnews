@@ -30,7 +30,7 @@ export type InsertArticle = Omit<Article, "createdAt" | "updatedAt"> & Partial<P
 
 export interface ViewEvent { id:string; articleId:string; visitorId:string; viewedAtMs:number; }
 export interface Comment { id:string; articleId:string; name:string; text:string; createdAtMs:number; status:CommentStatus; reply:string|null; repliedBy:string|null; repliedAtMs:number|null; }
-export interface ColumnistProfile { slug:string; name:string; beat:string; bio:string; photo:string; instagram:string; facebook:string; x:string; linkedin:string; updatedAt:Date; }
+export interface ColumnistProfile { slug:string; name:string; beat:string; bio:string; photo:string; instagram:string; facebook:string; x:string; linkedin:string; website:string; tiktok:string; productsJson:string; commercialApproved:boolean; updatedAt:Date; }
 export interface AdRequest { id:string; business:string; contact:string; packageName:string; message:string; status:"received"|"reviewing"|"approved"; createdAtMs:number; }
 export interface ColumnistInvite { id:string; email:string; name:string; tokenHash:string; expiresAtMs:number; createdAtMs:number; acceptedAtMs:number|null; revokedAtMs:number|null; partnershipAcceptedAtMs?:number|null; partnershipVersion?:string|null; confidentialityAcceptedAtMs?:number|null; confidentialityVersion?:string|null; termsAcceptedIp?:string|null; termsAcceptedUserAgent?:string|null; termsAcceptedTermsId?:string|null; }
 export interface ArticleAudit { id:string; articleId:string; actorOpenId:string; actorName:string; action:string; beforeJson:string|null; afterJson:string|null; createdAtMs:number; }
