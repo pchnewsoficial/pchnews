@@ -667,7 +667,7 @@ export default function Admin() {
             <label>Título SEO<input value={draft.seoTitle || ""} onChange={(event) => setDraft({ ...draft, seoTitle: event.target.value })} placeholder={draft.title} /></label>
             <label>Meta description<textarea value={draft.metaDescription || ""} onChange={(event) => setDraft({ ...draft, metaDescription: event.target.value })} rows={3} placeholder={draft.summary} /></label>
             <div className="form-grid"><label>URL canônica<input type="url" value={draft.canonicalUrl || ""} onChange={(event) => setDraft({ ...draft, canonicalUrl: event.target.value })} placeholder="https://pchnews.com.br/materia/..." /></label><label>Alt da imagem<input value={draft.imageAlt || ""} onChange={(event) => setDraft({ ...draft, imageAlt: event.target.value })} placeholder="Descrição objetiva da imagem" /></label></div>
-            <div className="form-grid"><label>OG title<input value={draft.ogTitle || ""} onChange={(event) => setDraft({ ...draft, ogTitle: event.target.value })} /></label><label>OG description<input value={draft.ogDescription || ""} onChange={(event) => setDraft({ ...draft, ogDescription: event.target.value })} /></div>
+            <div className="form-grid"><label>OG title<input value={draft.ogTitle || ""} onChange={(event) => setDraft({ ...draft, ogTitle: event.target.value })} /></label><label>OG description<input value={draft.ogDescription || ""} onChange={(event) => setDraft({ ...draft, ogDescription: event.target.value })} /></label></div>
             <label className="seo-noindex"><input type="checkbox" checked={Boolean(draft.noindex)} onChange={(event) => setDraft({ ...draft, noindex: event.target.checked })} /> Não indexar esta matéria (noindex)</label>
           </section>
 
