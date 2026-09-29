@@ -530,3 +530,122 @@ img{max-width:100%;}
  .ad-request{gap:10px;}
  .field-hint{display:block;margin:3px 0 0;}
 }
+
+
+/* ===== Footer final composition correction =====
+ * Six semantic blocks: brand + PCH News + social + editorial + transparency + signature.
+ * Keep them in one controlled grid on desktop and collapse progressively.
+ */
+.site-footer .footer-inner{
+  grid-template-columns:minmax(220px,1.35fr) repeat(4,minmax(120px,.78fr)) minmax(190px,1.05fr)!important;
+  gap:28px 24px!important;
+  padding:34px 30px 28px!important;
+}
+.site-footer .footer-brand-block{gap:14px!important;}
+.site-footer .footer-brand-block strong{
+  font-size:16px!important;
+  letter-spacing:.055em;
+}
+.site-footer .footer-brand-block p{
+  max-width:270px;
+  font-size:11px!important;
+  line-height:1.5!important;
+}
+.site-footer .footer-brand-block small{
+  max-width:270px;
+  font-size:9.5px;
+}
+.site-footer .footer-column{
+  gap:8px!important;
+}
+.site-footer .footer-column>span,
+.site-footer .footer-signature>span{
+  margin-bottom:5px!important;
+  font-size:10px!important;
+}
+.site-footer .footer-column a,
+.site-footer .footer-column button{
+  font-size:11px!important;
+  line-height:1.4;
+  letter-spacing:.035em;
+}
+.site-footer .footer-feature-link small{
+  max-width:230px;
+  font-size:9px;
+}
+.site-footer .footer-social-column .footer-socials{
+  width:100%;
+  grid-template-columns:1fr!important;
+  gap:6px;
+}
+.site-footer .footer-social-column .footer-social-link{
+  min-height:32px;
+  font-size:10px!important;
+}
+.site-footer .footer-social-column .footer-social-note{
+  font-size:9px;
+  line-height:1.45;
+}
+.site-footer .footer-signature strong{
+  font-size:16px!important;
+}
+.site-footer .footer-signature small{
+  max-width:280px;
+  font-size:9px!important;
+}
+.site-footer .footer-bottom{
+  padding:11px 30px!important;
+  font-size:9px!important;
+}
+
+@media(max-width:1120px){
+  .site-footer .footer-inner{
+    grid-template-columns:1.25fr repeat(3,minmax(130px,.9fr))!important;
+    gap:24px 20px!important;
+  }
+  .site-footer .footer-signature{
+    grid-column:1 / -1;
+    align-items:flex-start!important;
+    text-align:left!important;
+    padding-top:18px!important;
+    border-top:1px solid rgba(255,255,255,.07);
+  }
+}
+@media(max-width:760px){
+  .site-footer .footer-inner{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:24px 18px!important;
+    padding:26px 16px 22px!important;
+  }
+  .site-footer .footer-brand-block{
+    grid-column:1 / -1;
+  }
+  .site-footer .footer-signature{
+    grid-column:1 / -1;
+    padding-top:18px!important;
+  }
+  .site-footer .footer-column a,
+  .site-footer .footer-column button{
+    font-size:11px!important;
+    min-height:30px;
+  }
+  .site-footer .footer-bottom{
+    padding:11px 16px!important;
+    font-size:9px!important;
+  }
+}
+@media(max-width:480px){
+  .site-footer .footer-inner{
+    grid-template-columns:1fr!important;
+    gap:20px!important;
+    padding:24px 14px 20px!important;
+  }
+  .site-footer .footer-brand-block,
+  .site-footer .footer-signature,
+  .site-footer .footer-column{
+    grid-column:auto;
+  }
+  .site-footer .footer-social-column .footer-socials{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
