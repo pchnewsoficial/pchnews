@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { Activity, ArrowRight, Bot, CalendarClock, CheckCircle2, FileText, Megaphone, PenLine, Users } from "lucide-react";
-import { trpc } from "@/lib/trpc";
 import type { NewsArticle } from "@/lib/news";
 
 export default function EditorialCommandCenter({ articles, isAdmin, onNavigate }: { articles: NewsArticle[]; isAdmin: boolean; onNavigate: (view: string) => void }) {
