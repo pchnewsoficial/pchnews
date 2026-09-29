@@ -9,12 +9,13 @@ import Ads from "./Ads";
 import Audit, { AuditEntry } from "./Audit";
 import Comments from "./Comments";
 import Stats from "./Stats";
+import EditorialAgents, { EDITORIAL_AGENTS } from "./EditorialAgents";
 import EditorialCommandCenter from "./EditorialCommandCenter";
 import Pauta from "./Pauta";
 import ApiHubPanel from "@/components/ApiHubPanel";
 import { ArticleStatus, EDITORIAL_CATEGORIES, EDITORIAL_SCOPES, EDITORIAL_CONTENT_TYPES, EDITORIAL_CHECKLIST_DEFAULT, EDITORIAL_CHECKLIST_LABELS, MediaAsset, NewsArticle, makeArticleId, statusLabels } from "@/lib/news";
 
-type View = "overview" | "articles" | "pauta" | "media" | "settings" | "team" | "profile" | "comments" | "ads" | "stats" | "audit" | "apiHub" | "hostingPress" | "events" | "editorialRequests";
+type View = "overview" | "articles" | "pauta" | "media" | "settings" | "team" | "profile" | "comments" | "ads" | "stats" | "audit" | "agents" | "apiHub" | "hostingPress" | "events" | "editorialRequests";
 type AccessUser = { id: number; openId: string; name: string | null; email: string | null; role: "user" | "admin" | "editor" | "journalist" | "columnist" | "reviewer"; lastSignedIn: Date };
 import officialLogoUrl from "@/assets/pch-news-official-current.svg";
 const LOGO_URL = officialLogoUrl;
@@ -114,6 +115,7 @@ export default function Admin() {
   const [previewArticle, setPreviewArticle] = useState<NewsArticle | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [editorLeftOpen, setEditorLeftOpen] = useState(true);
+  const [editorAgentsOpen, setEditorAgentsOpen] = useState(true);
   const [media, setMedia] = useState<MediaAsset[]>([]);
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [comments, setComments] = useState<ReaderComment[]>([]);
@@ -140,6 +142,7 @@ export default function Admin() {
   useEffect(() => {
     if (editorOpen) {
       setEditorLeftOpen(true);
+      setEditorAgentsOpen(true);
     }
   }, [editorOpen]);
   const { data: editorialRemote, refetch: refetchEditorial } = trpc.editorial.bootstrap.useQuery(undefined, { enabled: Boolean(user), retry: false, refetchInterval: 5000, refetchIntervalInBackground: true });
@@ -504,6 +507,7 @@ export default function Admin() {
       ...(isAdmin ? [{ id: "hostingPress" as View, label: "HostingPress", icon: ExternalLink }] : []),
       { id: "stats", label: "Estatísticas", icon: BarChart3 },
       ...(isAdmin ? [{ id: "audit" as View, label: "Auditoria", icon: History }] : []),
+      ...(canUseEditorialAgents ? [{ id: "agents" as View, label: "Agentes editoriais", icon: Sparkles }] : []),
       ...(isAdmin ? [{ id: "apiHub" as View, label: "Integrações / API Hub", icon: Settings }] : []),
     ]},
     { label: "Conta", items: [
@@ -547,6 +551,7 @@ export default function Admin() {
 
           {view === "events" && canManageAgenda && <EventsAdmin notify={notify} />}
           {view === "editorialRequests" && isAdmin && <EditorialRequestsAdmin notify={notify} />}
+           {view === "agents" && canUseEditorialAgents && <EditorialAgents articles={articles} isAdmin={isAdmin} currentAuthor={currentAuthor} notify={notify} />}
           {view === "apiHub" && isAdmin && <ApiHubPanel isAdmin={isAdmin} />}
           {view === "hostingPress" && isAdmin && <HostingPressPanel />}
           {view === "audit" && isAdmin && <Audit entries={auditEntries as AuditEntry[]} />}
@@ -567,11 +572,13 @@ export default function Admin() {
       }} onOpenArticles={() => { setView("articles"); setOnboardingOpen(false); }} onOpenPauta={() => { setView("pauta"); setOnboardingOpen(false); }} />}
       {previewArticle && <PreviewModal article={previewArticle} onClose={() => setPreviewArticle(null)} />}
       {mediaPickerOpen && <MediaPickerModal media={media} mode={pickerMode} onUpload={uploadImageFile} onClose={() => setMediaPickerOpen(false)} onSelect={insertMediaIntoDraft} />}
-      {editorOpen && <div className={`editor-overlay editorial-editor-screen ${editorLeftOpen ? "editor-left-open" : "editor-left-closed"}`} role="dialog" aria-modal="true" aria-label={editing ? "Editar notícia" : "Nova notícia"}>
+      {editorOpen && <div className={`editor-overlay editorial-editor-screen ${editorLeftOpen ? "editor-left-open" : "editor-left-closed"} ${editorAgentsOpen ? "editor-agents-open" : "editor-agents-closed"}`} role="dialog" aria-modal="true" aria-label={editing ? "Editar notícia" : "Nova notícia"}>
   <button type="button" className="editor-side-toggle editor-side-toggle-left" onClick={() => setEditorLeftOpen((open) => !open)} aria-label={editorLeftOpen ? "Fechar menu lateral" : "Abrir menu lateral"} title={editorLeftOpen ? "Fechar menu" : "Abrir menu"}>
     {editorLeftOpen ? <PanelLeftClose size={18} /> : <PanelLeft size={18} />}
   </button>
-
+  <button type="button" className="editor-side-toggle editor-side-toggle-right" onClick={() => setEditorAgentsOpen((open) => !open)} aria-label={editorAgentsOpen ? "Fechar agentes editoriais" : "Abrir agentes editoriais"} title={editorAgentsOpen ? "Fechar agentes" : "Abrir agentes"}>
+    {editorAgentsOpen ? <PanelRightClose size={18} /> : <PanelRight size={18} />}
+  </button>
 
   {editorLeftOpen && <aside className="editor-left-drawer" aria-label="Navegação do Studio">
     <div className="editor-left-brand"><img src={LOGO_URL} alt="PCH News" /><span>STUDIO</span></div>
@@ -706,7 +713,14 @@ export default function Admin() {
         </div>
       </form>
 
-}
+      {editorAgentsOpen && <aside className="editor-agents-sidebar editorial-agent-rail" aria-label="Agentes editoriais">
+        <div className="editor-agents-sidebar-head"><div><span className="admin-kicker">AGENTES EDITORIAIS</span><strong>Assistência da redação</strong></div><button type="button" className="editor-panel-close" onClick={() => setEditorAgentsOpen(false)} aria-label="Fechar painel de agentes" title="Fechar agentes"><PanelRightClose size={16}/></button></div>
+        <p>Use os agentes ao lado sem sair da matéria.</p>
+        <div className="editor-agents-sidebar-list">
+          {EDITORIAL_AGENTS.map((agent) => { const Icon = agent.icon; return <button type="button" key={agent.id} title={agent.name} aria-label={agent.name} data-agent-label={agent.name} className={editorReview?.agentId === agent.id ? "editor-agent-action active" : "editor-agent-action"} onClick={() => runEditorAgent(agent.id)} disabled={reviewArticleRemote.isPending || !canUseEditorialAgents}><Icon size={16}/><span><strong>{agent.name}</strong><small>{agent.description}</small></span>{reviewArticleRemote.isPending ? <em>…</em> : <em>Executar</em>}</button>; })}
+        </div>
+        {editorReview && <div className={"editor-agent-result " + editorReview.status}><span className="admin-kicker">ÚLTIMA ANÁLISE</span><strong>{editorReview.agentName || editorReview.agentId || "Agente editorial"}</strong><small>{editorReview.status === "pass" ? "Concluída sem bloqueios." : editorReview.status === "review" ? "Conferência humana necessária." : "Há pontos para revisar."}</small></div>}
+      </aside>}
     </div>
   </aside>
 </div>}
