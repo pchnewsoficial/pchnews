@@ -9,7 +9,6 @@ import PageMeta from "@/components/PageMeta";
 import { editorialImageUrl } from "@/lib/editorialImage";
 
 const LOGO_URL = officialLogoUrl;
-const LOGO_FALLBACK_URL = officialLogoUrl;
 const imageUrl = (article: NewsArticle) => editorialImageUrl(article);
 const categories = ["Todas", "Brasil", "Regiões", "Política", "Economia", "Internacional"];
 const HOSTINGPRESS_CHANNELS = ["Doutor Imprensa Talk Show","Café de Negócios","Intelectualidade Online","Talento Gospel","Maternidade INFOCO","De Frente com Randal","Casa HUB Digital","Sofá Jurídico"];
@@ -246,10 +245,9 @@ export default function Home() {
 
       <header className="site-header">
         <div className="container header-main">
-          <button className="icon-button mobile-only" aria-label="Abrir menu" onClick={() => setMenuOpen((open) => !open)}>{menuOpen ? <X size={20} /> : <Menu size={20} />}</button>
+          <button className="icon-button mobile-only" type="button" aria-label={menuOpen ? "Fechar menu" : "Abrir menu"} aria-expanded={menuOpen} aria-controls="primary-navigation" onClick={() => setMenuOpen((open) => !open)}>{menuOpen ? <X size={20} /> : <Menu size={20} />}</button>
           <Link className="brand-lockup" href="/">
-            <img className="official-logo" src={LOGO_URL} alt="PCH News" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = LOGO_FALLBACK_URL; }} />
-            <span className="brand-wordmark" aria-hidden="true"><strong>PCH</strong> NEWS</span>
+            <img className="official-logo" src={LOGO_URL} alt="PCH News" />
             <span className="brand-caption">Informação para<br /><strong>libertar a mente.</strong></span>
           </Link>
           <div className="header-motto">Jornalismo nacional, pensamento amplo <span>●</span></div>
@@ -272,13 +270,13 @@ export default function Home() {
             </button>
           </div>
           <div className="header-actions">
-            <button className="icon-button" aria-label="Buscar" onClick={() => setSearchOpen((open) => !open)}><Search size={18} /></button>
-            <Link className="profile-link" href="/"><Bookmark size={15} /> Salvos</Link>
+            <button className="icon-button" type="button" aria-label={searchOpen ? "Fechar busca" : "Buscar"} aria-expanded={searchOpen} onClick={() => setSearchOpen((open) => !open)}><Search size={18} /></button>
+            <Link className="profile-link" href="/perfil"><Bookmark size={15} /> Salvos</Link>
             <a className="admin-link" href="/admin">Painel editorial <ArrowRight size={14} /></a>
           </div>
         </div>
         <div className={`nav-wrap ${menuOpen ? "is-open" : ""}`}>
-          <nav className="container primary-nav" aria-label="Navegação principal">
+          <nav id="primary-navigation" className="container primary-nav" aria-label="Navegação principal">
             {categories.filter((category) => category === "Todas" || category === "Regiões" || category === "Internacional" || populatedCategories.has(category)).map((category) => <button key={category} className={activeCategory === category && !activeTopic ? "active" : ""} onClick={() => { setActiveCategory(category); setActiveTopic(null); setMenuOpen(false); setMoreOpen(false); }}>{category.toUpperCase()}</button>)}
             <button className={`more-trigger ${moreOpen ? "active" : ""}`} type="button" aria-expanded={moreOpen} aria-haspopup="menu" onClick={() => setMoreOpen((open) => !open)}>+ MAIS <ChevronDown size={14} /></button>
 
