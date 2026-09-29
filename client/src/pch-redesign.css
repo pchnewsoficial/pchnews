@@ -469,3 +469,25 @@
 .public-form-card .consent-check input{width:16px;height:16px;flex:0 0 16px;margin:1px 0 0;accent-color:#176b50;}
 .public-form-card .gold-button{min-height:44px;width:100%;justify-content:center;border-radius:10px;font-weight:800;letter-spacing:.02em;}
 @media(max-width:800px){.public-form-card form{padding:20px 16px;}.public-form-two{grid-template-columns:1fr;gap:12px;margin-bottom:12px;}.public-form-heading h2{font-size:24px;}.banner-upload-box{grid-template-columns:1fr;}.banner-upload-button{grid-column:auto;grid-row:auto;justify-self:start;}}
+
+
+/* Footer compacto — o diferencial editorial sai do fluxo da home e fica acessível no rodapé. */
+.site-footer{margin-top:20px;}
+.site-footer .footer-inner{min-height:0!important;padding:22px 0 18px!important;gap:24px!important;align-items:flex-start!important;}
+.site-footer .footer-logo{width:42px!important;height:42px!important;object-fit:contain;}
+.site-footer .footer-brand-block{gap:9px!important;}
+.site-footer .footer-column{gap:5px!important;}
+.site-footer .footer-column>span{margin-bottom:4px!important;font-size:9px!important;}
+.site-footer .footer-column a,.site-footer .footer-column button{font-size:10px!important;line-height:1.25!important;}
+.site-footer .footer-signature{padding-top:0!important;}
+.site-footer .footer-signature small{display:block;margin-top:8px;font-size:8px!important;line-height:1.35;}
+.site-footer .footer-bottom{min-height:28px!important;padding-top:7px!important;padding-bottom:7px!important;font-size:8px!important;}
+.footer-feature-link{display:grid!important;grid-template-columns:1fr auto;align-items:center;column-gap:7px;row-gap:1px;}
+.footer-feature-link span{grid-column:1;}
+.footer-feature-link small{grid-column:1;color:#8f96a4;font-size:8px;line-height:1.25;}
+.footer-feature-link svg{grid-column:2;grid-row:1 / span 2;color:var(--gold);}
+@media(max-width:700px){
+ .site-footer .footer-inner{padding:18px 14px 14px!important;gap:18px!important;}
+ .site-footer .footer-brand-block{margin-bottom:2px;}
+ .site-footer .footer-bottom{padding-left:14px!important;padding-right:14px!important;}
+}
