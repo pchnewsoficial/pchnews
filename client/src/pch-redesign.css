@@ -1058,3 +1058,10 @@
 @media (min-width: 1600px){
   :root{--pch-desktop-max:1320px;}
 }
+
+
+/* Editorial read-only state and view counter */
+.views-cell { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.news-table .views-cell { color: var(--muted, #6b7280); font-size: 0.82rem; font-weight: 600; }
+.news-table .row-actions button[disabled] { opacity: .45; cursor: not-allowed; }
+.news-table .status-pill[aria-label="Somente leitura"] { cursor: default; }
