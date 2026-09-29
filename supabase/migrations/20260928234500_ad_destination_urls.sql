@@ -47,3 +47,31 @@ create index if not exists "adCampaigns_destinationUrl_idx"
 
 create index if not exists "adRequests_destinationUrl_idx"
   on public."adRequests" ("destinationUrl");
+
+
+-- Commercial analytics foundation: campaign impressions, clicks and private advertiser access.
+create table if not exists public."adCampaignEvents" (
+  id text primary key,
+  "campaignId" text not null references public."adCampaigns"(id) on delete cascade,
+  "eventType" text not null check ("eventType" in ('impression','click')),
+  "occurredAtMs" bigint not null default ((extract(epoch from now()) * 1000)::bigint),
+  "visitorHash" text,
+  "deviceType" text,
+  "referrer" text
+);
+create index if not exists "adCampaignEvents_campaign_idx" on public."adCampaignEvents" ("campaignId","occurredAtMs" desc);
+create index if not exists "adCampaignEvents_type_idx" on public."adCampaignEvents" ("campaignId","eventType","occurredAtMs" desc);
+
+create table if not exists public."adCampaignAccess" (
+  id text primary key,
+  "campaignId" text not null references public."adCampaigns"(id) on delete cascade,
+  "tokenHash" text not null unique,
+  "expiresAtMs" bigint,
+  "createdAtMs" bigint not null default ((extract(epoch from now()) * 1000)::bigint),
+  "revokedAtMs" bigint
+);
+
+alter table public."adCampaignEvents" enable row level security;
+alter table public."adCampaignAccess" enable row level security;
+revoke all on table public."adCampaignEvents" from anon, authenticated;
+revoke all on table public."adCampaignAccess" from anon, authenticated;
