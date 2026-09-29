@@ -144,7 +144,12 @@ export default {
       url.pathname.startsWith("/api/") ||
       url.pathname.startsWith("/manus-storage/")
     ) {
-      return handleAsNodeRequest(3000, request);
+      const cf = (request as Request & { cf?: Record<string, any> }).cf || {};
+      const headers = new Headers(request.headers);
+      if (cf.country) headers.set("x-pch-geo-country", String(cf.country));
+      if (cf.regionCode || cf.region) headers.set("x-pch-geo-state", String(cf.regionCode || cf.region));
+      if (cf.city) headers.set("x-pch-geo-city", String(cf.city));
+      return handleAsNodeRequest(3000, new Request(request, { headers }));
     }
 
     const spaPath = url.pathname.replace(/\/+$/, "") || "/";
