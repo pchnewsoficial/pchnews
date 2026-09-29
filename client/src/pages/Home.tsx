@@ -8,6 +8,7 @@ import "@/pch-redesign.css";
 import PublicFooter from "@/components/PublicFooter";
 import PageMeta from "@/components/PageMeta";
 import { editorialImageUrl } from "@/lib/editorialImage";
+import BeyondNewsHomeSection from "@/components/BeyondNewsHomeSection";
 
 const LOGO_URL = officialLogoUrl;
 const LOGO_FALLBACK_URL = officialLogoUrl;
@@ -402,6 +403,8 @@ export default function Home() {
           <div className="section-heading large-heading"><div><span className="eyebrow">CURADORIA PCH NEWS</span><h2>{activeCategory === "Todas" ? "Últimas notícias" : activeCategory}</h2></div><div className="heading-rule"><span>{visible.length} histórias</span></div></div>
           <div className="latest-grid">{gridStories.map((article) => <article className="news-card" key={article.id}><Link href={`/materia/${article.id}`}><div className="news-image"><img src={imageUrl(article)} alt={article.title} onError={(event) => { event.currentTarget.src = LOGO_URL; }} /><span className="category-tag">{article.category}</span></div><div className="news-copy"><h3>{article.title}</h3><p>{article.summary}</p><div className="tag-row">{(article.tags || []).slice(0, 3).map((tag) => <span key={tag}>#{tag}</span>)}</div><Meta article={article} /><span className="read-more">Ler matéria <ArrowRight size={14} /></span></div></Link></article>)}</div>
         </section>}
+
+        <BeyondNewsHomeSection />
 
         {mostRead.length >= 3 && <section className="container most-read-section">
           <div className="section-heading large-heading"><div><span className="eyebrow">AUDIÊNCIA</span><h2>Mais lidas</h2></div><div className="heading-rule"><span>Por visualizações</span></div></div>
