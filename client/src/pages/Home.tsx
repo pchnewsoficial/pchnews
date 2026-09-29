@@ -4,7 +4,6 @@ import { ArrowLeft, ArrowRight, Bookmark, CalendarDays, Megaphone, ChevronDown, 
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { EDITORIAL_CATEGORIES, EDITORIAL_SUBTHEMES, NewsArticle } from "@/lib/news";
-import "@/pch-redesign.css";
 import PublicFooter from "@/components/PublicFooter";
 import PageMeta from "@/components/PageMeta";
 import { editorialImageUrl } from "@/lib/editorialImage";
