@@ -85,14 +85,23 @@ export async function getEditorialSnapshot(includePrivate=false, accessToken?: s
   // columnists/reviewers whose RLS role does not grant publication writes.
   const articlesQ=includePrivate?db.from("articles").select("*"):db.from("articles").select("*").in("status",["published","updated"]);
   const commentsQ=includePrivate?db.from("comments").select("*"):db.from("comments").select("*").eq("status","approved");
-  const [a,c,p,ads]=await Promise.all([
+  const [a,c,p,ads,team]=await Promise.all([
     articlesQ.order("createdAt",{ascending:false}),
     commentsQ.order("createdAtMs",{ascending:false}),
     db.from("columnistProfiles").select("*").order("updatedAt",{ascending:false}),
-    includePrivate?db.from("adRequests").select("*").order("createdAtMs",{ascending:false}):Promise.resolve({data:[],error:null} as any)
+    includePrivate?db.from("adRequests").select("*").order("createdAtMs",{ascending:false}):Promise.resolve({data:[],error:null} as any),
+    db.from("users").select("openId,name,role,profileSlug").in("role",["admin","editor","journalist","columnist","reviewer"]).order("name",{ascending:true})
   ]);
-  for(const r of [a,c,p,ads]) if(r.error) throw r.error;
-  return {articles:a.data??[],comments:c.data??[],profiles:p.data??[],adRequests:ads.data??[]};
+  for(const r of [a,c,p,ads,team]) if(r.error) throw r.error;
+  const roleLabels:any={admin:"Administrador",editor:"Editor",journalist:"Jornalista",columnist:"Colunista",reviewer:"Revisor"};
+  const profileRows=(p.data??[]).map((row:any)=>({...row,role:row.role||null}));
+  const known=new Set(profileRows.map((row:any)=>String(row.slug)));
+  for(const member of (team.data??[])) {
+    const slug=member.profileSlug || normalizeInviteSlug(member.name || member.openId || "");
+    if(!slug || known.has(slug)) continue;
+    profileRows.push({slug,name:member.name||"Membro PCH News",beat:roleLabels[member.role]||"Equipe PCH News",bio:"",photo:"",instagram:"",facebook:"",x:"",linkedin:"",website:"",tiktok:"",productsJson:[],commercialApproved:false,updatedAt:new Date(),role:member.role});
+  }
+  return {articles:a.data??[],comments:c.data??[],profiles:profileRows,adRequests:ads.data??[]};
 }
 export async function getArticle(id:string, accessToken?: string | null){const db=await getDb(accessToken);if(!db)return undefined;const {data,error}=await db.from("articles").select("*").eq("id",id).maybeSingle();if(error)throw error;return data??undefined;}
 export async function saveArticle(article:any, accessToken?: string | null){
@@ -120,7 +129,14 @@ export async function getViewAnalytics(author?:string,authorOpenId?:string,fromM
   const {data:events,error:ee}=await eq;if(ee)throw ee;
   return {events:events??[],totals:(arts??[]).map((a:any)=>({articleId:a.id,views:a.views}))};
 }
-export async function updateColumnistProfile(slug:string,profile:Omit<ColumnistProfile,"updatedAt">,accessToken?:string|null){const db=await getDb(accessToken);if(!db)throw new Error("Database unavailable");const {error}=await db.from("columnistProfiles").upsert({...profile,slug,updatedAt:now()},{onConflict:"slug"});if(error)throw error;return {success:true};}
+export async function updateColumnistProfile(slug:string,profile:Omit<ColumnistProfile,"updatedAt">,accessToken?:string|null){
+  const db=await getDb(accessToken);if(!db)throw new Error("Database unavailable");
+  let products:any[]=[];
+  try { products=typeof (profile as any).productsJson==="string" ? JSON.parse((profile as any).productsJson || "[]") : ((profile as any).productsJson || []); } catch { throw new Error("A configuração de produtos e serviços está inválida."); }
+  if(!Array.isArray(products)) throw new Error("Produtos e serviços devem ser uma lista.");
+  const payload={...profile,slug,productsJson:products,commercialApproved:Boolean((profile as any).commercialApproved),website:(profile as any).website||"",tiktok:(profile as any).tiktok||"",updatedAt:now()};
+  const {error}=await db.from("columnistProfiles").upsert(payload,{onConflict:"slug"});if(error)throw error;return {success:true};
+}
 export type EditorialSyncPayload={articles:any[];comments:Comment[];profiles:any[];adRequests:AdRequest[]};
 export async function syncEditorial(payload:EditorialSyncPayload,accessToken?:string|null){
   const db=await getDb(accessToken);if(!db)throw new Error("Database unavailable");
