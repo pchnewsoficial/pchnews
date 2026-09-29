@@ -169,7 +169,7 @@ export default {
       spaPath === "/cookies" ||
       spaPath === "/parceiros" ||
       spaPath === "/conhecimento-pch" ||
-      spaPath === "/correcoes";
+      spaPath === "/correcoes", "/principios-editoriais";
 
     // Canonicalize the legacy editorial route at the Worker boundary. This prevents
     // any stale/client-side router from ever resolving /painel-editorial as Agenda.
