@@ -1754,3 +1754,12 @@ section.container.ad-banner.ad-carousel { height:auto !important; min-height:0 !
 .scroll-direction-button:focus-visible{outline:2px solid var(--pch-gold);outline-offset:3px;}
 @media(max-width:700px){.scroll-direction-button{right:12px;bottom:72px;width:38px;height:38px;}.scroll-direction-button svg{width:16px;height:16px;}}
 @media(prefers-reduced-motion:reduce){.scroll-direction-button{transition:none;}}
+
+/* Desktop newsroom hierarchy: news first, commercial modules second. */
+@media (min-width:981px){
+  .recent-news-list{display:flex;flex-direction:column;flex:1;min-height:0;}
+  .recent-panel-commercial{margin-top:auto;padding-top:8px;}
+  .recent-panel-commercial .side-ad-slot{margin-left:-18px;margin-right:-18px;}
+  .recent-panel-commercial .side-ad-slot-secondary{margin-bottom:-18px;}
+  .recent-panel .section-heading{flex:0 0 auto;}
+}
