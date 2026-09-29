@@ -15,7 +15,8 @@ type Pauta = {
   tags: string; sourcesJson: Source[]; checklistJson: ChecklistItem[]; articleId: string | null;
   createdByOpenId: string; createdByName: string | null; createdAtMs: number; updatedAtMs: number;
 };
-type AccessUser = { id: number; openId: string; name: string | null; email: string | null; role: "user" | "admin" | "editor" | "journalist" | "columnist" | "reviewer" };\ntype StudioNavGroup = { label: string; items: { id: string; label: string; icon: typeof FilePlus2 }[] };
+type AccessUser = { id: number; openId: string; name: string | null; email: string | null; role: "user" | "admin" | "editor" | "journalist" | "columnist" | "reviewer" };
+type StudioNavGroup = { label: string; items: { id: string; label: string; icon: typeof FilePlus2 }[] };
 
 const columns: Array<{ id: PautaStatus; label: string }> = [
   { id: "idea", label: "Ideias" }, { id: "planned", label: "Planejadas" }, { id: "assigned", label: "Atribuídas" },
@@ -49,7 +50,10 @@ export default function Pauta({ isAdmin, currentAuthor, accessUsers, notify, onO
   const [priority, setPriority] = useState<Priority | "all">("all");
   const [studioLeftOpen, setStudioLeftOpen] = useState(true);
   const [skillsOpen, setSkillsOpen] = useState(true);
-  const [selectedSkill, setSelectedSkill] = useState<string | null>(null);\n  const [skillResult, setSkillResult] = useState<any>(null);\n  const { data: agentAccess } = trpc.editorialAgents.access.useQuery(undefined, { enabled: Boolean(user), retry: false });\n  const runSkill = trpc.editorialAgents.run.useMutation({ onSuccess: (data) => { setSkillResult(data); notify(data.agentName ? data.agentName + " executado na pauta." : "Skill executado na pauta."); }, onError: (error) => notify(error.message) });
+  const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
+  const [skillResult, setSkillResult] = useState<any>(null);
+  const { data: agentAccess } = trpc.editorialAgents.access.useQuery(undefined, { enabled: Boolean(user), retry: false });
+  const runSkill = trpc.editorialAgents.run.useMutation({ onSuccess: (data) => { setSkillResult(data); notify(data.agentName ? data.agentName + " executado na pauta." : "Skill executado na pauta."); }, onError: (error) => notify(error.message) });
 
   const pautas = (remote as any[]).map((p) => ({ ...p, sourcesJson: Array.isArray(p.sourcesJson) ? p.sourcesJson : [], checklistJson: Array.isArray(p.checklistJson) ? p.checklistJson : [] })) as Pauta[];
   const filtered = useMemo(() => pautas.filter(p => {
@@ -97,8 +101,8 @@ export default function Pauta({ isAdmin, currentAuthor, accessUsers, notify, onO
     update.mutate({ ...p, checklistJson: checklist } as any);
   };
 
-  const buildDraftArticle = async (p: Pauta) => {
-    if (p.articleId) { notify("Esta pauta já está vinculada a uma notícia."); return; }
+  const buildDraftArticle = async (p: Pauta, openEditor = true) => {
+    if (p.articleId) { if (openEditor) onOpenEditor?.(p.articleId, p); return p.articleId; }
     try {
       const id = makeArticleId();
       await saveArticle.mutateAsync({
