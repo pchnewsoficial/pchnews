@@ -116,6 +116,25 @@ img{max-width:100%;}
 .news-copy{display:flex;flex-direction:column;height:100%;}
 .news-copy p{flex:0 0 auto;}
 .read-more{margin-top:auto;padding-top:10px;}
+/* Single, discreet commercial rail: advertising never competes with the lead story. */
+.recent-panel-commercial{margin-top:14px;padding-top:12px;border-top:1px solid rgba(18,35,52,.09);}
+.side-ad-slot{position:relative;min-height:148px;padding:12px;border:1px solid rgba(18,35,52,.10);border-radius:10px;background:#f8f9fa;overflow:hidden;}
+.side-ad-slot .ad-tag{display:inline-flex;margin-bottom:8px;font-size:7px;letter-spacing:.12em;}
+.side-ad-slot strong{display:block;margin:0 0 5px;font-size:14px;line-height:1.2;color:#223044;}
+.side-ad-slot p{margin:0 0 9px;color:#738091;font-size:10px;line-height:1.45;}
+.side-ad-slot>a:not(.side-ad-creative){display:inline-flex;align-items:center;gap:5px;color:#806321;font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;}
+.side-ad-creative{display:block;width:100%;height:112px;margin-top:2px;overflow:hidden;border-radius:7px;}
+.side-ad-creative img{display:block;width:100%;height:100%;object-fit:cover;}
+.side-ad-dots{display:flex;justify-content:flex-end;gap:4px;margin-top:7px;}
+.side-ad-dots button{width:5px;height:5px;padding:0;border:0;border-radius:50%;background:#c2c8cf;}
+.side-ad-dots button.active{width:14px;border-radius:4px;background:#8a6a25;}
+@media(max-width:760px){
+  .recent-panel-commercial{margin-top:12px;padding-top:10px;}
+  .side-ad-slot{min-height:0;padding:10px;}
+  .side-ad-creative{height:72px;}
+  .side-ad-slot strong{font-size:12px;}
+  .side-ad-slot p{font-size:9px;margin-bottom:7px;}
+}
 .lead-layout>*{min-width:0;}
 .recent-panel{min-width:0;}
 
