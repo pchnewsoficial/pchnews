@@ -767,3 +767,81 @@
 @media (prefers-reduced-motion:reduce){
   .site-header *{scroll-behavior:auto!important;transition-duration:0.01ms!important;animation-duration:0.01ms!important;}
 }
+
+
+/* MOBILE HEADER — centered brand lock, fixed three-zone geometry. */
+@media (max-width:700px){
+  .site-header .header-main{
+    position:relative!important;
+    height:64px!important;
+    min-height:64px!important;
+    padding:0 12px!important;
+    display:grid!important;
+    grid-template-columns:36px minmax(0,1fr) 36px!important;
+    align-items:center!important;
+    gap:0!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+  }
+  .site-header .header-main>.mobile-only{
+    grid-column:1!important;
+    grid-row:1!important;
+    z-index:3!important;
+    width:36px!important;height:36px!important;
+    min-width:36px!important;min-height:36px!important;
+    margin:0!important;padding:0!important;
+    display:inline-flex!important;
+    align-items:center!important;justify-content:center!important;
+  }
+  .site-header .brand-lockup{
+    position:absolute!important;
+    left:50%!important;top:50%!important;
+    transform:translate(-50%,-50%)!important;
+    width:92px!important;height:54px!important;
+    min-width:92px!important;max-width:92px!important;
+    margin:0!important;padding:0!important;
+    display:flex!important;
+    align-items:center!important;justify-content:center!important;
+    overflow:hidden!important;
+    z-index:2!important;
+  }
+  .site-header .official-logo{
+    display:block!important;
+    width:92px!important;height:54px!important;
+    min-width:92px!important;max-width:92px!important;
+    flex:0 0 92px!important;
+    object-fit:contain!important;
+    object-position:center!important;
+    margin:0!important;padding:0!important;
+  }
+  .site-header .brand-caption,
+  .site-header .header-motto,
+  .site-header .header-live-info,
+  .site-header .mobile-weather-strip,
+  .site-header .profile-link,
+  .site-header .admin-link,
+  .site-header .brand-wordmark{display:none!important;}
+  .site-header .header-actions{
+    grid-column:3!important;
+    grid-row:1!important;
+    width:36px!important;height:36px!important;
+    min-width:36px!important;
+    margin:0!important;padding:0!important;
+    display:flex!important;
+    align-items:center!important;justify-content:center!important;
+    z-index:3!important;
+  }
+  .site-header .header-actions .icon-button{
+    width:36px!important;height:36px!important;
+    min-width:36px!important;min-height:36px!important;
+    margin:0!important;padding:0!important;
+    display:inline-flex!important;
+    align-items:center!important;justify-content:center!important;
+    border-radius:8px!important;
+  }
+}
+@media (max-width:360px){
+  .site-header .header-main{padding-left:8px!important;padding-right:8px!important;}
+  .site-header .brand-lockup,.site-header .official-logo{width:82px!important;min-width:82px!important;max-width:82px!important;}
+  .site-header .official-logo{height:50px!important;}
+}
