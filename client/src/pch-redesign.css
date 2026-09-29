@@ -163,3 +163,15 @@
 .hostingpress-mini-copy small{color:#748092;font-size:11px;line-height:1.35;}
 .hostingpress-mini-brand>svg{flex:0 0 auto;color:#8d6a28;}
 @media(max-width:700px){.hostingpress-section{padding-top:28px;padding-bottom:34px}.hostingpress-mini-brand{min-height:78px;padding:14px}.hostingpress-mini-logo{width:44px;height:44px;flex-basis:44px}.hostingpress-mini-logo img{width:28px;height:28px}.hostingpress-mini-copy strong{font-size:15px}.hostingpress-mini-copy small{font-size:10px}.hostingpress-mini-brand>svg{width:15px;height:15px}}
+
+
+/* Além da notícia — perguntas-guia: camada central compacta e legível. */
+.beyond-news-questions{margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);}
+.beyond-news-questions-heading{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.beyond-news-questions-heading h3{margin:2px 0 0;font-family:'Oswald',sans-serif;font-size:18px;line-height:1.15;letter-spacing:.01em;color:#fff;}
+.beyond-news-question-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;}
+.beyond-news-question{min-width:0;padding:12px 13px;border:1px solid rgba(255,255,255,.1);border-radius:8px;background:rgba(255,255,255,.045);}
+.beyond-news-question strong{display:block;margin-bottom:5px;color:#d9b052;font-size:11px;text-transform:uppercase;letter-spacing:.06em;}
+.beyond-news-question p{margin:0;color:rgba(255,255,255,.78);font-size:11px;line-height:1.45;}
+@media(max-width:900px){.beyond-news-question-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:600px){.beyond-news-questions{margin-top:14px;padding-top:13px;}.beyond-news-questions-heading h3{font-size:16px;}.beyond-news-question-grid{grid-template-columns:1fr;gap:7px;}.beyond-news-question{padding:10px 11px;}}
