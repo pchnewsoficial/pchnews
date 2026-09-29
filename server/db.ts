@@ -120,7 +120,7 @@ export async function updateColumnistProfile(slug:string,profile:Omit<ColumnistP
   let products:any[]=[];
   try { products=typeof (profile as any).productsJson==="string" ? JSON.parse((profile as any).productsJson || "[]") : ((profile as any).productsJson || []); } catch { throw new Error("A configuração de produtos e serviços está inválida."); }
   if(!Array.isArray(products)) throw new Error("Produtos e serviços devem ser uma lista.");
-  const payload={...profile,slug,productsJson:products,commercialApproved:Boolean((profile as any).commercialApproved),website:(profile as any).website||"",tiktok:(profile as any).tiktok||"",updatedAt:now()};
+  const payload={...profile,slug,productsJson:products,commercialApproved:Boolean((profile as any).commercialApproved),website:(profile as any).website||"",tiktok:(profile as any).tiktok||"",youtube:(profile as any).youtube||"",updatedAt:now()};
   const {error}=await db.from("columnistProfiles").upsert(payload,{onConflict:"slug"});if(error)throw error;return {success:true};
 }
 export type EditorialSyncPayload={articles:any[];comments:Comment[];profiles:any[];adRequests:AdRequest[]};
