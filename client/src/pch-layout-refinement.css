@@ -920,3 +920,18 @@ main > .home-page:first-child{
  .invite-card-premium .invite-values{grid-template-columns:1fr;}
  .invite-card-premium .invite-footer-note{margin-left:20px!important;margin-right:20px!important;}
 }
+
+
+/* Persistent invitation card inside the editorial panel */
+.personal-invitation-card{position:relative;margin:0 0 22px;padding:20px 22px;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;border:1px solid #dfe5eb;border-radius:16px;background:linear-gradient(135deg,#fff 0%,#f7f9fb 100%);box-shadow:0 8px 24px rgba(15,31,48,.07);}
+.personal-invitation-mark{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;background:#102238;color:#d7b565;font-weight:800;letter-spacing:.08em;font-size:12px;}
+.personal-invitation-copy .admin-kicker{display:block;margin-bottom:4px;color:#8d6b29;}
+.personal-invitation-copy h2{margin:0 0 5px;font-size:21px;color:#172536;}
+.personal-invitation-copy p{margin:0;color:#617082;font-size:13px;line-height:1.55;max-width:720px;}
+.personal-invitation-meta{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:10px;color:#8a96a3;font-size:11px;}
+.personal-invitation-status{display:flex;align-items:center;gap:7px;white-space:nowrap;padding:9px 12px;border:1px solid #dce7df;border-radius:999px;background:#f5faf7;color:#36704e;font-size:11px;font-weight:700;}
+@media(max-width:760px){
+ .personal-invitation-card{grid-template-columns:auto 1fr;gap:12px;padding:16px;}
+ .personal-invitation-status{grid-column:1/-1;justify-self:start;}
+ .personal-invitation-copy h2{font-size:18px;}
+}
