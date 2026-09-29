@@ -176,19 +176,22 @@
 @media(max-width:900px){.beyond-news-question-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
 @media(max-width:600px){.beyond-news-questions{margin-top:14px;padding-top:13px;}.beyond-news-questions-heading h3{font-size:16px;}.beyond-news-question-grid{grid-template-columns:1fr;gap:7px;}.beyond-news-question{padding:10px 11px;}}
 
-/* Final mobile header correction — overrides legacy responsive rules above. */
+/* Final mobile header correction — fixed three-zone geometry: menu / centered official logo / search. */
 @media(max-width:700px){
   .site-header .header-main{
-    height:60px!important;
-    min-height:60px!important;
+    position:relative!important;
+    height:64px!important;
+    min-height:64px!important;
     padding:0 12px!important;
-    gap:8px!important;
-    display:flex!important;
+    display:grid!important;
+    grid-template-columns:36px minmax(0,1fr) 36px!important;
     align-items:center!important;
+    column-gap:0!important;
   }
   .site-header .header-main > .mobile-only{
+    grid-column:1!important;
+    grid-row:1!important;
     display:inline-flex!important;
-    flex:0 0 36px!important;
     width:36px!important;
     min-width:36px!important;
     height:36px!important;
@@ -201,21 +204,33 @@
     border-radius:8px!important;
     background:rgba(255,255,255,.06)!important;
     color:#fff!important;
+    z-index:3!important;
   }
   .site-header .brand-lockup{
+    position:absolute!important;
+    left:50%!important;
+    top:50%!important;
+    transform:translate(-50%,-50%)!important;
     display:flex!important;
-    min-width:0!important;
-    flex:1 1 auto!important;
-    gap:0!important;
-    overflow:hidden!important;
+    align-items:center!important;
+    justify-content:center!important;
+    width:104px!important;
+    min-width:104px!important;
+    height:54px!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:visible!important;
+    z-index:2!important;
   }
   .site-header .official-logo{
-    width:96px!important;
-    height:42px!important;
-    min-width:96px!important;
-    flex:0 0 96px!important;
+    display:block!important;
+    width:104px!important;
+    min-width:104px!important;
+    height:54px!important;
+    min-height:54px!important;
+    flex:0 0 104px!important;
     object-fit:contain!important;
-    object-position:left center!important;
+    object-position:center!important;
     border-radius:0!important;
     box-shadow:none!important;
   }
@@ -229,15 +244,18 @@
     display:none!important;
   }
   .site-header .header-actions{
+    grid-column:3!important;
+    grid-row:1!important;
     display:flex!important;
     align-items:center!important;
-    gap:7px!important;
-    margin-left:auto!important;
-    flex:0 0 auto!important;
+    justify-content:flex-end!important;
+    gap:0!important;
+    margin:0!important;
+    min-width:36px!important;
+    z-index:3!important;
   }
   .site-header .header-actions .icon-button{
     display:inline-flex!important;
-    flex:0 0 36px!important;
     width:36px!important;
     min-width:36px!important;
     height:36px!important;
@@ -258,9 +276,14 @@
     height:19px!important;
   }
 }
-
-
-/* Lower-page utility blocks — align icons and cards before the footer. */
+@media(max-width:360px){
+  .site-header .brand-lockup,
+  .site-header .official-logo{
+    width:92px!important;
+    min-width:92px!important;
+  }
+  .site-header .official-logo{height:50px!important;min-height:50px!important;flex-basis:92px!important;}
+}/* Lower-page utility blocks — align icons and cards before the footer. */
 .services-section{margin-top:48px;margin-bottom:42px;}
 .services-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
 .service-card{min-height:92px;display:grid;grid-template-columns:44px minmax(0,1fr) 18px;align-items:center;gap:14px;padding:18px 20px;border:1px solid #dfe4e9;border-radius:10px;background:#fff;color:#172538;text-decoration:none;box-shadow:0 8px 22px rgba(20,34,50,.05);}
