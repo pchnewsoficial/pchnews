@@ -85,8 +85,9 @@ export default function PublicFooter() {
         }
         .site-footer .footer-columnists{
           width:min(100%,var(--pch-content-max));
-          margin:0 auto;
-          padding:18px 30px 16px;
+          margin:18px auto 0;
+          padding:16px 30px 14px;
+          border-top:1px solid rgba(255,255,255,.07);
           border-bottom:1px solid rgba(255,255,255,.07);
         }
         .site-footer .footer-columnists-heading{
@@ -113,10 +114,26 @@ export default function PublicFooter() {
         .site-footer .footer-columnists-window{overflow:hidden;}
         .site-footer .footer-columnists-track{
           display:flex;
+          width:max-content;
           gap:10px;
-          overflow-x:auto;
           padding:2px 2px 5px;
-          scrollbar-width:thin;
+          animation:pch-footer-columnists-marquee 34s linear infinite;
+          will-change:transform;
+        }
+        .site-footer .footer-columnists-window:hover .footer-columnists-track,
+        .site-footer .footer-columnists-window:focus-within .footer-columnists-track{
+          animation-play-state:paused;
+        }
+        @keyframes pch-footer-columnists-marquee{
+          from{transform:translateX(0);}
+          to{transform:translateX(-50%);}
+        }
+        @media (prefers-reduced-motion:reduce){
+          .site-footer .footer-columnists-track{
+            animation:none;
+            width:100%;
+            overflow-x:auto;
+          }
         }
         .site-footer .footer-columnist-pill{
           flex:0 0 auto;
@@ -230,6 +247,11 @@ export default function PublicFooter() {
         </section>
       )}
 
+      <div className="container footer-bottom">
+        <span>PCH News · Brasil e mundo</span>
+        <span>Notícia, análise, opinião e publicidade identificada.</span>
+      </div>
+
       {columnists.length > 0 && (
         <section className="container footer-columnists" aria-label="Colunistas PCH News">
           <div className="footer-columnists-heading">
@@ -238,10 +260,10 @@ export default function PublicFooter() {
           </div>
           <div className="footer-columnists-window">
             <div className="footer-columnists-track">
-              {columnists.map((profile: any) => {
+              {[...columnists, ...columnists].map((profile: any, index: number) => {
                 const slug = profile.slug || "evaldo-poeta";
                 return (
-                  <Link key={"footer-columnist-" + slug} href={"/equipe/" + slug} className="footer-columnist-pill">
+                  <Link key={"footer-columnist-" + slug + "-" + index} href={"/equipe/" + slug} className="footer-columnist-pill">
                     <img src={profile.photo} alt={profile.name} loading="lazy" onError={(e) => { e.currentTarget.style.visibility = "hidden"; }} />
                     <span><strong>{profile.name}</strong><small>{profile.role || profile.beat || "Colunista PCH News"}</small></span>
                   </Link>
@@ -309,10 +331,6 @@ export default function PublicFooter() {
           <Link className="footer-cta-link" href="/anuncie">Fale com o comercial <ArrowRight size={14} /></Link>
           <small>© 2026 PCH News · Responsabilidade editorial PCH News</small>
         </div>
-      </div>
-      <div className="container footer-bottom">
-        <span>PCH News · Brasil e mundo</span>
-        <span>Notícia, análise, opinião e publicidade identificada.</span>
       </div>
     </footer>
   );
