@@ -367,7 +367,7 @@ export default function Home() {
           <div className="ad-carousel-track">
             {adSlides.filter((_, index) => index === activeAdSlide).map((slide) => <div className="ad-slide" key={slide.title}>
               <div className="ad-copy"><span className="ad-tag">{slide.eyebrow}</span><h2>{slide.title}<br /><em>{slide.emphasis}</em></h2><p>{slide.text}</p><Link className="gold-button" href={slide.href}>{slide.cta} <ArrowRight size={16} /></Link></div>
-              <div className="ad-device"><div className="device-top"><span /><span /><span /></div><div className="device-content"><div className="device-logo">PCH<br /><small>NEWS</small></div><div className="device-lines"><i /><i /><i /><i /></div><div className="device-cards"><b /><b /><b /></div></div></div>
+              <div className="ad-device">{slide.creativeUrl ? <a href={slide.href} target="_blank" rel="noreferrer" aria-label={`Abrir anúncio: ${slide.title}`}><img className="ad-creative-image" src={slide.creativeUrl} alt={slide.title} /></a> : <><div className="device-top"><span /><span /><span /></div><div className="device-content"><div className="device-logo">PCH<br /><small>NEWS</small></div><div className="device-lines"><i /><i /><i /><i /></div><div className="device-cards"><b /><b /><b /></div></div></>}</div>
               <div className="ad-side"><span>PUBLICIDADE</span><strong>{String(activeAdSlide + 1).padStart(2, "0")} / {String(adSlides.length).padStart(2, "0")}</strong><small>Peça comercial identificada.</small></div>
             </div>)}
           </div>
