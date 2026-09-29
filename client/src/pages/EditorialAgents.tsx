@@ -5,13 +5,16 @@ import { trpc } from "@/lib/trpc";
 import { statusLabels, type NewsArticle } from "@/lib/news";
 
 type Agent = {
-  id: "journalism-master-orchestrator" | "story-editor" | "fact-checker" | "seo-optimization-specialist" | "ethics-advisor" | "liberdade-editorial" | "publication-readiness" | "multi-platform-distributor";
+  id: "journalism-master-orchestrator" | "pauta-triage" | "workflow-gate" | "source-readiness" | "story-editor" | "fact-checker" | "seo-optimization-specialist" | "ethics-advisor" | "liberdade-editorial" | "publication-readiness" | "multi-platform-distributor";
   name: string;
   description: string;
   icon: typeof Sparkles;
 };
 
 const AGENTS: Agent[] = [
+  { id: "pauta-triage", name: "Agente de Pauta", description: "Organiza prioridade, ângulo, tags e checklist de apuração.", icon: FileCheck2 },
+  { id: "workflow-gate", name: "Agente de Fluxo Editorial", description: "Confere a etapa atual e indica o próximo passo sem publicar sozinho.", icon: CheckCircle2 },
+  { id: "source-readiness", name: "Agente de Fontes", description: "Identifica links e atribuições que precisam de conferência humana.", icon: SearchCheck },
   { id: "journalism-master-orchestrator", name: "Orquestrador da redação", description: "Executa o fluxo completo de revisão antes da publicação.", icon: Sparkles },
   { id: "story-editor", name: "Story Editor", description: "Revisa clareza, estrutura, concisão e problemas de texto.", icon: Wand2 },
   { id: "fact-checker", name: "Fact Checker", description: "Localiza datas, números, citações e pontos que pedem fonte.", icon: SearchCheck },
@@ -28,6 +31,9 @@ export default function EditorialAgents({ articles, isAdmin, currentAuthor, noti
   const [selectedAgent, setSelectedAgent] = useState<Agent["id"]>("journalism-master-orchestrator");
   const [result, setResult] = useState<any>(null);
   const decision = trpc.editorialAgents.decideFinding.useMutation();
+  const accessQuery = trpc.editorialAgents.access.useQuery(undefined, { retry: false });
+  const accessMutation = trpc.editorialAgents.setAccess.useMutation({ onSuccess: () => accessQuery.refetch(), onError: (error) => notify(error.message) });
+  const accessRoles = [{ role: "editor" as const, label: "Editores" }, { role: "journalist" as const, label: "Jornalistas" }, { role: "columnist" as const, label: "Colunistas" }, { role: "reviewer" as const, label: "Revisores" }];
   const [decisions, setDecisions] = useState<Record<string, "pending" | "accepted" | "rejected">>({});
   const run = trpc.editorialAgents.run.useMutation({ onSuccess: (data) => { setResult(data); notify("Agente executado e resultado registrado no histórico editorial."); }, onError: (error) => notify(error.message) });
   const article = visible.find((item) => item.id === articleId) || visible[0];
@@ -60,7 +66,7 @@ export default function EditorialAgents({ articles, isAdmin, currentAuthor, noti
 
   return <div className="editorial-agents-page">
     <div className="admin-heading compact">
-      <div><span className="admin-kicker">NEWSROOM AI</span><h1>Agentes editoriais<span>.</span></h1><p>Skills especializadas para editar, revisar, checar e preparar uma matéria. A decisão final continua humana.</p></div>
+      <div><span className="admin-kicker">AUTOMAÇÃO EDITORIAL</span><h1>Agentes editoriais<span>.</span></h1><p>Agentes determinísticos do PCH News: regras, checklists, fluxo e auditoria. Sem API de IA e sem custo de IA nesta etapa.</p></div>
       <div className="agent-gate"><ShieldCheck size={16} /> Publicação não é automática</div>
     </div>
     <section className="panel agent-control-panel">
@@ -74,6 +80,7 @@ export default function EditorialAgents({ articles, isAdmin, currentAuthor, noti
         </button>; })}
       </div>
     </section>
+    {isAdmin && <section className="panel agent-access-panel"><div className="panel-heading"><div><span className="admin-kicker">CONTROLE DO ADMINISTRADOR</span><h2>Liberação para a equipe</h2><p>Os agentes ficam fechados para convidados por padrão. Você pode liberar todos os agentes para cada função quando quiser.</p></div></div><div className="agent-access-grid">{accessRoles.map((item) => { const enabled = accessQuery.data?.role === item.role ? Boolean(accessQuery.data.enabled) : false; return <label key={item.role} className="agent-access-row"><span><strong>{item.label}</strong><small>{enabled ? "Liberado para executar agentes nas próprias matérias." : "Somente o administrador pode executar."}</small></span><button type="button" role="switch" aria-checked={enabled} className={enabled ? "toggle-on" : ""} onClick={() => accessMutation.mutate({ role: item.role, enabled: !enabled })} disabled={accessMutation.isPending}><i /></button></label>; })}</div></section>}
     {result && <section className="panel agent-result-panel">
       <div className="panel-heading"><div><span className="admin-kicker">{result.agentName}</span><h2>Resultado da análise</h2></div><AgentStatus status={result.status} /></div>
       <div className="agent-findings">{(result.findings || []).length === 0 ? <div className="agent-empty"><CheckCircle2 size={20} /><span>Nenhum alerta encontrado nesta execução.</span></div> : result.findings.map((finding: any, index: number) => { const code = finding.code || finding.ruleId || `finding-${index}`; const decisionState = decisions[code] || "pending"; return <div className={"agent-finding " + finding.severity} key={code + index}><span>{finding.severity === "block" ? <CircleAlert size={17} /> : finding.severity === "warning" ? <CircleAlert size={17} /> : <CheckCircle2 size={17} />}</span><div><strong>{finding.message}</strong>{finding.suggestion && <small>{finding.suggestion}</small>}<div className="finding-decision-actions"><button type="button" className={decisionState === "accepted" ? "active" : ""} onClick={() => { if (!result.runId || !article) return; decision.mutate({ id: `${result.runId}-${code}-${article.id}`, articleId: article.id, agentRunId: result.runId, findingCode: code, decision: "accepted" }, { onSuccess: () => setDecisions((d) => ({ ...d, [code]: "accepted" })) }); }}>Aceitar</button><button type="button" className={decisionState === "rejected" ? "active" : ""} onClick={() => { if (!result.runId || !article) return; decision.mutate({ id: `${result.runId}-${code}-${article.id}`, articleId: article.id, agentRunId: result.runId, findingCode: code, decision: "rejected" }, { onSuccess: () => setDecisions((d) => ({ ...d, [code]: "rejected" })) }); }}>Rejeitar</button><span>{decisionState === "pending" ? "Pendente" : decisionState === "accepted" ? "Aceito" : "Rejeitado"}</span></div></div></div>; })}</div>
