@@ -87,6 +87,14 @@ export default function Home() {
   }, [remoteEditorial]);
 
   const eventCarousel = trpc.events.carousel.useQuery({ limit: 6 }, { retry: false, staleTime: 60 * 1000 });
+  const [eventSlide, setEventSlide] = useState(0);
+  const eventItems = eventCarousel.data || [];
+  const eventMaxSlide = Math.max(0, eventItems.length - 3);
+  useEffect(() => {
+    if (eventItems.length <= 3) { setEventSlide(0); return; }
+    const timer = window.setInterval(() => setEventSlide((current) => current >= eventMaxSlide ? 0 : current + 1), 5000);
+    return () => window.clearInterval(timer);
+  }, [eventItems.length, eventMaxSlide]);
   const weatherData = headerWeather.data as { current?: { temperature_2m?: number }; daily?: { temperature_2m_max?: number[]; temperature_2m_min?: number[] } } | undefined;
   const weatherTemperature = weatherData?.current?.temperature_2m;
   const weatherMax = weatherData?.daily?.temperature_2m_max?.[0];
@@ -303,18 +311,16 @@ export default function Home() {
       </header>
 
       <main>
-        {(eventCarousel.data || []).length > 0 && <section className="container events-promo-home" aria-label="Eventos em destaque">
+        {eventItems.length > 0 && <section className="container events-promo-home" aria-label="Agenda PCH News">
           <div className="section-heading large-heading"><div><span className="eyebrow">AGENDA PCH NEWS</span><h2>Eventos próximos</h2></div><Link href="/eventos" className="read-more">Ver agenda <ArrowRight size={14}/></Link></div>
           <div className="events-promo-rail">
-            <div className="events-promo-track">{(eventCarousel.data || []).map((event:any) => <Link key={event.id} href={`/eventos/${event.id}`} className="events-promo-card">
-              <div className="events-promo-date"><CalendarDays size={15}/><strong>{new Intl.DateTimeFormat("pt-BR",{day:"2-digit",month:"short"}).format(new Date(Number(event.startAtMs)))}</strong><span>{new Intl.DateTimeFormat("pt-BR",{hour:"2-digit",minute:"2-digit"}).format(new Date(Number(event.startAtMs)))}</span></div>
-              <div><span className="item-category">{event.eventType}</span><h3>{event.title}</h3><p><MapPin size={12}/> {event.city}/{event.state}</p></div>
-              {event.sponsored && <span className="event-sponsored-label">PATROCINADO</span>}
-            </Link>)}{(eventCarousel.data || []).map((event:any) => <Link key={event.id+"-clone"} href={`/eventos/${event.id}`} className="events-promo-card">
-              <div className="events-promo-date"><CalendarDays size={15}/><strong>{new Intl.DateTimeFormat("pt-BR",{day:"2-digit",month:"short"}).format(new Date(Number(event.startAtMs)))}</strong><span>{new Intl.DateTimeFormat("pt-BR",{hour:"2-digit",minute:"2-digit"}).format(new Date(Number(event.startAtMs)))}</span></div>
-              <div><span className="item-category">{event.eventType}</span><h3>{event.title}</h3><p><MapPin size={12}/> {event.city}/{event.state}</p></div>
-              {event.sponsored && <span className="event-sponsored-label">PATROCINADO</span>}
-            </Link>)}</div>
+            <div className="events-promo-track" style={{ transform: `translateX(-${eventSlide * 340}px)` }}>
+              {eventItems.map((event:any) => <Link key={event.id} href={`/eventos/${event.id}`} className="events-promo-card">
+                <div className="events-promo-date"><CalendarDays size={15}/><strong>{new Intl.DateTimeFormat("pt-BR",{day:"2-digit",month:"short"}).format(new Date(Number(event.startAtMs)))}</strong><span>{new Intl.DateTimeFormat("pt-BR",{hour:"2-digit",minute:"2-digit"}).format(new Date(Number(event.startAtMs)))}</span></div>
+                <div><span className="item-category">{event.eventType}</span><h3>{event.title}</h3><p><MapPin size={12}/> {event.city}/{event.state}</p></div>
+                {event.sponsored && <span className="event-sponsored-label">PATROCINADO</span>}
+              </Link>)}
+            </div>
           </div>
         </section>}
 
