@@ -241,6 +241,6 @@ export default function Pauta({ isAdmin, currentAuthor, accessUsers, notify, onO
         </div>
         <div className="pauta-skills-hint">Clique no ícone para executar o skill no contexto desta pauta.</div>
       </aside>
-    </div>
+    </div>}
   </div>;
 }
