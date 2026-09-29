@@ -44,6 +44,7 @@ export default function Home() {
   const [adPaused, setAdPaused] = useState(false);
   const [hostingpressChannels] = useState(() => [...HOSTINGPRESS_CHANNELS].sort(() => Math.random() - 0.5));
   const { data: managedAds = [] } = trpc.ads.active.useQuery(undefined, { retry: false, staleTime: 10_000 });
+  const adEvent = trpc.adAnalytics.record.useMutation();
   const [now, setNow] = useState(() => new Date());
   // Weather defaults to São Paulo; the visitor's own location is only used when
   // permission was already granted or after clicking the weather chip.
@@ -374,10 +375,10 @@ export default function Home() {
                   <span className="ad-mini-label">{slide.eyebrow}</span>
                   <h3>{slide.title} <em>{slide.emphasis}</em></h3>
                   <p>{slide.text}</p>
-                  <Link className="gold-button" href={slide.href}>{slide.cta} <ArrowRight size={15} /></Link>
+                  <Link className="gold-button" href={slide.href} onClick={() => { if (slide?.id && !String(slide.id).startsWith("house-")) void adEvent.mutateAsync({ campaignId: String(slide.id), eventType: "click" }).catch(() => undefined); }}>{slide.cta} <ArrowRight size={15} /></Link>
                 </div>
                 <div className="ad-feature-creative">
-                  {slide.creativeUrl ? <a href={slide.href} target="_blank" rel="noreferrer" aria-label={`Abrir anúncio: ${slide.title}`}><img src={slide.creativeUrl} alt={slide.title} /></a> : <div className="ad-feature-placeholder"><span>PCH</span><small>ESPAÇO COMERCIAL</small></div>}
+                  {slide.creativeUrl ? <a href={slide.href} target="_blank" rel="noreferrer" onClick={() => { if (slide?.id && !String(slide.id).startsWith("house-")) void adEvent.mutateAsync({ campaignId: String(slide.id), eventType: "click" }).catch(() => undefined); }} aria-label={`Abrir anúncio: ${slide.title}`}><img src={slide.creativeUrl} alt={slide.title} /></a> : <div className="ad-feature-placeholder"><span>PCH</span><small>ESPAÇO COMERCIAL</small></div>}
                 </div>
               </article>
             ))}
@@ -387,7 +388,7 @@ export default function Home() {
             {[0, 1].map((row) => (
               <div className="ad-small-row" key={row}>
                 {adSlides.slice(row * 2, row * 2 + 2).map((slide: any, index: number) => (
-                  <a className="ad-small-card" href={slide.href} key={slide.id || `${slide.title}-${index}`}>
+                  <a className="ad-small-card" href={slide.href} key={slide.id || `${slide.title}-${index}`} onClick={() => { if (slide?.id && !String(slide.id).startsWith("house-")) void adEvent.mutateAsync({ campaignId: String(slide.id), eventType: "click" }).catch(() => undefined); }}>
                     <span className="ad-small-badge">PUBLICIDADE</span>
                     {slide.creativeUrl ? <img src={slide.creativeUrl} alt={slide.title} /> : <span className="ad-small-copy"><strong>{slide.title}</strong><em>{slide.emphasis}</em></span>}
                   </a>
