@@ -2739,3 +2739,54 @@ main > .home-page:first-child{
     top:64px!important;
   }
 }
+
+
+/* ===== Pauta — final modal field isolation ===== */
+.pauta-modal{
+  display:block!important;
+  line-height:1.4!important;
+}
+.pauta-modal>label{
+  position:relative!important;
+  display:flex!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  gap:7px!important;
+  clear:both!important;
+}
+.pauta-modal>label>input,
+.pauta-modal>label>textarea,
+.pauta-modal>label>select{
+  display:block!important;
+  position:relative!important;
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+  flex:none!important;
+  float:none!important;
+}
+.pauta-modal>.form-grid{
+  display:grid!important;
+  width:100%!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  align-items:start!important;
+  column-gap:18px!important;
+  row-gap:0!important;
+  margin:0!important;
+}
+.pauta-modal>.form-grid>label{
+  width:100%!important;
+  min-width:0!important;
+  margin:0 0 15px!important;
+}
+.pauta-modal .field-hint{
+  display:inline!important;
+  margin-left:4px!important;
+}
+@media(max-width:700px){
+  .pauta-modal>.form-grid{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+}
