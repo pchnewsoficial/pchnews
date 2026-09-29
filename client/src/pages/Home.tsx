@@ -448,7 +448,7 @@ export default function Home() {
                 <small>Rede de mídia, tecnologia e distribuição</small>
               </span>
               <ArrowRight size={16} aria-hidden="true" />
-            </Link>
+            </a>
 
             <div className="hostingpress-channel-window" aria-label="Canais do parceiro HostingPRESS">
               <div className="hostingpress-channel-track">
