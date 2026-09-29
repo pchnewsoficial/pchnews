@@ -182,6 +182,14 @@ export const appRouter = router({
     }),
   }),
   adAnalytics: router({
+    createAccessLink: adminProcedure.input(z.object({ campaignId:z.string().min(1), expiresAtMs:z.number().int().nullable().optional() })).mutation(async ({ input }) => {
+      const db=getSupabaseAdmin();
+      const token=randomBytes(32).toString("hex");
+      const id=`ad-access-${Date.now()}-${randomBytes(4).toString("hex")}`;
+      const { error }=await db.from("adCampaignAccess").insert({ id, campaignId:input.campaignId, tokenHash:hashToken(token), expiresAtMs:input.expiresAtMs ?? null, createdAtMs:Date.now(), revokedAtMs:null });
+      if(error) throw error;
+      return { id, token, path:`/anuncio-acompanhamento?token=${encodeURIComponent(token)}` };
+    }),
     record: publicProcedure.input(z.object({ campaignId:z.string().min(1), eventType:z.enum(["impression","click"]) })).mutation(async ({ input, ctx }) => {
       const db = getSupabaseAdmin();
       const visitorSeed = String(ctx.req.headers["x-forwarded-for"] || ctx.req.headers["user-agent"] || "anonymous");
