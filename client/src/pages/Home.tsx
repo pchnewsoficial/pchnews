@@ -32,7 +32,7 @@ function slugify(value: string) {
 export default function Home() {
   // Supabase is the only source of editorial content. Do not seed or read articles from browser storage.
   const [articles, setArticles] = useState<NewsArticle[]>([]);
-  const { data: remoteEditorial, isLoading: editorialLoading, error: editorialError, refetch: refetchEditorial } = trpc.editorial.bootstrap.useQuery(undefined, { retry: 2, retryDelay: 1200, staleTime: 15_000 });
+  const { data: remoteEditorial, isLoading: editorialLoading, error: editorialError, refetch: refetchEditorial } = trpc.editorial.bootstrap.useQuery(undefined, { retry: 2, retryDelay: 1200, staleTime: 5_000, refetchInterval: 5_000, refetchIntervalInBackground: true });
   const [activeCategory, setActiveCategory] = useState("Todas");
   const [activeTopic, setActiveTopic] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
