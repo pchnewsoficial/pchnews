@@ -5,12 +5,18 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, columnistProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { acceptInvite, createAdRequest, createComment, createInvite, findInvite, getArticle, getDb, getEditorialSnapshot, getViewAnalytics, listArticleAudit, listInvites, listUsers, recordArticleAudit, recordArticleView, renewInvite, createReplacementInvite, deleteInvite, revokeInvite, saveArticle, setUserRole, syncEditorial, updateColumnistProfile, recordEditorialAgentRun, listEditorialAgentRuns, recordEditorialFindingDecision, listEditorialFindingDecisions, listPautas, getPauta, savePauta, recordEditorialResearchContext, listEditorialResearchContexts, listPublicEvents, createEvent, getPublicEvent, listEventsAdmin, updateEventStatus, updateEvent, listEventCarousel, getAgendaMonetizationSettings, listEventPromotions } from "./db";
+import { acceptInvite, createAdRequest, createComment, createInvite, findInvite, getArticle, getDb, getEditorialSnapshot, getViewAnalytics, listArticleAudit, listInvites, listUsers, recordArticleAudit, recordArticleView, renewInvite, createReplacementInvite, deleteInvite, revokeInvite, saveArticle, setUserRole, syncEditorial, updateColumnistProfile, recordEditorialAgentRun, listEditorialAgentRuns, recordEditorialFindingDecision, listEditorialFindingDecisions, listPautas, getPauta, savePauta, recordEditorialResearchContext, listEditorialResearchContexts, getEditorialAgentAccess, setEditorialAgentAccess, listPublicEvents, createEvent, getPublicEvent, listEventsAdmin, updateEventStatus, updateEvent, listEventCarousel, getAgendaMonetizationSettings, listEventPromotions } from "./db";
 import { storagePut, storageList, storageDelete } from "./storage";
 import { sendInviteEmail, smtpConfigured } from "./email";
 import { ENV } from "./_core/env";
 import { getSupabaseAdmin } from "./_core/supabase";
 const INVITE_ROLES = ["columnist", "journalist", "editor", "reviewer"] as const;
+async function assertEditorialAgentAccess(ctx: any) {
+  if (ctx.user?.role === "admin") return;
+  const allowed = await getEditorialAgentAccess(ctx.user?.role || "user", ctx.accessToken);
+  if (!allowed) throw new Error("Os Agentes Editoriais estão liberados somente para o Administrador.");
+}
+
 type InviteRole = (typeof INVITE_ROLES)[number];
 /** Invite role is encoded in the invite id (invite-<role>-<ts>-<hex>); legacy ids are columnist invites. */
 function roleFromInviteId(id: string): InviteRole {
@@ -69,15 +75,18 @@ export const appRouter = router({
   }),
   auth: router({ me: publicProcedure.query((opts) => opts.ctx.user), logout: publicProcedure.mutation(({ ctx }) => { const cookieOptions = getSessionCookieOptions(ctx.req); ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 }); return { success: true } as const; }) }),
   editorialAgents: router({
-    run: columnistProcedure.input(z.object({
+    access: protectedProcedure.query(async ({ ctx }) => ({ enabled: await getEditorialAgentAccess(ctx.user.role, ctx.accessToken), role: ctx.user.role })),
+    setAccess: adminProcedure.input(z.object({ role: z.enum(["editor","journalist","columnist","reviewer"]), enabled: z.boolean() })).mutation(({ input, ctx }) => setEditorialAgentAccess(input.role, input.enabled, ctx.accessToken)),
+    run: protectedProcedure.input(z.object({
       articleId: z.string().min(1),
-      agentId: z.enum(["story-editor","fact-checker","seo-optimization-specialist","publication-readiness","ethics-advisor","multi-platform-distributor","liberdade-editorial","beyond-news","journalism-master-orchestrator"]),
+      agentId: z.enum(["pauta-triage","workflow-gate","source-readiness","story-editor","fact-checker","seo-optimization-specialist","publication-readiness","ethics-advisor","multi-platform-distributor","liberdade-editorial","beyond-news","journalism-master-orchestrator"]),
       article: z.object({
         id: z.string(), title: z.string(), category: z.string(), author: z.string(), summary: z.string(),
         bodyHtml: z.string(), image: z.string(), tags: z.string(), status: z.string(), scheduledAt: z.number().nullable().optional(),
         region: z.string().nullable().optional(), state: z.string().nullable().optional(), country: z.string().nullable().optional()
       })
     })).mutation(async ({ input, ctx }) => {
+      await assertEditorialAgentAccess(ctx);
       let researchContext;
       if (input.agentId === "journalism-master-orchestrator" || input.agentId === "fact-checker") {
         researchContext = await collectEditorialResearchContext({
@@ -117,10 +126,11 @@ export const appRouter = router({
       }
       return { ...result, runId };
     }),
-    history: columnistProcedure.input(z.object({ articleId: z.string().min(1) })).query(({ input, ctx }) => listEditorialAgentRuns(input.articleId, ctx.accessToken)),
-    researchHistory: columnistProcedure.input(z.object({ articleId: z.string().min(1) })).query(({ input, ctx }) => listEditorialResearchContexts(input.articleId, ctx.accessToken)),
-    findingDecisions: columnistProcedure.input(z.object({ articleId: z.string().min(1), agentRunId: z.string().optional() })).query(({ input, ctx }) => listEditorialFindingDecisions(input.articleId, input.agentRunId, ctx.accessToken)),
-    decideFinding: columnistProcedure.input(z.object({ id: z.string().min(1), articleId: z.string().min(1), agentRunId: z.string().min(1), findingCode: z.string().min(1), decision: z.enum(["pending","accepted","rejected"]), note: z.string().max(1000).optional() })).mutation(async ({ input, ctx }) => {
+    history: protectedProcedure.input(z.object({ articleId: z.string().min(1) })).query(async ({ input, ctx }) => { await assertEditorialAgentAccess(ctx); return listEditorialAgentRuns(input.articleId, ctx.accessToken); }),
+    researchHistory: protectedProcedure.input(z.object({ articleId: z.string().min(1) })).query(async ({ input, ctx }) => { await assertEditorialAgentAccess(ctx); return listEditorialResearchContexts(input.articleId, ctx.accessToken); }),
+    findingDecisions: protectedProcedure.input(z.object({ articleId: z.string().min(1), agentRunId: z.string().optional() })).query(async ({ input, ctx }) => { await assertEditorialAgentAccess(ctx); return listEditorialFindingDecisions(input.articleId, input.agentRunId, ctx.accessToken); }),
+    decideFinding: protectedProcedure.input(z.object({ id: z.string().min(1), articleId: z.string().min(1), agentRunId: z.string().min(1), findingCode: z.string().min(1), decision: z.enum(["pending","accepted","rejected"]), note: z.string().max(1000).optional() })).mutation(async ({ input, ctx }) => {
+      await assertEditorialAgentAccess(ctx);
       const now = Date.now();
       return recordEditorialFindingDecision({ ...input, note: input.note ?? null, actorOpenId: ctx.user.openId, createdAtMs: now, updatedAtMs: now }, ctx.accessToken);
     }),
