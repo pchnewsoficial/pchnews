@@ -268,7 +268,6 @@ export default function Home() {
             <button type="button" className="header-live-item header-weather" onClick={requestLocalWeather} title={coordinates ? "Clima da sua região" : "Clima em São Paulo — clique para usar a sua localização"}>
               <Thermometer size={15} aria-hidden="true" />
               <span>{weatherTemperature != null ? `${weatherPlace} ${Math.round(Number(weatherTemperature))}°C` : weatherPlace}</span>
-              {!coordinates && <MapPin size={13} aria-hidden="true" />}
             </button>
           </div>
           <div className="header-actions">
@@ -307,11 +306,6 @@ export default function Home() {
           <div className="events-promo-rail">
             <div className="events-promo-track">
               {(eventCarousel.data || []).map((event:any) => <Link key={event.id} href={`/eventos/${event.id}`} className="events-promo-card">
-                <div className="events-promo-date"><CalendarDays size={15}/><strong>{new Intl.DateTimeFormat("pt-BR",{day:"2-digit",month:"short"}).format(new Date(Number(event.startAtMs)))}</strong><span>{new Intl.DateTimeFormat("pt-BR",{hour:"2-digit",minute:"2-digit"}).format(new Date(Number(event.startAtMs)))}</span></div>
-                <div><span className="item-category">{event.eventType}</span><h3>{event.title}</h3><p><MapPin size={12}/> {event.city}/{event.state}</p></div>
-                {event.sponsored && <span className="event-sponsored-label">PATROCINADO</span>}
-              </Link>)}
-              {(eventCarousel.data || []).map((event:any) => <Link key={event.id+"-clone"} href={`/eventos/${event.id}`} className="events-promo-card event-carousel-clone" aria-hidden="true" tabIndex={-1}>
                 <div className="events-promo-date"><CalendarDays size={15}/><strong>{new Intl.DateTimeFormat("pt-BR",{day:"2-digit",month:"short"}).format(new Date(Number(event.startAtMs)))}</strong><span>{new Intl.DateTimeFormat("pt-BR",{hour:"2-digit",minute:"2-digit"}).format(new Date(Number(event.startAtMs)))}</span></div>
                 <div><span className="item-category">{event.eventType}</span><h3>{event.title}</h3><p><MapPin size={12}/> {event.city}/{event.state}</p></div>
                 {event.sponsored && <span className="event-sponsored-label">PATROCINADO</span>}
