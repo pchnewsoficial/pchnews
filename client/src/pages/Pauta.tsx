@@ -15,7 +15,7 @@ type Pauta = {
   tags: string; sourcesJson: Source[]; checklistJson: ChecklistItem[]; articleId: string | null;
   createdByOpenId: string; createdByName: string | null; createdAtMs: number; updatedAtMs: number;
 };
-type AccessUser = { id: number; openId: string; name: string | null; email: string | null; role: "user" | "admin" | "editor" | "journalist" | "columnist" | "reviewer" };
+type AccessUser = { id: number; openId: string; name: string | null; email: string | null; role: "user" | "admin" | "editor" | "journalist" | "columnist" | "reviewer" };\ntype StudioNavGroup = { label: string; items: { id: string; label: string; icon: typeof FilePlus2 }[] };
 
 const columns: Array<{ id: PautaStatus; label: string }> = [
   { id: "idea", label: "Ideias" }, { id: "planned", label: "Planejadas" }, { id: "assigned", label: "Atribuídas" },
@@ -36,7 +36,7 @@ function fmt(ms: number | null) {
 }
 function isLate(p: Pauta) { return Boolean(p.deadlineAtMs && p.deadlineAtMs < Date.now() && !["published", "archived"].includes(p.status)); }
 
-export default function Pauta({ isAdmin, currentAuthor, accessUsers, notify, onOpenEditor }: { isAdmin: boolean; currentAuthor: string; accessUsers: AccessUser[]; notify: (message: string) => void; onOpenEditor?: (articleId: string, pauta: Pauta) => void }) {
+export default function Pauta({ isAdmin, currentAuthor, accessUsers, notify, onOpenEditor, studioNavGroups, onStudioNavigate }: { isAdmin: boolean; currentAuthor: string; accessUsers: AccessUser[]; notify: (message: string) => void; onOpenEditor?: (articleId: string, pauta: Pauta) => void; studioNavGroups?: StudioNavGroup[]; onStudioNavigate?: (view: string) => void }) {
   const { user } = useAuth();
   const { data: remote = [], refetch } = trpc.pauta.list.useQuery(undefined, { enabled: Boolean(user), retry: false });
   const create = trpc.pauta.create.useMutation({ onSuccess: () => { refetch(); setModal(false); notify("Pauta criada e salva no banco."); } });
@@ -49,7 +49,7 @@ export default function Pauta({ isAdmin, currentAuthor, accessUsers, notify, onO
   const [priority, setPriority] = useState<Priority | "all">("all");
   const [studioLeftOpen, setStudioLeftOpen] = useState(true);
   const [skillsOpen, setSkillsOpen] = useState(true);
-  const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
+  const [selectedSkill, setSelectedSkill] = useState<string | null>(null);\n  const [skillResult, setSkillResult] = useState<any>(null);\n  const { data: agentAccess } = trpc.editorialAgents.access.useQuery(undefined, { enabled: Boolean(user), retry: false });\n  const runSkill = trpc.editorialAgents.run.useMutation({ onSuccess: (data) => { setSkillResult(data); notify(data.agentName ? data.agentName + " executado na pauta." : "Skill executado na pauta."); }, onError: (error) => notify(error.message) });
 
   const pautas = (remote as any[]).map((p) => ({ ...p, sourcesJson: Array.isArray(p.sourcesJson) ? p.sourcesJson : [], checklistJson: Array.isArray(p.checklistJson) ? p.checklistJson : [] })) as Pauta[];
   const filtered = useMemo(() => pautas.filter(p => {
@@ -97,7 +97,7 @@ export default function Pauta({ isAdmin, currentAuthor, accessUsers, notify, onO
     update.mutate({ ...p, checklistJson: checklist } as any);
   };
 
-  const convertToArticle = async (p: Pauta) => {
+  const buildDraftArticle = async (p: Pauta) => {
     if (p.articleId) { notify("Esta pauta já está vinculada a uma notícia."); return; }
     try {
       const id = makeArticleId();
@@ -143,7 +143,7 @@ export default function Pauta({ isAdmin, currentAuthor, accessUsers, notify, onO
             <div className="pauta-progress"><span><ListChecks size={13}/> {p.checklistJson.filter(x=>x.done).length}/{p.checklistJson.length}</span>{isLate(p) && <em>Atrasada</em>}</div>
             <div className="pauta-card-actions">
               <select value={p.status} onChange={e => changeStatus(p, e.target.value as PautaStatus)}><option value={p.status}>{statusLabel[p.status]}</option>{columns.filter(c=>c.id!==p.status).map(c=><option key={c.id} value={c.id}>{c.label}</option>)}</select>
-              {!p.articleId && <button onClick={() => convertToArticle(p)} disabled={saveArticle.isPending}><FilePlus2 size={14}/> Criar notícia</button>}
+              {!p.articleId && <button onClick={() => buildDraftArticle(p)} disabled={saveArticle.isPending}><FilePlus2 size={14}/> Criar notícia</button>}
               {p.articleId && <button type="button" onClick={() => onOpenEditor?.(p.articleId as string, p)}><Edit3 size={14}/> Abrir no editor</button>}{p.status !== "archived" && <button onClick={() => { if (window.confirm(`Arquivar “${p.title}”?`)) changeStatus(p, "archived"); }}><Archive size={14}/> Arquivar</button>}
             </div>
           </article>)}
@@ -234,12 +234,12 @@ export default function Pauta({ isAdmin, currentAuthor, accessUsers, notify, onO
         <div className="pauta-skills-list">
           {EDITORIAL_AGENTS.map(agent => {
             const Icon = agent.icon;
-            return <button type="button" key={agent.id} className={selectedSkill === agent.id ? "active" : ""} title={agent.description} aria-label={agent.name} onClick={() => { setSelectedSkill(agent.id); notify(`${agent.name} selecionado para esta pauta.`); }}>
-              <Icon size={17}/><span>{agent.name}</span>
+            return <button type="button" key={agent.id} className={selectedSkill === agent.id ? "active" : ""} title={agent.description} aria-label={agent.name} onClick={() => void executeSkill(agent)} disabled={!isAdmin && !agentAccess?.enabled || runSkill.isPending}>
+              <Icon size={17}/><span>{agent.name}</span><small>{runSkill.isPending && selectedSkill === agent.id ? "Executando…" : (isAdmin || agentAccess?.enabled) ? "Executar" : "Não liberado"}</small>
             </button>;
           })}
         </div>
-        <div className="pauta-skills-hint">Clique no ícone para executar o skill no contexto desta pauta.</div>
+        {skillResult && <div className="pauta-skill-result"><strong>{skillResult.agentName}</strong><span>{skillResult.status === "pass" ? "Sem bloqueios" : skillResult.status === "block" ? "Atenção necessária" : "Revisão humana"}</span><small>{skillResult.findings?.length || 0} apontamento(s) registrados.</small></div>}<div className="pauta-skills-hint">Os nomes ficam visíveis quando o painel abre. Clique para executar o skill no contexto desta pauta.</div>
       </aside>
     </div>}
   </div>;
