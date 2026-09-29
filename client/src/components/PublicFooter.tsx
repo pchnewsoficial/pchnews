@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import officialLogoUrl from "@/assets/pch-news-official-current.svg";
 import { ArrowRight, Facebook, Instagram, Youtube } from "lucide-react";
+import { trpc } from "@/lib/trpc";
 
 const LOGO_URL = officialLogoUrl;
 
@@ -16,6 +17,8 @@ function TikTokIcon() {
 }
 
 export default function PublicFooter() {
+  const { data } = trpc.editorial.bootstrap.useQuery(undefined, { retry: false, staleTime: 60_000 });
+  const columnists = (data?.profiles || []).filter((p: any) => p?.name).slice(0, 12);
   return (
     <footer className="site-footer">
       <div className="container footer-inner">
@@ -77,6 +80,29 @@ export default function PublicFooter() {
           <small>© 2026 PCH News · Responsabilidade editorial PCH News</small>
         </div>
       </div>
+      {columnists.length > 0 && (
+        <section className="container footer-columnists" aria-label="Colunistas PCH News">
+          <div className="footer-columnists-heading">
+            <span>COLUNISTAS PCH NEWS</span>
+            <Link href="/equipe">Conheça nossos colunistas <ArrowRight size={13} /></Link>
+          </div>
+          <div className="footer-columnists-window">
+            <div className="footer-columnists-track">
+              {[...columnists, ...columnists].map((profile: any, index: number) => {
+                const slug = profile.slug || "evaldo-poeta";
+                const initials = String(profile.name).split(/\s+/).filter(Boolean).slice(0,2).map((x: string) => x[0]).join("").toUpperCase();
+                return (
+                  <Link key={"footer-columnist-" + slug + "-" + index} href={"/equipe/" + slug} className="footer-columnist-pill">
+                    {profile.photo ? <img src={profile.photo} alt="" onError={(e) => { e.currentTarget.style.display = "none"; e.currentTarget.parentElement?.classList.add("is-fallback"); }} /> : null}
+                    <span className="footer-columnist-avatar">{initials}</span>
+                    <span><strong>{profile.name}</strong><small>{profile.role || "Colunista"}</small></span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
       <div className="container footer-bottom">
         <span>PCH News · Brasil e mundo</span>
         <span>Notícia, análise, opinião e publicidade identificada.</span>
