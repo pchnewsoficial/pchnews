@@ -45,7 +45,7 @@ export default function PublicAds() {
   const submit=async(e:FormEvent)=>{
     e.preventDefault();
     if(!form.business.trim()||!form.contactName.trim()||!form.email.trim()||!form.phone.trim()||!form.message.trim()||!form.consent){ return; }
-    const { payment, ...rest } = form; await create.mutateAsync({ ...rest, message: `Forma de pagamento preferida: ${payment}\n\n${form.message}`, consent: true });
+    const { payment, ...rest } = form; await create.mutateAsync({ ...rest, creativeNeed: rest.creativeNeed as "client_artwork" | "pch_creation" | "no_artwork_yet", message: `Forma de pagamento preferida: ${payment}\n\n${form.message}`, consent: true });
     setSent(true);
   };
   return <div className="site-shell public-module-page"><PageMeta title="Anuncie no PCH News" description="Solicite uma proposta comercial para anunciar no PCH News." canonicalPath="/anuncie" />
