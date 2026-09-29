@@ -15,7 +15,7 @@ import Pauta from "./Pauta";
 import ApiHubPanel from "@/components/ApiHubPanel";
 import { ArticleStatus, EDITORIAL_CATEGORIES, EDITORIAL_SCOPES, EDITORIAL_CONTENT_TYPES, EDITORIAL_CHECKLIST_DEFAULT, EDITORIAL_CHECKLIST_LABELS, MediaAsset, NewsArticle, makeArticleId, statusLabels } from "@/lib/news";
 
-type View = "overview" | "articles" | "pauta" | "media" | "settings" | "team" | "profile" | "comments" | "ads" | "stats" | "audit" | "agents" | "apiHub" | "events" | "editorialRequests";
+type View = "overview" | "articles" | "pauta" | "media" | "settings" | "team" | "profile" | "comments" | "ads" | "stats" | "audit" | "agents" | "apiHub" | "hostingPress" | "events" | "editorialRequests";
 type AccessUser = { id: number; openId: string; name: string | null; email: string | null; role: "user" | "admin" | "editor" | "journalist" | "columnist" | "reviewer"; lastSignedIn: Date };
 import officialLogoUrl from "@/assets/pch-news-official-current.svg";
 const LOGO_URL = officialLogoUrl;
@@ -504,6 +504,7 @@ export default function Admin() {
       ...(isAdmin ? [{ id: "ads" as View, label: "Anúncios", icon: Megaphone }] : []),
     ]},
     { label: "Gestão e ferramentas", items: [
+      ...(isAdmin ? [{ id: "hostingPress" as View, label: "HostingPress", icon: ExternalLink }] : []),
       { id: "stats", label: "Estatísticas", icon: BarChart3 },
       ...(isAdmin ? [{ id: "audit" as View, label: "Auditoria", icon: History }] : []),
       ...(canUseEditorialAgents ? [{ id: "agents" as View, label: "Agentes editoriais", icon: Sparkles }] : []),
@@ -552,6 +553,7 @@ export default function Admin() {
           {view === "editorialRequests" && isAdmin && <EditorialRequestsAdmin notify={notify} />}
            {view === "agents" && canUseEditorialAgents && <EditorialAgents articles={articles} isAdmin={isAdmin} currentAuthor={currentAuthor} notify={notify} />}
           {view === "apiHub" && isAdmin && <ApiHubPanel isAdmin={isAdmin} />}
+          {view === "hostingPress" && isAdmin && <HostingPressPanel />}
           {view === "audit" && isAdmin && <Audit entries={auditEntries as AuditEntry[]} />}
           {view === "stats" && <Stats articles={articles} comments={comments} author={undefined} isAdmin={isAdmin} authors={Array.from(new Set(articles.map((article) => article.author)))} viewEvents={analytics?.events ?? []} />}
           {view === "comments" && <Comments comments={isAdmin ? comments : comments.filter((comment) => articles.find((article) => article.id === comment.articleId)?.author === currentAuthor)} articles={articles} onChange={setComments} notify={notify} currentAuthor={currentAuthor} isAdmin={isAdmin} />}
@@ -880,6 +882,27 @@ function MediaPickerModal({ media, mode, onUpload, onClose, onSelect }: { media:
   const [busy, setBusy] = useState(false);
   const upload = async (event: React.ChangeEvent<HTMLInputElement>) => { const file = event.target.files?.[0]; event.target.value = ""; if (!file) return; setBusy(true); const asset = await onUpload(file); setBusy(false); if (asset) onSelect(asset); };
   return <div className="media-picker-overlay"><button className="overlay-dismiss" onClick={onClose} aria-label="Fechar galeria" /><section className="media-picker"><div className="editor-header"><div><span className="admin-kicker">GALERIA DE MÍDIA</span><h2>{mode === "cover" ? "Escolher imagem principal" : "Inserir imagem no texto"}</h2></div><button className="close-editor" onClick={onClose}><X size={18} /></button></div><label className="cover-upload-button picker-upload">{busy ? "Enviando..." : "Enviar nova imagem do computador"}<input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={upload} disabled={busy} hidden /></label>{media.length === 0 ? <div className="media-empty compact-empty"><ImagePlus size={23} /><span>Nenhuma imagem na galeria ainda. Envie uma acima.</span></div> : <div className="picker-grid">{media.map((asset) => <button key={asset.id} onClick={() => onSelect(asset)}><img src={asset.src} alt={asset.name} /><span>{asset.name}</span></button>)}</div>}</section></div>;
+}
+
+function HostingPressPanel() {
+  return <section className="panel" style={{ padding: 0, overflow: "hidden" }}>
+    <div className="panel-heading" style={{ padding: "20px 22px", margin: 0 }}>
+      <div>
+        <span className="admin-kicker">PUBLICAÇÃO EXTERNA</span>
+        <h2>HostingPress</h2>
+        <p>Área de acesso da HostingPress dentro do painel do PCH News.</p>
+      </div>
+      <a className="secondary-cta" href="https://hostingpress.com.br/login" target="_blank" rel="noopener noreferrer"><ExternalLink size={15} /> Abrir em nova aba</a>
+    </div>
+    <div style={{ minHeight: "calc(100vh - 230px)", background: "var(--background, #fff)" }}>
+      <iframe
+        title="HostingPress"
+        src="https://hostingpress.com.br/login"
+        style={{ width: "100%", height: "calc(100vh - 230px)", minHeight: 620, border: 0, display: "block" }}
+        referrerPolicy="strict-origin-when-cross-origin"
+      />
+    </div>
+  </section>;
 }
 
 function PlaceholderView({ icon: Icon, title, description, action, onAction }: { icon: typeof Settings; title: string; description: string; action: string; onAction: () => void }) {
