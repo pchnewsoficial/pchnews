@@ -132,10 +132,3 @@
 .more-menu .more-menu-section + .more-menu-section{
   border-top-color:#e7ebef;
 }
-
-/* Agenda is a real single-sequence carousel; no duplicated clone or infinite marquee. */
-.events-promo-track{animation:none !important;transition:transform .65s ease;will-change:transform;}
-@media(min-width:981px){
-  .events-promo-rail{overflow:hidden;}
-  .events-promo-card{flex-basis:330px;width:330px;}
-}
