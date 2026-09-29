@@ -120,6 +120,42 @@ export default function Pauta({ isAdmin, currentAuthor, accessUsers, notify, onO
     } catch (e) { notify(e instanceof Error ? e.message : "Não foi possível criar o rascunho."); }
   };
 
+  const executeSkill = async (agent: (typeof EDITORIAL_AGENTS)[number]) => {
+    if (!user) return;
+    if (!isAdmin && !agentAccess?.enabled) { notify("Este skill ainda não foi liberado para o seu perfil."); return; }
+    try {
+      let articleId = editing?.articleId || null;
+      if (!articleId) {
+        if (!draft.title.trim() || !draft.angle.trim()) { notify("Preencha o título e o ângulo antes de executar um skill."); return; }
+        const tempPauta = editing || ({
+          id: "current", title: draft.title, angle: draft.angle, briefing: draft.briefing, category: draft.category,
+          priority: draft.priority, status: draft.status, assignedToOpenId: draft.assignedToOpenId || null,
+          assignedToName: draft.assignedToName || currentAuthor, deadlineAtMs: null, plannedPublishAtMs: null,
+          tags: draft.tags, sourcesJson: [], checklistJson: draft.checklist || defaultChecklist, articleId: null,
+          createdByOpenId: user.openId, createdByName: currentAuthor, createdAtMs: Date.now(), updatedAtMs: Date.now()
+        } as Pauta);
+        articleId = await buildDraftArticle(tempPauta, false) || null;
+      }
+      if (!articleId) return;
+      setSelectedSkill(agent.id);
+      runSkill.mutate({
+        articleId,
+        agentId: agent.id,
+        article: {
+          id: articleId, title: draft.title, category: draft.category,
+          author: draft.assignedToName || currentAuthor,
+          summary: draft.briefing || draft.angle,
+          bodyHtml: "<p>" + (draft.briefing || draft.angle) + "</p>",
+          image: "", tags: JSON.stringify((draft.tags || "").split(",").map(x => x.trim()).filter(Boolean)),
+          status: "draft", scheduledAt: draft.plannedPublish ? new Date(draft.plannedPublish).getTime() : null,
+          region: null, state: null, country: "Brasil"
+        }
+      });
+    } catch (error) {
+      notify(error instanceof Error ? error.message : "Não foi possível executar o skill.");
+    }
+  };
+
   return <div className="pauta-page">
     <div className="admin-heading compact">
       <div><span className="admin-kicker">NEWSROOM DESK</span><h1>Pauta<span>.</span></h1><p>Do primeiro insight à publicação: organize apuração, responsáveis, fontes e prazos sem sair do PCH News.</p></div>
