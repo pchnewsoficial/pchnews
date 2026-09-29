@@ -157,6 +157,20 @@ export async function listEditorialResearchContexts(articleId:string,accessToken
   if(error)throw error;return data??[];
 }
 
+export async function getEditorialAgentAccess(role: string, accessToken?: string | null) {
+  if (role === "admin") return true;
+  const db = getSupabaseAdmin();
+  const { data, error } = await db.from("editorialAgentAccess").select("enabled").eq("agentId","*").eq("role",role).maybeSingle();
+  if (error) throw error;
+  return Boolean(data?.enabled);
+}
+export async function setEditorialAgentAccess(role: string, enabled: boolean, accessToken?: string | null) {
+  const db = getSupabaseAdmin();
+  const { error } = await db.from("editorialAgentAccess").upsert({ id: `access-all-${role}`, agentId:"*", role, enabled, updatedAtMs:Date.now() }, { onConflict:"agentId,role" });
+  if (error) throw error;
+  return { role, enabled };
+}
+
 export async function recordEditorialAgentRun(entry:any,accessToken?:string|null){const db=await getDb(accessToken);if(!db)return {success:false};const {error}=await db.from("editorialAgentRuns").insert(entry);if(error)throw error;return {success:true};}
 export async function recordEditorialFindingDecision(entry:any,accessToken?:string|null){
   const db=await getDb(accessToken);if(!db)throw new Error("Database unavailable");
