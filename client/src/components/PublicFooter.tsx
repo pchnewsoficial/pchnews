@@ -18,9 +18,240 @@ function TikTokIcon() {
 
 export default function PublicFooter() {
   const { data } = trpc.editorial.bootstrap.useQuery(undefined, { retry: false, staleTime: 60_000 });
-  const columnists = (data?.profiles || []).filter((p: any) => p?.name).slice(0, 12);
+  const columnists = (data?.profiles || [])
+    .filter((p: any) => p?.name && p?.photo && (p?.role === "columnist" || String(p?.beat || "").toLowerCase().includes("colunista")))
+    .slice(0, 12);
+  const latestArticle = [...(data?.articles || [])]
+    .filter((article: any) => article?.status === "published" && article?.title)
+    .sort((a: any, b: any) => Number(b?.date || b?.updatedAt || 0) - Number(a?.date || a?.updatedAt || 0))[0];
+
   return (
     <footer className="site-footer">
+      <style>{`
+        .site-footer .footer-news-banner{
+          width:min(100%,var(--pch-content-max));
+          margin:0 auto;
+          padding:14px 30px 0;
+        }
+        .site-footer .footer-news-banner-inner{
+          display:grid;
+          grid-template-columns:minmax(0,1fr) auto;
+          align-items:center;
+          gap:18px;
+          min-height:82px;
+          padding:0 18px;
+          border:1px solid rgba(209,169,75,.22);
+          border-radius:10px;
+          overflow:hidden;
+          background:linear-gradient(100deg,#121b29,#0d1521);
+        }
+        .site-footer .footer-news-banner-copy{
+          min-width:0;
+          display:flex;
+          align-items:center;
+          gap:12px;
+        }
+        .site-footer .footer-news-banner-kicker{
+          flex:0 0 auto;
+          color:#d8b45c;
+          font:800 9px/1 'DM Sans',sans-serif;
+          letter-spacing:.14em;
+          text-transform:uppercase;
+        }
+        .site-footer .footer-news-banner-title{
+          min-width:0;
+          color:#fff;
+          font:700 15px/1.25 'DM Sans',sans-serif;
+          overflow:hidden;
+          text-overflow:ellipsis;
+          white-space:nowrap;
+        }
+        .site-footer .footer-news-banner-image{
+          width:128px;
+          height:64px;
+          object-fit:cover;
+          border-radius:7px;
+          opacity:.88;
+        }
+        .site-footer .footer-news-banner-link{
+          display:inline-flex;
+          align-items:center;
+          gap:6px;
+          white-space:nowrap;
+          color:#f0d88d;
+          font:800 9px/1 'Oswald',sans-serif;
+          letter-spacing:.08em;
+          text-transform:uppercase;
+        }
+        .site-footer .footer-columnists{
+          width:min(100%,var(--pch-content-max));
+          margin:0 auto;
+          padding:18px 30px 16px;
+          border-bottom:1px solid rgba(255,255,255,.07);
+        }
+        .site-footer .footer-columnists-heading{
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          gap:16px;
+          margin-bottom:10px;
+        }
+        .site-footer .footer-columnists-heading span{
+          color:#d0a94f;
+          font:800 10px/1 'DM Sans',sans-serif;
+          letter-spacing:.15em;
+        }
+        .site-footer .footer-columnists-heading a{
+          display:inline-flex;
+          align-items:center;
+          gap:5px;
+          color:#aeb6c4;
+          font:700 9px/1 'Oswald',sans-serif;
+          letter-spacing:.06em;
+          text-transform:uppercase;
+        }
+        .site-footer .footer-columnists-window{overflow:hidden;}
+        .site-footer .footer-columnists-track{
+          display:flex;
+          gap:10px;
+          overflow-x:auto;
+          padding:2px 2px 5px;
+          scrollbar-width:thin;
+        }
+        .site-footer .footer-columnist-pill{
+          flex:0 0 auto;
+          display:flex;
+          align-items:center;
+          gap:9px;
+          min-width:205px;
+          padding:8px 10px;
+          border:1px solid rgba(255,255,255,.09);
+          border-radius:9px;
+          background:rgba(255,255,255,.035);
+        }
+        .site-footer .footer-columnist-pill img,
+        .site-footer .footer-columnist-avatar{
+          width:38px;
+          height:38px;
+          flex:0 0 38px;
+          border-radius:50%;
+        }
+        .site-footer .footer-columnist-pill img{
+          object-fit:cover;
+          background:#17202c;
+        }
+        .site-footer .footer-columnist-avatar{
+          display:none;
+          place-items:center;
+          background:#17202c;
+          color:#f0d88d;
+          font:800 11px/1 'DM Sans',sans-serif;
+        }
+        .site-footer .footer-columnist-pill>span:last-child{
+          min-width:0;
+          display:flex;
+          flex-direction:column;
+          gap:3px;
+        }
+        .site-footer .footer-columnist-pill strong{
+          color:#f3f5f7;
+          font:700 12px/1.2 'DM Sans',sans-serif;
+          overflow:hidden;
+          text-overflow:ellipsis;
+          white-space:nowrap;
+        }
+        .site-footer .footer-columnist-pill small{
+          color:#7f8998;
+          font:600 9px/1.2 'DM Sans',sans-serif;
+        }
+        .site-footer .footer-social-column .footer-socials{
+          display:flex!important;
+          align-items:center;
+          flex-wrap:wrap;
+          gap:8px!important;
+          width:auto!important;
+        }
+        .site-footer .footer-social-column .footer-social-link{
+          width:38px!important;
+          min-width:38px!important;
+          height:38px!important;
+          min-height:38px!important;
+          padding:0!important;
+          display:grid!important;
+          place-items:center!important;
+          border:1px solid rgba(255,255,255,.10);
+          border-radius:9px!important;
+          background:rgba(255,255,255,.035)!important;
+          color:#c9d0da!important;
+        }
+        .site-footer .footer-social-column .footer-social-link:hover{
+          color:#f0d88d!important;
+          border-color:rgba(209,169,75,.45);
+          background:rgba(209,169,75,.08)!important;
+          transform:translateY(-1px);
+        }
+        .site-footer .footer-social-column .footer-social-link span{display:none!important;}
+        .site-footer .footer-social-column .footer-social-link svg{width:18px!important;height:18px!important;margin:0!important;}
+        .site-footer .footer-social-column .footer-social-note{display:none!important;}
+        @media(max-width:760px){
+          .site-footer .footer-news-banner{padding:12px 16px 0;}
+          .site-footer .footer-news-banner-inner{grid-template-columns:minmax(0,1fr) auto;gap:10px;min-height:70px;padding:0 12px;}
+          .site-footer .footer-news-banner-title{font-size:12px;}
+          .site-footer .footer-news-banner-image{width:92px;height:52px;}
+          .site-footer .footer-news-banner-link{display:none;}
+          .site-footer .footer-columnists{padding:16px 16px 14px;}
+          .site-footer .footer-columnists-heading{align-items:flex-start;}
+          .site-footer .footer-columnists-heading a{font-size:8px;}
+          .site-footer .footer-columnist-pill{min-width:190px;}
+        }
+        @media(max-width:480px){
+          .site-footer .footer-news-banner{padding:10px 14px 0;}
+          .site-footer .footer-news-banner-inner{grid-template-columns:minmax(0,1fr) 76px;min-height:64px;}
+          .site-footer .footer-news-banner-copy{gap:8px;}
+          .site-footer .footer-news-banner-kicker{font-size:8px;}
+          .site-footer .footer-news-banner-title{font-size:11px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+          .site-footer .footer-news-banner-image{width:76px;height:48px;}
+          .site-footer .footer-columnists{padding-left:14px;padding-right:14px;}
+          .site-footer .footer-columnists-heading{flex-direction:column;gap:7px;}
+          .site-footer .footer-columnist-pill{min-width:180px;}
+        }
+      `}</style>
+
+      {latestArticle && (
+        <section className="footer-news-banner" aria-label="Notícia em destaque">
+          <Link className="footer-news-banner-inner" href={`/materia/${latestArticle.slug || latestArticle.id}`}>
+            <div className="footer-news-banner-copy">
+              <span className="footer-news-banner-kicker">PCH NEWS · EM DESTAQUE</span>
+              <strong className="footer-news-banner-title">{latestArticle.title}</strong>
+            </div>
+            {latestArticle.image ? <img className="footer-news-banner-image" src={latestArticle.image} alt="" loading="lazy" /> : null}
+            <span className="footer-news-banner-link">Ler notícia <ArrowRight size={13} /></span>
+          </Link>
+        </section>
+      )}
+
+      {columnists.length > 0 && (
+        <section className="container footer-columnists" aria-label="Colunistas PCH News">
+          <div className="footer-columnists-heading">
+            <span>COLUNISTAS PCH NEWS</span>
+            <Link href="/equipe">Conheça nossos colunistas <ArrowRight size={13} /></Link>
+          </div>
+          <div className="footer-columnists-window">
+            <div className="footer-columnists-track">
+              {columnists.map((profile: any) => {
+                const slug = profile.slug || "evaldo-poeta";
+                return (
+                  <Link key={"footer-columnist-" + slug} href={"/equipe/" + slug} className="footer-columnist-pill">
+                    <img src={profile.photo} alt={profile.name} loading="lazy" onError={(e) => { e.currentTarget.style.visibility = "hidden"; }} />
+                    <span><strong>{profile.name}</strong><small>{profile.role || profile.beat || "Colunista PCH News"}</small></span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
       <div className="container footer-inner">
         <div className="footer-brand-block">
           <img className="footer-logo" src={LOGO_URL} alt="PCH News" decoding="async" />
@@ -53,7 +284,6 @@ export default function PublicFooter() {
               </span>
             ))}
           </div>
-          <small className="footer-social-note">Facebook e TikTok: ícones preparados; links serão ativados quando os perfis oficiais forem cadastrados.</small>
         </div>
         <div className="footer-column">
           <span>EDITORIAL</span>
@@ -80,29 +310,6 @@ export default function PublicFooter() {
           <small>© 2026 PCH News · Responsabilidade editorial PCH News</small>
         </div>
       </div>
-      {columnists.length > 0 && (
-        <section className="container footer-columnists" aria-label="Colunistas PCH News">
-          <div className="footer-columnists-heading">
-            <span>COLUNISTAS PCH NEWS</span>
-            <Link href="/equipe">Conheça nossos colunistas <ArrowRight size={13} /></Link>
-          </div>
-          <div className="footer-columnists-window">
-            <div className="footer-columnists-track">
-              {[...columnists, ...columnists].map((profile: any, index: number) => {
-                const slug = profile.slug || "evaldo-poeta";
-                const initials = String(profile.name).split(/\s+/).filter(Boolean).slice(0,2).map((x: string) => x[0]).join("").toUpperCase();
-                return (
-                  <Link key={"footer-columnist-" + slug + "-" + index} href={"/equipe/" + slug} className="footer-columnist-pill">
-                    {profile.photo ? <img src={profile.photo} alt="" onError={(e) => { e.currentTarget.style.display = "none"; e.currentTarget.parentElement?.classList.add("is-fallback"); }} /> : null}
-                    <span className="footer-columnist-avatar">{initials}</span>
-                    <span><strong>{profile.name}</strong><small>{profile.role || "Colunista"}</small></span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
       <div className="container footer-bottom">
         <span>PCH News · Brasil e mundo</span>
         <span>Notícia, análise, opinião e publicidade identificada.</span>
