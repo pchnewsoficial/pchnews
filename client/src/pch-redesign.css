@@ -136,9 +136,9 @@
 
 /* Responsive recovery — desktop/mobile must share the same editorial structure. */
 .events-promo-home{margin-top:24px;margin-bottom:8px;}
-.events-promo-rail{overflow:hidden;position:relative;}
-.events-promo-track{display:flex;gap:12px;width:max-content;animation:pch-events-scroll 34s linear infinite;will-change:transform;}.event-carousel-clone{display:grid;}
-.events-promo-track:hover{animation-play-state:paused;}
+.events-promo-rail{overflow-x:auto;overflow-y:hidden;position:relative;scrollbar-width:thin;}
+.events-promo-track{display:flex;gap:12px;width:max-content;animation:none;will-change:auto;}
+
 .events-promo-card{position:relative;display:grid;grid-template-columns:92px minmax(220px,1fr);gap:12px;width:360px;min-height:108px;padding:14px;border:1px solid #dfe4e9;border-radius:8px;background:#fff;color:#172235;text-decoration:none;box-shadow:0 7px 22px rgba(25,35,50,.06);}
 .events-promo-date{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:3px;padding-right:12px;border-right:1px solid #e7eaee;color:#7a8492;}
 .events-promo-date svg{color:#bd922f;}.events-promo-date strong{font-family:'Oswald',sans-serif;font-size:22px;line-height:1;color:#1d3150;}.events-promo-date span{font-size:11px;}
