@@ -91,6 +91,11 @@ export default function InviteAccept() {
     <div className="invite-highlight"><strong>Por que você?</strong><p>{invitationReason}</p><p>Ao aceitar, você terá um espaço editorial compatível com seu papel, ferramentas para construir seu conteúdo e apoio do fluxo editorial do PCH News.</p></div>
     <div className="invite-values"><div><b>Informação</b><span>Fato antes de opinião.</span></div><div><b>Contexto</b><span>Mais compreensão para o leitor.</span></div><div><b>Liberdade da mente</b><span>O leitor pensa por si.</span></div></div>
     <div className="invite-access"><span className="admin-kicker">SEU CONVITE</span><p><strong>{invitedEmail}</strong> · acesso como <strong>{roleLabel}</strong></p></div>
+    <div className="invite-agreement-summary">
+      <div><ShieldCheck size={17} /><span><strong>Confidencialidade</strong><small>Proteção de pautas, informações internas, materiais não publicados e acessos.</small></span></div>
+      <div><CheckCircle2 size={17} /><span><strong>Participação e parceria editorial</strong><small>Compromisso com os princípios editoriais e a responsabilidade pelo material enviado.</small></span></div>
+      <p>Os termos completos ficam disponíveis no próprio convite. A confirmação será registrada com a versão dos documentos no momento do aceite.</p>
+    </div>
     <EditorialResponsibility onAccepted={setResponsibilityAccepted} /><EditorialTermsAcceptance onAccepted={setTermsAccepted} />
     <label className="invite-password-field">Crie sua senha<input type="password" autoComplete="new-password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mínimo de 8 caracteres" /></label>
     <label className="invite-password-field">Confirme a senha<input type="password" autoComplete="new-password" minLength={8} value={passwordConfirm} onChange={(e) => setPasswordConfirm(e.target.value)} placeholder="Repita a senha" /></label>
