@@ -1,5 +1,6 @@
 -- PCH News: each public article opening counts as one view.
 -- Replaces the previous 30-minute per-visitor suppression window.
+-- The RPC is executed server-side by the Cloudflare Worker using service_role.
 
 create or replace function public.increment_article_view(
   p_article_id varchar,
@@ -43,8 +44,7 @@ begin
   );
 
   update public."articles"
-     set "views" = "views" + 1,
-         "updatedAt" = now()
+     set "views" = coalesce("views", 0) + 1
    where "id" = p_article_id
      and "status" in ('published', 'updated')
    returning "views" into current_views;
@@ -57,4 +57,4 @@ end;
 $function$;
 
 revoke all on function public.increment_article_view(varchar, varchar) from public;
-grant execute on function public.increment_article_view(varchar, varchar) to anon, authenticated;
+grant execute on function public.increment_article_view(varchar, varchar) to service_role;
