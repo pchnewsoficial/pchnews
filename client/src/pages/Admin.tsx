@@ -114,6 +114,8 @@ export default function Admin() {
   const autosaveTimer = useRef<number | null>(null);
   const [previewArticle, setPreviewArticle] = useState<NewsArticle | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [editorLeftOpen, setEditorLeftOpen] = useState(true);
+  const [editorAgentsOpen, setEditorAgentsOpen] = useState(true);
   const [media, setMedia] = useState<MediaAsset[]>([]);
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [comments, setComments] = useState<ReaderComment[]>([]);
@@ -137,6 +139,12 @@ export default function Admin() {
     if (localStorage.getItem(key) !== "done") setOnboardingOpen(true);
   }, [user]);
   const displayInitials = getInitials(displayName);
+  useEffect(() => {
+    if (editorOpen) {
+      setEditorLeftOpen(true);
+      setEditorAgentsOpen(true);
+    }
+  }, [editorOpen]);
   const { data: editorialRemote, refetch: refetchEditorial } = trpc.editorial.bootstrap.useQuery(undefined, { enabled: Boolean(user), retry: false, refetchInterval: 5000, refetchIntervalInBackground: true });
   const adRequests = editorialRemote?.adRequests ?? [];
   const pendingComments = comments.filter((comment) => comment.status === "pending").length;
@@ -562,7 +570,23 @@ export default function Admin() {
       }} onOpenArticles={() => { setView("articles"); setOnboardingOpen(false); }} onOpenPauta={() => { setView("pauta"); setOnboardingOpen(false); }} />}
       {previewArticle && <PreviewModal article={previewArticle} onClose={() => setPreviewArticle(null)} />}
       {mediaPickerOpen && <MediaPickerModal media={media} mode={pickerMode} onUpload={uploadImageFile} onClose={() => setMediaPickerOpen(false)} onSelect={insertMediaIntoDraft} />}
-      {editorOpen && <div className="editor-overlay editorial-editor-screen" role="dialog" aria-modal="true" aria-label={editing ? "Editar notícia" : "Nova notícia"}>
+      {editorOpen && <div className={`editor-overlay editorial-editor-screen ${editorLeftOpen ? "editor-left-open" : "editor-left-closed"} ${editorAgentsOpen ? "editor-agents-open" : "editor-agents-closed"}`} role="dialog" aria-modal="true" aria-label={editing ? "Editar notícia" : "Nova notícia"}>
+  <button type="button" className="editor-side-toggle editor-side-toggle-left" onClick={() => setEditorLeftOpen((open) => !open)} aria-label={editorLeftOpen ? "Fechar menu lateral" : "Abrir menu lateral"} title={editorLeftOpen ? "Fechar menu" : "Abrir menu"}>
+    {editorLeftOpen ? <PanelLeftClose size={18} /> : <PanelLeft size={18} />}
+  </button>
+  <button type="button" className="editor-side-toggle editor-side-toggle-right" onClick={() => setEditorAgentsOpen((open) => !open)} aria-label={editorAgentsOpen ? "Fechar agentes editoriais" : "Abrir agentes editoriais"} title={editorAgentsOpen ? "Fechar agentes" : "Abrir agentes"}>
+    {editorAgentsOpen ? <PanelRightClose size={18} /> : <PanelRight size={18} />}
+  </button>
+
+  {editorLeftOpen && <aside className="editor-left-drawer" aria-label="Navegação do Studio">
+    <div className="editor-left-brand"><img src={LOGO_URL} alt="PCH News" /><span>STUDIO</span></div>
+    <div className="editor-left-workspace"><div className="workspace-avatar">PN</div><div><strong>PCH News</strong><small>Redação principal</small></div><ChevronDown size={14} /></div>
+    <nav className="editor-left-nav" aria-label="Navegação do painel">
+      {navGroups.map((group) => group.items.length ? <div key={group.label} className="editor-left-nav-group"><span>{group.label}</span>{group.items.map(({ id, label, icon: Icon }) => <button key={id} className={view === id ? "active" : ""} onClick={() => { setView(id); setEditorOpen(false); setEditorLeftOpen(false); }}><Icon size={16} /><span>{label}</span>{id === "articles" && <em>{articles.length}</em>}</button>)}</div> : null)}
+    </nav>
+    <div className="editor-left-footer"><strong>{displayName}</strong><small>{roleLabels[currentRole as AccessUser["role"]] || "Equipe editorial"}</small></div>
+  </aside>}
+
   <aside className="editor-drawer editorial-editor-drawer">
     <div className="editor-header editorial-editor-header">
       <div className="editor-header-copy">
@@ -643,7 +667,7 @@ export default function Admin() {
             <label>Título SEO<input value={draft.seoTitle || ""} onChange={(event) => setDraft({ ...draft, seoTitle: event.target.value })} placeholder={draft.title} /></label>
             <label>Meta description<textarea value={draft.metaDescription || ""} onChange={(event) => setDraft({ ...draft, metaDescription: event.target.value })} rows={3} placeholder={draft.summary} /></label>
             <div className="form-grid"><label>URL canônica<input type="url" value={draft.canonicalUrl || ""} onChange={(event) => setDraft({ ...draft, canonicalUrl: event.target.value })} placeholder="https://pchnews.com.br/materia/..." /></label><label>Alt da imagem<input value={draft.imageAlt || ""} onChange={(event) => setDraft({ ...draft, imageAlt: event.target.value })} placeholder="Descrição objetiva da imagem" /></label></div>
-            <div className="form-grid"><label>OG title<input value={draft.ogTitle || ""} onChange={(event) => setDraft({ ...draft, ogTitle: event.target.value })} /></label><label>OG description<input value={draft.ogDescription || ""} onChange={(event) => setDraft({ ...draft, ogDescription: event.target.value })} /></label></div>
+            <div className="form-grid"><label>OG title<input value={draft.ogTitle || ""} onChange={(event) => setDraft({ ...draft, ogTitle: event.target.value })} /></label><label>OG description<input value={draft.ogDescription || ""} onChange={(event) => setDraft({ ...draft, ogDescription: event.target.value })} /></div>
             <label className="seo-noindex"><input type="checkbox" checked={Boolean(draft.noindex)} onChange={(event) => setDraft({ ...draft, noindex: event.target.checked })} /> Não indexar esta matéria (noindex)</label>
           </section>
 
@@ -687,14 +711,14 @@ export default function Admin() {
         </div>
       </form>
 
-      <aside className="editor-agents-sidebar editorial-agent-rail" aria-label="Agentes editoriais">
-        <div className="editor-agents-sidebar-head"><div><span className="admin-kicker">AGENTES EDITORIAIS</span><strong>Assistência da redação</strong></div><Sparkles size={17}/></div>
+      {editorAgentsOpen && <aside className="editor-agents-sidebar editorial-agent-rail" aria-label="Agentes editoriais">
+        <div className="editor-agents-sidebar-head"><div><span className="admin-kicker">AGENTES EDITORIAIS</span><strong>Assistência da redação</strong></div><button type="button" className="editor-panel-close" onClick={() => setEditorAgentsOpen(false)} aria-label="Fechar painel de agentes" title="Fechar agentes"><PanelRightClose size={16}/></button></div>
         <p>Use os agentes ao lado sem sair da matéria.</p>
         <div className="editor-agents-sidebar-list">
           {EDITORIAL_AGENTS.map((agent) => { const Icon = agent.icon; return <button type="button" key={agent.id} title={agent.name} aria-label={agent.name} data-agent-label={agent.name} className={editorReview?.agentId === agent.id ? "editor-agent-action active" : "editor-agent-action"} onClick={() => runEditorAgent(agent.id)} disabled={reviewArticleRemote.isPending || !canUseEditorialAgents}><Icon size={16}/><span><strong>{agent.name}</strong><small>{agent.description}</small></span>{reviewArticleRemote.isPending ? <em>…</em> : <em>Executar</em>}</button>; })}
         </div>
         {editorReview && <div className={"editor-agent-result " + editorReview.status}><span className="admin-kicker">ÚLTIMA ANÁLISE</span><strong>{editorReview.agentName || editorReview.agentId || "Agente editorial"}</strong><small>{editorReview.status === "pass" ? "Concluída sem bloqueios." : editorReview.status === "review" ? "Conferência humana necessária." : "Há pontos para revisar."}</small></div>}
-      </aside>
+      </aside>}
     </div>
   </aside>
 </div>}
