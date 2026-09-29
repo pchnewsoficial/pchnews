@@ -6,6 +6,7 @@ import { startLogin } from "@/const";
 import { supabase } from "@/lib/supabase";
 import { trpc } from "@/lib/trpc";
 import EditorialResponsibility, { EDITORIAL_RESPONSIBILITY_VERSION } from "@/components/EditorialResponsibility";
+import EditorialTermsAcceptance, { PCH_EDITORIAL_TERMS_ID, PCH_EDITORIAL_TERMS_VERSION } from "@/components/EditorialTermsAcceptance";
 import officialLogoUrl from "@/assets/pch-news-official-current.svg";
 
 const LOGO_URL = officialLogoUrl;
@@ -30,6 +31,7 @@ export default function InviteAccept() {
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [responsibilityAccepted, setResponsibilityAccepted] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const invitedEmail = invite?.valid && invite.email ? invite.email : "";
   const roleLabel = ROLE_LABELS[(invite as { role?: string } | undefined)?.role || "columnist"] || "colunista";
 
@@ -59,5 +61,5 @@ export default function InviteAccept() {
 
   if (user.email?.toLowerCase() !== invitedEmail.toLowerCase()) return <main className="invite-shell"><section className="invite-card"><ShieldCheck size={25} /><span className="admin-kicker">E-MAIL DIFERENTE</span><h1>Entre com a conta convidada.</h1><p>O convite foi enviado para <strong>{invitedEmail}</strong>, mas sua sessão está em <strong>{user.email}</strong>.</p><button className="secondary-cta" onClick={async () => { await supabase.auth.signOut(); if (logout) await logout().catch(() => undefined); window.location.reload(); }}>Sair e entrar com {invitedEmail}</button>{message && <small>{message}</small>}</section></main>;
 
-  return <main className="invite-shell"><section className="invite-card"><CheckCircle2 size={28} /><span className="admin-kicker">ACEITE NECESSÁRIO</span><h1>Confirme sua responsabilidade editorial.</h1><p>Antes de liberar o acesso de {roleLabel}, o PCH News precisa registrar sua declaração sobre o material que você enviar.</p><EditorialResponsibility onAccepted={setResponsibilityAccepted} /><button className="primary-cta" disabled={!responsibilityAccepted || accept.isPending} onClick={() => accept.mutate({ token, responsibilityAccepted: true, responsibilityVersion: EDITORIAL_RESPONSIBILITY_VERSION })}>{accept.isPending ? "Registrando…" : "Aceitar e liberar acesso"} <ArrowRight size={16} /></button>{accept.error && <small>{accept.error.message}</small>}</section></main>;
+  return <main className="invite-shell"><section className="invite-card"><CheckCircle2 size={28} /><span className="admin-kicker">ACEITE NECESSÁRIO</span><h1>Confirme sua responsabilidade editorial.</h1><p>Antes de liberar o acesso de {roleLabel}, o PCH News precisa registrar sua declaração sobre o material que você enviar.</p><EditorialResponsibility onAccepted={setResponsibilityAccepted} /><EditorialTermsAcceptance onAccepted={setTermsAccepted} /><button className="primary-cta" disabled={!responsibilityAccepted || !termsAccepted || accept.isPending} onClick={() => accept.mutate({ token, responsibilityAccepted: true, responsibilityVersion: EDITORIAL_RESPONSIBILITY_VERSION, partnershipAccepted: true, partnershipVersion: PCH_EDITORIAL_TERMS_VERSION, confidentialityAccepted: true, confidentialityVersion: PCH_EDITORIAL_TERMS_VERSION, termsId: PCH_EDITORIAL_TERMS_ID })}>{accept.isPending ? "Registrando…" : "Aceitar e liberar acesso"} <ArrowRight size={16} /></button>{accept.error && <small>{accept.error.message}</small>}</section></main>;
 }
