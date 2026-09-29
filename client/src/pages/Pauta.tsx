@@ -35,7 +35,7 @@ function fmt(ms: number | null) {
 }
 function isLate(p: Pauta) { return Boolean(p.deadlineAtMs && p.deadlineAtMs < Date.now() && !["published", "archived"].includes(p.status)); }
 
-export default function Pauta({ isAdmin, currentAuthor, accessUsers, notify }: { isAdmin: boolean; currentAuthor: string; accessUsers: AccessUser[]; notify: (message: string) => void }) {
+export default function Pauta({ isAdmin, currentAuthor, accessUsers, notify, onOpenEditor }: { isAdmin: boolean; currentAuthor: string; accessUsers: AccessUser[]; notify: (message: string) => void; onOpenEditor?: (articleId: string, pauta: Pauta) => void }) {
   const { user } = useAuth();
   const { data: remote = [], refetch } = trpc.pauta.list.useQuery(undefined, { enabled: Boolean(user), retry: false });
   const create = trpc.pauta.create.useMutation({ onSuccess: () => { refetch(); setModal(false); notify("Pauta criada e salva no banco."); } });
@@ -108,6 +108,7 @@ export default function Pauta({ isAdmin, currentAuthor, accessUsers, notify }: {
       await update.mutateAsync({ ...p, articleId: id, status: "reporting" } as any);
       notify("Rascunho criado e vinculado à pauta.");
       refetch();
+      onOpenEditor?.(id, { ...p, articleId: id, status: "reporting" });
     } catch (e) { notify(e instanceof Error ? e.message : "Não foi possível criar o rascunho."); }
   };
 
@@ -139,7 +140,7 @@ export default function Pauta({ isAdmin, currentAuthor, accessUsers, notify }: {
             <div className="pauta-card-actions">
               <select value={p.status} onChange={e => changeStatus(p, e.target.value as PautaStatus)}><option value={p.status}>{statusLabel[p.status]}</option>{columns.filter(c=>c.id!==p.status).map(c=><option key={c.id} value={c.id}>{c.label}</option>)}</select>
               {!p.articleId && <button onClick={() => convertToArticle(p)} disabled={saveArticle.isPending}><FilePlus2 size={14}/> Criar notícia</button>}
-              {p.articleId && <a href={`/materia/${p.articleId}`} target="_blank" rel="noreferrer"><ExternalLink size={14}/> Matéria</a>}{p.status !== "archived" && <button onClick={() => { if (window.confirm(`Arquivar “${p.title}”?`)) changeStatus(p, "archived"); }}><Archive size={14}/> Arquivar</button>}
+              {p.articleId && <button type="button" onClick={() => onOpenEditor?.(p.articleId as string, p)}><Edit3 size={14}/> Abrir no editor</button>}{p.status !== "archived" && <button onClick={() => { if (window.confirm(`Arquivar “${p.title}”?`)) changeStatus(p, "archived"); }}><Archive size={14}/> Arquivar</button>}
             </div>
           </article>)}
           {filtered.filter(p => p.status === column.id).length === 0 && <div className="pauta-empty">Nenhuma pauta aqui.</div>}
