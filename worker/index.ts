@@ -203,6 +203,9 @@ export default {
       // Never cache the SPA shell: hashed JS/CSS assets are cacheable, but the
       // HTML entrypoint must always point the browser at the newest deployment.
       headers.set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+      headers.set("CDN-Cache-Control", "no-store");
+      headers.set("Cloudflare-CDN-Cache-Control", "no-store");
+      headers.set("Surrogate-Control", "no-store");
       headers.set("Pragma", "no-cache");
       return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
     }
