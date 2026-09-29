@@ -186,7 +186,7 @@ export async function createAdRequest(input:{
     packageName: input.adType, message: input.message, status: input.status, createdAtMs: input.createdAtMs,
     contactName: input.contactName, email: input.email, phone: input.phone, city: input.city || null,
     website: input.website || null, socials: input.socials || null, adType: input.adType,
-    budget: input.budget || null, period: input.period || null, creativeUrl: input.creativeUrl || null, creativeNeed: input.creativeNeed || "no_artwork_yet", consentAtMs: input.consentAtMs, source: "public-site",
+    budget: input.budget || null, period: input.period || null, creativeUrl: input.creativeUrl || null, creativeNeed: input.creativeNeed || "no_artwork_yet", destinationUrl: input.destinationUrl || null, consentAtMs: input.consentAtMs, source: "public-site",
   });
   if (error) throw error;
   return { ...input };
