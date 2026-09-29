@@ -2970,3 +2970,100 @@ main > .home-page:first-child{
   .pauta-studio-field.pauta-studio-briefing textarea{min-height:280px}
   .pauta-studio-nav-group button{min-height:38px}
 }
+
+/* ===== Pauta Studio — final desktop/mobile composition ===== */
+.pauta-studio-nav{display:flex!important;flex-direction:column!important;gap:10px!important;}
+.pauta-studio-nav-group{display:grid!important;gap:4px!important;margin:0 0 10px!important;}
+.pauta-studio-nav-group .pauta-studio-nav-title{display:block!important;padding:0 10px 5px!important;}
+.pauta-studio-nav-group button{min-height:40px!important;}
+.pauta-studio-nav-group button span{display:block!important;min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;}
+
+.pauta-studio-skills{width:286px!important;padding:10px!important;overflow:hidden!important;}
+.pauta-skills-head{height:38px!important;justify-content:flex-start!important;gap:8px!important;padding:0 6px!important;}
+.pauta-skills-head strong{display:block!important;font:800 10px/1 'DM Sans',sans-serif!important;letter-spacing:.14em!important;color:#475467!important;}
+.pauta-skills-head button{display:grid!important;margin-left:auto!important;width:28px!important;height:28px!important;border:0!important;background:transparent!important;color:#667085!important;place-items:center!important;}
+.pauta-skills-list{gap:7px!important;margin-top:10px!important;overflow:auto!important;padding-right:2px!important;}
+.pauta-skills-list button{
+  width:100%!important;height:auto!important;min-height:54px!important;
+  display:grid!important;grid-template-columns:24px minmax(0,1fr)!important;grid-template-rows:auto auto!important;
+  align-items:center!important;justify-items:start!important;column-gap:9px!important;
+  padding:8px 9px!important;text-align:left!important;
+}
+.pauta-skills-list button svg{grid-row:1 / span 2!important;align-self:center!important;}
+.pauta-skills-list button span{display:block!important;grid-column:2!important;grid-row:1!important;font:700 11px/1.15 'DM Sans',sans-serif!important;color:#344054!important;white-space:normal!important;}
+.pauta-skills-list button small{display:block!important;grid-column:2!important;grid-row:2!important;color:#98a2b3!important;font:600 9px/1.2 'DM Sans',sans-serif!important;margin-top:2px!important;}
+.pauta-skills-list button.active span,.pauta-skills-list button.active small{color:#806321!important;}
+.pauta-skill-result{color:#344054!important;background:#fff!important;border-color:#e1e5ea!important;}
+.pauta-skill-result strong{color:#17202c!important;}
+.pauta-skill-result span{color:#806321!important;}
+.pauta-skill-result small{color:#667085!important;}
+.pauta-skills-hint{display:none!important;}
+
+@media(max-width:760px){
+  .pauta-studio-overlay{
+    grid-template-columns:minmax(0,1fr)!important;
+    display:block!important;
+    background:#eef0f3!important;
+    overflow:hidden!important;
+    height:100dvh!important;
+    min-height:100svh!important;
+  }
+  .pauta-studio-main{
+    width:100%!important;
+    height:100dvh!important;
+    min-height:100svh!important;
+    overflow:auto!important;
+    padding:58px 8px 18px!important;
+    box-sizing:border-box!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+  .pauta-studio-paper{
+    width:100%!important;
+    min-height:calc(100dvh - 76px)!important;
+    margin:0!important;
+    border-radius:8px!important;
+    padding:24px 18px 92px!important;
+    box-shadow:0 8px 28px rgba(15,23,42,.10)!important;
+  }
+  .pauta-studio-header h2{font-size:22px!important;}
+  .pauta-studio-title input{font-size:25px!important;line-height:1.2!important;}
+  .pauta-studio-field{font-size:9px!important;}
+  .pauta-studio-field input,.pauta-studio-grid input,.pauta-studio-grid select{font-size:15px!important;min-height:42px!important;}
+  .pauta-studio-field.pauta-studio-briefing textarea{min-height:320px!important;font-size:15px!important;line-height:1.6!important;}
+  .pauta-studio-grid{grid-template-columns:1fr!important;gap:14px!important;}
+  .pauta-studio-section{margin-top:22px!important;padding-top:17px!important;}
+  .pauta-studio-actions{
+    position:sticky!important;bottom:0!important;
+    margin:28px -18px -92px!important;
+    padding:12px 18px calc(12px + env(safe-area-inset-bottom))!important;
+    z-index:8!important;
+  }
+  .pauta-studio-toggle{
+    top:10px!important;
+    width:38px!important;height:38px!important;
+    z-index:3020!important;
+  }
+  .pauta-studio-toggle-left{left:10px!important;}
+  .pauta-studio-toggle-right{right:10px!important;}
+  .pauta-studio-left{
+    position:fixed!important;left:0!important;top:0!important;bottom:0!important;
+    width:min(82vw,286px)!important;height:100dvh!important;
+    transform:translateX(-105%)!important;z-index:3015!important;
+    padding:18px 12px!important;
+  }
+  .pauta-studio-left-open .pauta-studio-left{transform:translateX(0)!important;}
+  .pauta-studio-skills{
+    position:fixed!important;right:0!important;top:0!important;bottom:0!important;
+    width:min(86vw,310px)!important;height:100dvh!important;
+    transform:translateX(105%)!important;z-index:3015!important;
+    padding:12px!important;
+  }
+  .pauta-studio-skills-open .pauta-studio-skills{transform:translateX(0)!important;}
+  .pauta-studio-skills .pauta-skills-list{max-height:calc(100dvh - 86px)!important;}
+  .pauta-studio-skills .pauta-skills-head{margin-bottom:4px!important;}
+}
+@media(max-width:380px){
+  .pauta-studio-paper{padding-left:14px!important;padding-right:14px!important;}
+  .pauta-studio-actions{margin-left:-14px!important;margin-right:-14px!important;padding-left:14px!important;padding-right:14px!important;}
+  .pauta-studio-field.pauta-studio-briefing textarea{min-height:280px!important;}
+}

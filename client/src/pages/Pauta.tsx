@@ -196,13 +196,22 @@ export default function Pauta({ isAdmin, currentAuthor, accessUsers, notify, onO
       <button className="pauta-studio-backdrop" onClick={() => setModal(false)} aria-label="Fechar estúdio" />
       <aside className="pauta-studio-left">
         <div className="pauta-studio-brand"><span className="admin-kicker">ESTÚDIO</span><strong>PCH News</strong></div>
-        <div className="pauta-studio-nav">
-          <span className="pauta-studio-nav-title">REDAÇÃO</span>
-          <button className="active"><FilePlus2 size={16}/> Pauta</button>
-          <button type="button"><Search size={16}/> Apuração</button>
-          <button type="button"><Check size={16}/> Revisão</button>
-          <button type="button"><ExternalLink size={16}/> Publicação</button>
-        </div>
+        <nav className="pauta-studio-nav" aria-label="Navegação do Studio">
+          {(studioNavGroups || []).map(group => group.items.length ? (
+            <div className="pauta-studio-nav-group" key={group.label}>
+              <span className="pauta-studio-nav-title">{group.label}</span>
+              {group.items.map(({ id, label, icon: Icon }) => (
+                <button type="button" key={id} className={id === "pauta" ? "active" : ""} onClick={() => {
+                  if (id === "pauta") return;
+                  setModal(false);
+                  onStudioNavigate?.(id);
+                }}>
+                  <Icon size={16}/><span>{label}</span>
+                </button>
+              ))}
+            </div>
+          ) : null)}
+        </nav>
         <div className="pauta-studio-left-foot"><span>Workspace editorial</span><small>documento salvo no banco</small></div>
       </aside>
 
