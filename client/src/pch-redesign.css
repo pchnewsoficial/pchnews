@@ -147,3 +147,19 @@
 @media(max-width:700px){
 .site-header{position:relative}.header-main{height:auto;min-height:68px;padding-top:9px;padding-bottom:9px;gap:8px}.mobile-only{display:inline-flex!important;flex:0 0 36px}.brand-lockup{min-width:0;flex:1;gap:7px;overflow:hidden}.official-logo{width:54px!important;height:42px!important;flex:0 0 54px;object-fit:contain;border-radius:0;box-shadow:none}.brand-wordmark{font-size:15px;white-space:nowrap}.brand-caption,.header-motto,.header-live-info,.profile-link,.admin-link{display:none!important}.header-actions{margin-left:auto;gap:6px;flex:0 0 auto}.header-actions .icon-button{width:34px;height:34px}.mobile-weather-strip{display:none}.nav-wrap{display:none}.nav-wrap.is-open{display:block}.primary-nav{min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;padding:8px 0 10px;overflow:visible}.primary-nav button{min-height:34px;text-align:left}.more-trigger{grid-column:1/-1;justify-content:center;margin-top:5px}.more-menu{position:relative!important;top:auto!important;right:auto!important;left:auto!important;width:100%!important;max-height:60vh;overflow:auto}main{width:100%;overflow:hidden}.container{width:100%;max-width:100%;box-sizing:border-box}.events-promo-home{margin-top:14px;margin-bottom:3px;padding-left:16px!important;padding-right:0!important}.events-promo-home .section-heading{padding-right:16px;margin-bottom:10px}.events-promo-rail{overflow-x:auto;scrollbar-width:none;padding-right:16px;padding-bottom:4px}.events-promo-rail::-webkit-scrollbar{display:none}.events-promo-track{animation:none;width:max-content;gap:9px}.events-promo-card{width:292px;grid-template-columns:72px minmax(0,1fr);min-height:96px;padding:11px}.events-promo-date strong{font-size:19px}.events-promo-card h3{font-size:14px}.lead-layout{display:block!important;padding-left:16px!important;padding-right:16px!important}.lead-story{height:390px}.recent-panel{padding-top:22px!important}.latest-grid{grid-template-columns:1fr!important}.columnist-rail{grid-template-columns:1fr!important}.beyond-news-heading{display:block}.beyond-news-cards{grid-template-columns:1fr}}
 @media(min-width:701px){.header-main{min-width:0}.brand-lockup{flex:0 1 360px;min-width:230px}.official-logo{flex:0 0 auto}.events-promo-rail{padding-bottom:5px}}
+
+
+/* HostingPRESS partner card */
+.hostingpress-section{padding-top:46px;padding-bottom:52px;}
+.hostingpress-mini-card{overflow:hidden;border:1px solid #dfe4e9;border-radius:10px;background:#fff;box-shadow:0 10px 28px rgba(20,34,50,.06);}
+.hostingpress-mini-brand{display:flex;align-items:center;gap:16px;min-height:92px;padding:18px 20px;color:#13243a;text-decoration:none;}
+.hostingpress-mini-brand:hover{background:#fafbfc;}
+.hostingpress-mini-logo{position:relative;width:52px;height:52px;display:grid;place-items:center;flex:0 0 52px;border-radius:9px;background:#071a2d;border:1px solid #d9b052;overflow:hidden;}
+.hostingpress-mini-logo img{width:34px;height:34px;object-fit:contain;}
+.hostingpress-logo-fallback{display:none;color:#f4b72d;font-family:'Oswald',sans-serif;font-size:9px;font-weight:700;letter-spacing:.08em;text-align:center;}
+.hostingpress-logo-fallback.is-visible{display:block;}
+.hostingpress-mini-copy{display:flex;min-width:0;flex:1;flex-direction:column;gap:4px;}
+.hostingpress-mini-copy strong{font-family:'Oswald',sans-serif;font-size:18px;letter-spacing:.04em;line-height:1;}
+.hostingpress-mini-copy small{color:#748092;font-size:11px;line-height:1.35;}
+.hostingpress-mini-brand>svg{flex:0 0 auto;color:#8d6a28;}
+@media(max-width:700px){.hostingpress-section{padding-top:28px;padding-bottom:34px}.hostingpress-mini-brand{min-height:78px;padding:14px}.hostingpress-mini-logo{width:44px;height:44px;flex-basis:44px}.hostingpress-mini-logo img{width:28px;height:28px}.hostingpress-mini-copy strong{font-size:15px}.hostingpress-mini-copy small{font-size:10px}.hostingpress-mini-brand>svg{width:15px;height:15px}}
