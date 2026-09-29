@@ -383,3 +383,23 @@
  .events-map-layout{grid-template-columns:1fr;}.event-map-frame.large,.event-map-frame.large iframe{height:280px;min-height:280px;}.calendar-day{min-height:82px;padding:5px;}.calendar-event{font-size:8px;}
  .event-form .form-grid{grid-template-columns:1fr;}
 }
+
+
+/* Header action visibility lock: the search, saved items and editorial panel must stay above the category navigation. */
+@media (min-width:981px){
+  .site-header{position:relative!important;z-index:100!important;}
+  .site-header .header-main{position:relative!important;z-index:200!important;isolation:isolate;overflow:visible!important;}
+  .site-header .header-actions{position:relative!important;z-index:210!important;visibility:visible!important;opacity:1!important;}
+  .site-header .header-actions .icon-button,
+  .site-header .header-actions .profile-link,
+  .site-header .header-actions .admin-link{position:relative!important;z-index:220!important;}
+  .site-header .nav-wrap{position:relative!important;z-index:10!important;}
+}
+
+/* Publicity block: keep the commercial area visible without taking excessive vertical space. */
+@media (min-width:701px){
+  .ad-banner{min-height:132px!important;padding:18px 26px!important;gap:22px!important;margin-top:22px!important;margin-bottom:26px!important;}
+}
+@media (max-width:700px){
+  .ad-banner{min-height:0!important;padding:18px 16px!important;gap:14px!important;margin-top:16px!important;margin-bottom:20px!important;}
+}
