@@ -3076,3 +3076,7 @@ main > .home-page:first-child{
   .pauta-studio-overlay.pauta-studio-skills-open{--pauta-right:0px!important;}
   .pauta-studio-skills{width:min(94vw,380px)!important;}
 }
+
+/* Editorial account — password management */
+.profile-password-panel{display:grid;gap:12px;margin-top:18px;padding:18px;border:1px solid #e3e7ec;border-radius:12px;background:#f8f9fb;text-align:left}
+.profile-password-panel strong{font-size:15px;color:#17202c}.profile-password-panel p{margin:0;color:#667085;font-size:13px;line-height:1.5}.profile-password-panel label{display:grid;gap:6px}.profile-password-panel label span{font-size:10px;font-weight:800;letter-spacing:.08em;color:#667085}.profile-password-panel input{width:100%;box-sizing:border-box;min-height:42px;border:1px solid #d7dce2;border-radius:8px;background:#fff;padding:9px 11px;font:inherit}.profile-password-panel small{color:#667085}
