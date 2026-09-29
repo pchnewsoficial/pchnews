@@ -147,6 +147,18 @@ export async function markInviteOpened(tokenHash:string, ip?:string|null, userAg
   if(error)throw error;
   return {success:true,openedAtMs:nowMs};
 }
+export async function createInviteAccessLink(tokenHash:string, redirectTo:string){
+  const db=getSupabaseAdmin();
+  const {data:invite,error:ie}=await db.from("columnistInvites").select("*").eq("tokenHash",tokenHash).is("acceptedAtMs",null).is("revokedAtMs",null).maybeSingle();
+  if(ie) throw ie;
+  if(!invite) throw new Error("Convite não encontrado.");
+  if(Number(invite.expiresAtMs) < Date.now()) throw new Error("Esse convite expirou.");
+  if(!invite.manualReleasedAtMs) throw new Error("Este convite ainda não foi liberado pelo administrador.");
+  const {data:link,error:le}=await db.auth.admin.generateLink({type:"magiclink",email:String(invite.email).trim().toLowerCase(),options:{redirectTo}});
+  if(le) throw le;
+  if(!link?.properties?.action_link) throw new Error("Não foi possível gerar o acesso.");
+  return {actionLink:link.properties.action_link,email:invite.email,role:invite.role || "columnist"};
+}
 export async function manuallyReleaseInvite(id:string, actorOpenId:string, reason?:string|null, accessToken?:string|null){
   const db=getSupabaseAdmin();
   const {data:invite,error:ie}=await db.from("columnistInvites").select("*").eq("id",id).maybeSingle();
