@@ -209,7 +209,7 @@ export const appRouter = router({
     })).mutation(async ({ input }) => {
       const db = getSupabaseAdmin();
       const { id, ...rest } = input;
-      const { data, error } = await db.from("adCampaigns").update({ ...rest, creativeUrl: rest.creativeUrl || null, destinationUrl: rest.destinationUrl || null, placementId: rest.placementId || "home-main", country: rest.country || null, city: rest.city || null, priority: rest.priority ?? 0, creativeUrl: rest.creativeUrl || null, region: rest.region || null, state: rest.state || null, startsAtMs: rest.startsAtMs ?? null, endsAtMs: rest.endsAtMs ?? null, updatedAtMs: Date.now() }).eq("id", id).select("*").single();
+      const { data, error } = await db.from("adCampaigns").update({ ...rest, creativeUrl: rest.creativeUrl || null, destinationUrl: rest.destinationUrl || null, placementId: rest.placementId || "home-main", country: rest.country || null, city: rest.city || null, priority: rest.priority ?? 0, region: rest.region || null, state: rest.state || null, startsAtMs: rest.startsAtMs ?? null, endsAtMs: rest.endsAtMs ?? null, updatedAtMs: Date.now() }).eq("id", id).select("*").single();
       if (error) throw error;
       return data;
     }),
