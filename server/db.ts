@@ -76,32 +76,18 @@ export async function getUserByOpenId(openId:string, accessToken?: string | null
   if(error) throw error; return data ?? undefined;
 }
 export async function getEditorialSnapshot(includePrivate=false, accessToken?: string | null) {
-  // Public editorial reads must not depend on a browser/session JWT. The Admin is authenticated,
-  // while the public homepage is anonymous; both must see the same published editorial data.
   const db=includePrivate ? await getDb(accessToken) : getSupabaseAdmin();
   if(!db) return {articles:[],comments:[],profiles:[],adRequests:[]};
-  // Scheduled publication is owned by the Cloudflare Worker cron. This read path
-  // must never perform implicit editorial writes, especially for authenticated
-  // columnists/reviewers whose RLS role does not grant publication writes.
   const articlesQ=includePrivate?db.from("articles").select("*"):db.from("articles").select("*").in("status",["published","updated"]);
   const commentsQ=includePrivate?db.from("comments").select("*"):db.from("comments").select("*").eq("status","approved");
-  const [a,c,p,ads,team]=await Promise.all([
+  const [a,c,p,ads]=await Promise.all([
     articlesQ.order("createdAt",{ascending:false}),
     commentsQ.order("createdAtMs",{ascending:false}),
     db.from("columnistProfiles").select("*").order("updatedAt",{ascending:false}),
-    includePrivate?db.from("adRequests").select("*").order("createdAtMs",{ascending:false}):Promise.resolve({data:[],error:null} as any),
-    db.from("users").select("openId,name,role,profileSlug").in("role",["admin","editor","journalist","columnist","reviewer"]).order("name",{ascending:true})
+    includePrivate?db.from("adRequests").select("*").order("createdAtMs",{ascending:false}):Promise.resolve({data:[],error:null} as any)
   ]);
-  for(const r of [a,c,p,ads,team]) if(r.error) throw r.error;
-  const roleLabels:any={admin:"Administrador",editor:"Editor",journalist:"Jornalista",columnist:"Colunista",reviewer:"Revisor"};
-  const profileRows=(p.data??[]).map((row:any)=>({...row,role:row.role||null}));
-  const known=new Set(profileRows.map((row:any)=>String(row.slug)));
-  for(const member of (team.data??[])) {
-    const slug=member.profileSlug || normalizeInviteSlug(member.name || member.openId || "");
-    if(!slug || known.has(slug)) continue;
-    profileRows.push({slug,name:member.name||"Membro PCH News",beat:roleLabels[member.role]||"Equipe PCH News",bio:"",photo:"",instagram:"",facebook:"",x:"",linkedin:"",website:"",tiktok:"",productsJson:[],commercialApproved:false,updatedAt:new Date(),role:member.role});
-  }
-  return {articles:a.data??[],comments:c.data??[],profiles:profileRows,adRequests:ads.data??[]};
+  for(const r of [a,c,p,ads]) if(r.error) throw r.error;
+  return {articles:a.data??[],comments:c.data??[],profiles:p.data??[],adRequests:ads.data??[]};
 }
 export async function getArticle(id:string, accessToken?: string | null){const db=await getDb(accessToken);if(!db)return undefined;const {data,error}=await db.from("articles").select("*").eq("id",id).maybeSingle();if(error)throw error;return data??undefined;}
 export async function saveArticle(article:any, accessToken?: string | null){
