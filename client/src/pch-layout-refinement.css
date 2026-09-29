@@ -3334,3 +3334,65 @@ main > .home-page:first-child{
     z-index:3050!important;
   }
 }
+
+
+/* Skills panel — compact width, only enough for names */
+.editorial-editor-screen{
+  --editor-right-width:220px!important;
+}
+.editorial-editor-screen.editor-agents-closed{
+  --editor-right-width:58px!important;
+}
+.editorial-editor-screen .editor-agents-sidebar{
+  padding:10px!important;
+}
+.editorial-editor-screen .editor-agents-sidebar>p,
+.editorial-editor-screen .editor-agent-action small{
+  display:none!important;
+}
+.editorial-editor-screen .editor-agents-sidebar-list{
+  gap:6px!important;
+}
+.editorial-editor-screen .editor-agent-action{
+  min-height:46px!important;
+  grid-template-columns:28px minmax(0,1fr) auto!important;
+  gap:7px!important;
+  padding:7px 8px!important;
+}
+.editorial-editor-screen .editor-agent-action strong{
+  font-size:10.5px!important;
+  line-height:1.2!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.editorial-editor-screen .editor-agent-action>em{
+  min-width:46px!important;
+  padding:4px 5px!important;
+  font-size:7.5px!important;
+}
+@media(max-width:900px){
+  .editorial-editor-screen.editor-agents-open{
+    --editor-right-width:220px!important;
+  }
+}
+@media(max-width:760px){
+  .editorial-editor-screen.editor-agents-open .editor-agents-sidebar{
+    width:min(72vw,230px)!important;
+    padding:9px!important;
+  }
+  .editorial-editor-screen .editor-agents-sidebar-head strong{
+    font-size:13px!important;
+  }
+  .editorial-editor-screen .editor-agent-action{
+    min-height:44px!important;
+  }
+  .editorial-editor-screen .editor-agent-action strong{
+    font-size:10px!important;
+  }
+}
+@media(max-width:380px){
+  .editorial-editor-screen.editor-agents-open .editor-agents-sidebar{
+    width:min(78vw,220px)!important;
+  }
+}
