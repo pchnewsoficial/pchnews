@@ -1804,3 +1804,192 @@ section.container.ad-banner.ad-carousel { height:auto !important; min-height:0 !
   .beyond-news-cards{grid-template-columns:1fr;gap:8px;margin-top:14px;}
   .beyond-news-cards article{min-height:0;padding:11px;}
 }
+
+
+/* ===== Homepage compact rails correction — 2026-09-29 ===== */
+
+/* Agenda: one horizontal rail, like a continuous showcase. The second copy is
+   intentional for a seamless loop; it must never appear as a second static grid. */
+.events-promo-home{
+  overflow:hidden;
+  margin-top:1.35rem;
+  margin-bottom:1.6rem;
+}
+.events-promo-rail{
+  display:block;
+  overflow:hidden;
+  width:100%;
+  border-top:1px solid rgba(255,255,255,.1);
+  border-bottom:1px solid rgba(255,255,255,.1);
+  padding:7px 0;
+}
+.events-promo-track{
+  display:flex;
+  width:max-content;
+  align-items:stretch;
+  gap:10px;
+  padding:0 6px;
+  animation:eventsPromoRail 34s linear infinite;
+}
+.events-promo-card{
+  flex:0 0 330px;
+  width:330px;
+  min-height:112px;
+  grid-template-columns:68px minmax(0,1fr);
+  gap:10px;
+  padding:12px;
+  border-radius:9px;
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.12);
+}
+.events-promo-card h3{
+  margin:.2rem 0 .35rem;
+  font-size:14px;
+  line-height:1.18;
+}
+.events-promo-card p{font-size:11px;}
+.events-promo-date{padding-right:9px;}
+.events-promo-date strong{font-size:17px;}
+.events-promo-date span{font-size:10px;}
+.events-promo-track:hover{animation-play-state:paused;}
+@keyframes eventsPromoRail{
+  from{transform:translateX(0)}
+  to{transform:translateX(calc(-50% - 5px))}
+}
+@media (max-width:980px){
+  .events-promo-card{flex-basis:290px;width:290px;min-height:88px;}
+}
+@media (max-width:700px){
+  .events-promo-home{margin-top:16px;margin-bottom:14px;}
+  .events-promo-rail{padding:5px 0;}
+  .events-promo-track{gap:8px;padding:0 5px;animation-duration:28s;}
+  .events-promo-card{
+    flex-basis:275px;
+    width:275px;
+    min-height:58px;
+    grid-template-columns:56px minmax(0,1fr);
+    padding:8px 9px;
+    border-radius:7px;
+  }
+  .events-promo-date{padding-right:7px;}
+  .events-promo-date strong{font-size:12px;}
+  .events-promo-date span{font-size:8px;}
+  .events-promo-card h3{font-size:11px;line-height:1.15;margin:0;}
+}
+@media (prefers-reduced-motion:reduce){
+  .events-promo-track{animation:none;}
+}
+
+/* Além da notícia: compact editorial identity, not a large standalone panel. */
+.beyond-news-home{
+  padding-top:18px;
+  padding-bottom:4px;
+}
+.beyond-news-inner{
+  padding:14px 16px;
+  border-radius:8px;
+}
+.beyond-news-heading{
+  display:flex;
+  align-items:baseline;
+  gap:12px;
+  max-width:none;
+  margin-bottom:10px;
+}
+.beyond-news-heading .eyebrow{margin:0;}
+.beyond-news-heading h2{
+  margin:0;
+  font-size:22px;
+  line-height:1.05;
+}
+.beyond-news-heading p{
+  margin:0 0 0 auto;
+  max-width:680px;
+  font-size:11px;
+  line-height:1.35;
+  text-align:right;
+}
+.beyond-news-cards{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+  margin-top:0;
+}
+.beyond-news-cards article{
+  min-height:68px;
+  padding:9px 10px;
+  gap:8px;
+  border-radius:7px;
+}
+.beyond-news-icon{
+  width:28px;
+  height:28px;
+  flex-basis:28px;
+}
+.beyond-news-icon svg{width:15px;height:15px;}
+.beyond-news-cards strong{font-size:11px;}
+.beyond-news-cards p{
+  margin-top:3px;
+  font-size:9px;
+  line-height:1.3;
+}
+.beyond-news-link{
+  margin-top:8px;
+  font-size:9px;
+}
+@media (max-width:700px){
+  .beyond-news-home{padding-top:12px;padding-bottom:0;}
+  .beyond-news-inner{padding:12px;}
+  .beyond-news-heading{
+    display:block;
+    margin-bottom:8px;
+  }
+  .beyond-news-heading h2{font-size:19px;margin-top:2px;}
+  .beyond-news-heading p{
+    margin-top:4px;
+    max-width:none;
+    font-size:10px;
+    text-align:left;
+  }
+  .beyond-news-cards{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:6px;
+  }
+  .beyond-news-cards article{
+    min-height:76px;
+    display:block;
+    padding:8px;
+  }
+  .beyond-news-icon{
+    width:24px;
+    height:24px;
+    margin-bottom:5px;
+  }
+  .beyond-news-cards strong{font-size:10px;}
+  .beyond-news-cards p{font-size:8px;}
+  .beyond-news-link{margin-top:7px;}
+}
+
+/* + MAIS: keep the dropdown readable on both light and dark header contexts. */
+.more-menu{
+  background:#ffffff !important;
+  color:#25313b !important;
+  border-color:#dfe5ea !important;
+  box-shadow:0 16px 36px rgba(4,18,30,.28);
+}
+.more-menu .more-menu-label{color:#7a5700;}
+.more-menu .more-menu-link,
+.more-menu .more-menu-grid button{
+  color:#25313b !important;
+  background:#f8fafb !important;
+  border-color:#dfe5ea !important;
+}
+.more-menu .more-menu-link:hover,
+.more-menu .more-menu-grid button:hover,
+.more-menu .more-menu-grid button.is-selected{
+  color:#704f00 !important;
+  background:#fff6dc !important;
+  border-color:#d7b15b !important;
+}
+.more-menu .more-menu-section + .more-menu-section{
+  border-top-color:#e7ebef;
+}
