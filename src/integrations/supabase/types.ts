@@ -454,6 +454,7 @@ export type Database = {
           slug: string
           updatedAt: string
           x: string
+          youtube: string
         }
         Insert: {
           beat: string
@@ -467,6 +468,7 @@ export type Database = {
           slug: string
           updatedAt?: string
           x: string
+          youtube?: string
         }
         Update: {
           beat?: string
@@ -480,6 +482,7 @@ export type Database = {
           slug?: string
           updatedAt?: string
           x?: string
+          youtube?: string
         }
         Relationships: []
       }
