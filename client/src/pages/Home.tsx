@@ -195,15 +195,19 @@ export default function Home() {
 
   useEffect(() => setActiveSlide(0), [activeCategory, activeTopic, query]);
 
-  const adSlides = (managedAds.length ? managedAds : [
-    { id: "house-1", eyebrow: "PCH NEWS • MÍDIA ESTRATÉGICA", title: "Sua marca pode ser", emphasis: "a próxima notícia.", text: "Apresente sua empresa, produto ou serviço para uma audiência que busca informação.", cta: "ANUNCIE NO PCH NEWS", href: "/anuncie#formatos" },
-    { id: "house-2", eyebrow: "PUBLICIDADE", title: "Sua campanha no", emphasis: "lugar certo.", text: "Home, editorias, patrocínios e projetos especiais com identificação clara.", cta: "CONHEÇA OS FORMATOS", href: "/anuncie#formatos" },
-    { id: "house-3", eyebrow: "REDE PCH NEWS", title: "Conecte sua marca ao", emphasis: "jornalismo digital.", text: "Planeje presença por período e, futuramente, por região, cidade e dispositivo.", cta: "FALE COM O PCH NEWS", href: "/anuncie#formatos" },
-  ]).map((slide: any) => ({
-    ...slide,
-    href: slide.href || slide.targetUrl || "/anuncie",
+  const houseMain = [
+    { id: "house-main", placementId: "home-main", eyebrow: "PCH NEWS • MÍDIA ESTRATÉGICA", title: "Sua marca pode ser", emphasis: "a próxima notícia.", text: "Apresente sua empresa, produto ou serviço para uma audiência que busca informação.", cta: "ANUNCIE NO PCH NEWS", href: "/anuncie#formatos" },
+  ];
+  const houseSmall = Array.from({ length: 4 }, (_, index) => ({
+    id: `house-small-${index + 1}`, placementId: `home-small-${index + 1}`, eyebrow: "PUBLICIDADE", title: "Espaço comercial", emphasis: `Banner pequeno ${index + 1}`, text: "Reserve este espaço para sua marca.", cta: "ANUNCIE", href: "/anuncie#formatos",
   }));
-
+  const normalizeAd = (slide: any) => ({ ...slide, href: slide.href || slide.targetUrl || "/anuncie", placementId: slide.placementId || "home-main" });
+  const allAds = managedAds.map(normalizeAd);
+  const adSlides = (allAds.filter((slide: any) => slide.placementId === "home-main").length ? allAds.filter((slide: any) => slide.placementId === "home-main") : houseMain);
+  const smallAdSlides = Array.from({ length: 4 }, (_, index) => {
+    const placement = `home-small-${index + 1}`;
+    return allAds.find((slide: any) => slide.placementId === placement) || houseSmall[index];
+  });
   useEffect(() => {
     if (adPaused) return;
     const timer = window.setInterval(() => setActiveAdSlide((current) => (current + 1) % adSlides.length), 6000);
@@ -215,6 +219,13 @@ export default function Home() {
     const timer = window.setInterval(() => setActiveSlide((current) => (current + 1) % carouselStories.length), 6500);
     return () => window.clearInterval(timer);
   }, [carouselStories.length, activeCategory, activeTopic, query]);
+
+  useEffect(() => {
+    const slide = adSlides[activeAdSlide];
+    if (slide?.id && !String(slide.id).startsWith("house-")) {
+      void adEvent.mutateAsync({ campaignId: String(slide.id), eventType: "impression" }).catch(() => undefined);
+    }
+  }, [activeAdSlide, adSlides.length]);
 
   const goToSlide = (direction: number) => {
     if (!carouselStories.length) return;
@@ -387,7 +398,7 @@ export default function Home() {
           <div className="ad-small-rows" aria-label="Espaços publicitários menores">
             {[0, 1].map((row) => (
               <div className="ad-small-row" key={row}>
-                {adSlides.slice(row * 2, row * 2 + 2).map((slide: any, index: number) => (
+                {smallAdSlides.slice(row * 2, row * 2 + 2).map((slide: any, index: number) => (
                   <a className="ad-small-card" href={slide.href} key={slide.id || `${slide.title}-${index}`} onClick={() => { if (slide?.id && !String(slide.id).startsWith("house-")) void adEvent.mutateAsync({ campaignId: String(slide.id), eventType: "click" }).catch(() => undefined); }}>
                     <span className="ad-small-badge">PUBLICIDADE</span>
                     {slide.creativeUrl ? <img src={slide.creativeUrl} alt={slide.title} /> : <span className="ad-small-copy"><strong>{slide.title}</strong><em>{slide.emphasis}</em></span>}
