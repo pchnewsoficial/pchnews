@@ -6,8 +6,8 @@ export default function Ads({ notify }:{notify:(message:string)=>void}) {
  const requests=trpc.adRequests.list.useQuery(undefined,{refetchInterval:30000});
  const update=trpc.adRequests.update.useMutation({onSuccess:()=>{void requests.refetch();notify("Solicitação atualizada.");}});
  const campaigns=trpc.ads.list.useQuery(undefined,{retry:false,refetchInterval:30000});
- const createCampaign=trpc.ads.create.useMutation({onSuccess:()=>{void campaigns.refetch();notify("Campanha cadastrada e salva no banco.");}});
- const updateCampaign=trpc.ads.update.useMutation({onSuccess:()=>{void campaigns.refetch();notify("Campanha atualizada.");}});
+ const createCampaign=trpc.ads.create.useMutation({onSuccess:(result:any)=>{void campaigns.refetch();notify(result?.status==="active"?"Campanha publicada no site público.":"Campanha cadastrada e salva no banco.");},onError:(error)=>notify(error.message)});
+ const updateCampaign=trpc.ads.update.useMutation({onSuccess:(result:any)=>{void campaigns.refetch();notify(result?.status==="active"?"Campanha publicada/atualizada no site público.":"Campanha atualizada.");},onError:(error)=>notify(error.message)});
  const mediaUpload=trpc.adRequests.uploadAsset.useMutation();
  const [bannerUploading,setBannerUploading]=useState(false);
  const [campaignForm,setCampaignForm]=useState({id:"",advertiserCompany:"",name:"",adType:"Banner lateral",creativeUrl:"",destinationUrl:"",targetScope:"national",region:"",state:"",startsAtMs:null as number|null,endsAtMs:null as number|null,status:"draft" as "draft"|"approved"|"active"|"paused"|"finished"});
@@ -37,7 +37,6 @@ export default function Ads({ notify }:{notify:(message:string)=>void}) {
   const now=Date.now();
   const payload={...campaignForm,status:"active" as const,startsAtMs:campaignForm.startsAtMs??now,creativeUrl:campaignForm.creativeUrl||null,destinationUrl:campaignForm.destinationUrl||null,region:campaignForm.region||null,state:campaignForm.state||null};
   if(campaignForm.id) updateCampaign.mutate(payload as any); else createCampaign.mutate(payload as any);
-  notify("Campanha enviada para publicação imediata.");
  };
 
  return <div className="ads-page">
