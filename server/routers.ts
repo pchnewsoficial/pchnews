@@ -133,6 +133,7 @@ export const appRouter = router({
       if (error) throw error;
       return (data || []).map((item: any) => ({
         id: item.id,
+        creativeUrl: item.creativeUrl || null,
         eyebrow: item.adType || "PUBLICIDADE",
         title: item.name,
         emphasis: item.creativeUrl ? "Confira a campanha." : "Sua marca em destaque.",
