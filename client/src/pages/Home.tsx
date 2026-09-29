@@ -204,7 +204,7 @@ export default function Home() {
   // Toda a publicidade da home ocupa um único inventário visual no desktop/mobile.
   // As campanhas continuam separadas no Admin por placement + geolocalização; aqui apenas
   // evitamos duplicação visual e alternamos as peças dentro do mesmo espaço discreto.
-  const adSlides = (allAds.filter((slide: any) => slide.placementId === "home-main").length ? allAds.filter((slide: any) => slide.placementId === "home-main") : houseMain);
+  const adSlides = allAds.length ? allAds : houseMain;
   const smallAdSlides: any[] = [];
   useEffect(() => {
     if (adPaused) return;
