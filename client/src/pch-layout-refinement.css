@@ -2876,3 +2876,97 @@ main > .home-page:first-child{
   .pauta-studio-toggle-left{left:7px!important}
   .pauta-studio-toggle-right{right:7px!important}
 }
+
+
+/* Pauta Studio — existing Admin navigation + spacious writing surface */
+.pauta-studio-overlay .pauta-studio-left{
+  overflow-y:auto;
+}
+.pauta-studio-brand small{
+  display:block;
+  margin-top:3px;
+  color:rgba(255,255,255,.58);
+  font-size:10px;
+}
+.pauta-studio-nav-group{
+  display:grid;
+  gap:5px;
+  margin-bottom:16px;
+}
+.pauta-studio-nav-group .pauta-studio-nav-title{
+  margin:0 8px 5px;
+}
+.pauta-studio-nav-group button{
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-height:40px;
+  padding:9px 10px;
+  border:1px solid transparent;
+  border-radius:9px;
+  background:transparent;
+  color:rgba(255,255,255,.72);
+  text-align:left;
+  cursor:pointer;
+}
+.pauta-studio-nav-group button:hover,
+.pauta-studio-nav-group button.active{
+  background:rgba(255,255,255,.09);
+  color:#fff;
+}
+.pauta-studio-nav-group button span{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.pauta-studio-field.pauta-studio-briefing textarea{
+  min-height:360px;
+  resize:vertical;
+  line-height:1.65;
+  padding:18px 20px;
+  font-size:16px;
+}
+.pauta-studio-skills{
+  overflow:hidden;
+}
+.pauta-skills-list{
+  overflow-y:auto;
+  min-height:0;
+}
+.pauta-skills-list button{
+  min-height:62px!important;
+  padding:8px 10px!important;
+  align-items:flex-start!important;
+}
+.pauta-skills-list button span{
+  font-weight:700;
+  line-height:1.15;
+}
+.pauta-skills-list button small{
+  display:block;
+  grid-column:2;
+  color:rgba(255,255,255,.52);
+  font-size:10px;
+  margin-top:2px;
+}
+.pauta-skills-list button.active{
+  box-shadow:inset 3px 0 0 currentColor;
+}
+.pauta-skill-result{
+  margin:10px 0;
+  padding:10px;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:10px;
+  background:rgba(255,255,255,.045);
+  display:grid;
+  gap:3px;
+}
+.pauta-skill-result strong{font-size:11px;color:#fff}
+.pauta-skill-result span{font-size:10px;color:#d9e5ff}
+.pauta-skill-result small{font-size:9px;color:rgba(255,255,255,.55)}
+@media(max-width:900px){
+  .pauta-studio-field.pauta-studio-briefing textarea{min-height:280px}
+  .pauta-studio-nav-group button{min-height:38px}
+}
