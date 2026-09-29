@@ -62,6 +62,19 @@ const slugify = (value: string) =>
   value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
+const PCH_EDITORIAL_INTELLIGENCE = {
+  mission: "Informar para que o leitor possa pensar por si mesmo.",
+  lens: "Liberdade da mente: ampliar compreensão sem impor pensamento, crença ou conclusão ao leitor.",
+  practices: [
+    "Separar fato, interpretação e opinião.",
+    "Dar contexto suficiente para o leitor compreender antes de concluir.",
+    "Estimular perguntas e reflexão sem transformar a matéria em pregação.",
+    "Explorar dimensões humanas, sociais e comportamentais quando houver base factual e relevância.",
+    "Preservar contrapontos e autonomia do leitor; o agente não deve fabricar consenso."
+  ],
+  note: "Esta inteligência é uma lente editorial do PCH News, não uma licença para alterar fatos, inventar fontes ou impor uma visão ao autor."
+};
+
 const parseTags = (value: string) => {
   try {
     const parsed = JSON.parse(value || "[]");
@@ -120,7 +133,7 @@ function workflowGate(article: EditorialArticleInput): AgentResult {
     agentName: "Agente de Fluxo Editorial",
     status: findings.some((f) => f.severity === "block") ? "block" : "pass",
     findings,
-    output: { currentStatus: article.status, suggestedNextStatus: next, humanApprovalRequired: true, rule: "Nenhum agente publica sozinho." }
+    output: { currentStatus: article.status, suggestedNextStatus: next, humanApprovalRequired: true, rule: "Nenhum agente publica sozinho.", pchEditorialIntelligence: PCH_EDITORIAL_INTELLIGENCE }
   };
 }
 
@@ -131,7 +144,7 @@ function sourceReadiness(article: EditorialArticleInput): AgentResult {
   const attribution = sentences(body).filter((line) => /\b(segundo|afirmou|disse|informou|de acordo com|apontou)\b/i.test(line));
   if (!urls.length) findings.push({ severity: "warning", code: "source-no-links", message: "Nenhum link de fonte foi encontrado no conteúdo." });
   if (attribution.length) findings.push({ severity: "info", code: "source-attribution", message: `${attribution.length} trecho(s) usam atribuição e devem ter a fonte correspondente registrada.` });
-  return { agentId: "source-readiness", agentName: "Agente de Fontes", status: findings.some((f) => f.severity === "warning") ? "review" : "pass", findings, output: { sourceLinks: urls, attributedClaims: attribution, readyForHumanVerification: true } };
+  return { agentId: "source-readiness", agentName: "Agente de Fontes", status: findings.some((f) => f.severity === "warning") ? "review" : "pass", findings, output: { sourceLinks: urls, attributedClaims: attribution, readyForHumanVerification: true, pchEditorialIntelligence: PCH_EDITORIAL_INTELLIGENCE } };
 }
 
 function storyEditor(article: EditorialArticleInput): AgentResult {
@@ -147,7 +160,7 @@ function storyEditor(article: EditorialArticleInput): AgentResult {
   const allCaps = lines.filter((line) => line.length > 24 && line === line.toUpperCase() && /[A-ZÁÉÍÓÚÃÕÇ]/.test(line));
   if (allCaps.length) findings.push({ severity: "warning", code: "all-caps", message: "Há trechos longos em caixa alta.", suggestion: "Use caixa normal, salvo siglas e nomes próprios." });
   const status = findings.some((f) => f.severity === "block") ? "block" : findings.length ? "review" : "pass";
-  return { agentId: "story-editor", agentName: "Story Editor", status, findings, output: { wordCount: words, sentenceCount: lines.length, cleanedTextLength: body.length } };
+  return { agentId: "story-editor", agentName: "Story Editor", status, findings, output: { wordCount: words, sentenceCount: lines.length, cleanedTextLength: body.length, pchEditorialIntelligence: PCH_EDITORIAL_INTELLIGENCE } };
 }
 
 function factChecker(article: EditorialArticleInput): AgentResult {
@@ -183,7 +196,7 @@ function factChecker(article: EditorialArticleInput): AgentResult {
       findings.push({ severity: "info", code: "api-context-limitations", message: "A coleta automática teve limitações; elas não substituem a apuração humana.", evidence: research.limitations.slice(0, 6) });
     }
   }
-  return { agentId: "fact-checker", agentName: "Fact Checker", status: findings.some((f) => f.severity === "warning") ? "review" : "pass", findings, output: { evidenceCandidates: evidenceSentences.slice(0, 20), sourceLinks: links, attributedClaims: namedClaims.slice(0, 20), researchContext: research ?? null } };
+  return { agentId: "fact-checker", agentName: "Fact Checker", status: findings.some((f) => f.severity === "warning") ? "review" : "pass", findings, output: { evidenceCandidates: evidenceSentences.slice(0, 20), sourceLinks: links, attributedClaims: namedClaims.slice(0, 20), researchContext: research ?? null, pchEditorialIntelligence: PCH_EDITORIAL_INTELLIGENCE } };
 }
 
 function seo(article: EditorialArticleInput): AgentResult {
@@ -200,7 +213,7 @@ function seo(article: EditorialArticleInput): AgentResult {
     agentName: "SEO Optimization Specialist",
     status: findings.length ? "review" : "pass",
     findings,
-    output: { suggestedSlug, titleLength: title.length, summaryLength: summary.length, tags, metaDescription: summary.slice(0, 160) }
+    output: { suggestedSlug, titleLength: title.length, summaryLength: summary.length, tags, metaDescription: summary.slice(0, 160), pchEditorialIntelligence: PCH_EDITORIAL_INTELLIGENCE }
   };
 }
 
@@ -227,7 +240,7 @@ function ethics(article: EditorialArticleInput): AgentResult {
   if (/\b(vazou|exclusivo|urgente|chocante|escândalo)\b/i.test(article.title)) {
     findings.push({ severity: "info", code: "sensational-headline", message: "O título contém termos de alta carga editorial.", suggestion: "Confirme se cada termo é necessário e sustentado pela matéria." });
   }
-  return { agentId: "ethics-advisor", agentName: "Ethics Advisor", status: findings.some((f) => f.severity === "warning") ? "review" : "pass", findings, output: { humanReviewRequired: findings.length > 0 } };
+  return { agentId: "ethics-advisor", agentName: "Ethics Advisor", status: findings.some((f) => f.severity === "warning") ? "review" : "pass", findings, output: { humanReviewRequired: findings.length > 0, pchEditorialIntelligence: PCH_EDITORIAL_INTELLIGENCE } };
 }
 
 function distributor(article: EditorialArticleInput): AgentResult {
@@ -323,7 +336,7 @@ export function runEditorialAgent(agentId: EditorialAgentId, article: EditorialA
         agentName: "Journalism Master Orchestrator",
         status: blocked ? "block" : review ? "review" : "pass",
         findings: results.flatMap((result) => result.findings).slice(0, 80),
-        output: { agents: results, researchContext: researchContext ?? null, publicationGate: blocked ? "blocked" : review ? "human-review" : "ready" }
+        output: { agents: results, researchContext: researchContext ?? null, publicationGate: blocked ? "blocked" : review ? "human-review" : "ready", pchEditorialIntelligence: PCH_EDITORIAL_INTELLIGENCE }
       };
     }
   }
