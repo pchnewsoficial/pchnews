@@ -1,4 +1,4 @@
-export type ProfileData = { slug: string; name: string; beat: string; bio: string; photo: string; instagram: string; facebook: string; x: string; linkedin: string };
+export type ProfileData = { slug: string; name: string; beat: string; bio: string; photo: string; instagram: string; facebook: string; x: string; linkedin: string; website?: string; tiktok?: string; productsJson?: string | any[]; commercialApproved?: boolean; role?: string };
 export const PROFILE_STORAGE_KEY = "pch-news-columnist-profiles";
 export const DEFAULT_PROFILES: Record<string, ProfileData> = {
   "evaldo-poeta": { slug: "evaldo-poeta", name: "Evaldo Poeta", beat: "Colunista PCH News", bio: "Evaldo Poeta é escritor, poeta terapeuta, psicanalista clínico, cronista e criador da Poesia Cognitiva Hipnótica (PCH), além de criador e colunista do PCH News.", photo: "", instagram: "", facebook: "", x: "", linkedin: "" },
