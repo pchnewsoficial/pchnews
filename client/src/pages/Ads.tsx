@@ -6,11 +6,11 @@ export default function Ads({ notify }:{notify:(message:string)=>void}) {
  const requests=trpc.adRequests.list.useQuery(undefined,{refetchInterval:30000});
  const update=trpc.adRequests.update.useMutation({onSuccess:()=>{void requests.refetch();notify("Solicitação atualizada.");}});
  const campaigns=trpc.ads.list.useQuery(undefined,{retry:false,refetchInterval:30000});
- const createCampaign=trpc.ads.create.useMutation({onSuccess:(result:any)=>{void campaigns.refetch();notify(result?.status==="active"?"Campanha publicada no site público.":"Campanha cadastrada e salva no banco.");},onError:(error)=>notify(error.message)});
- const updateCampaign=trpc.ads.update.useMutation({onSuccess:(result:any)=>{void campaigns.refetch();notify(result?.status==="active"?"Campanha publicada/atualizada no site público.":"Campanha atualizada.");},onError:(error)=>notify(error.message)});
+ const createCampaign=trpc.ads.create.useMutation({onSuccess:async(result:any)=>{await campaigns.refetch();if(result?.id){setCampaignForm(current=>({...current,...result,id:String(result.id),advertiserCompany:current.advertiserCompany,status:result.status}));}notify(result?.status==="active"?`Campanha publicada no site público (ID: ${result?.id||"ok"}).`:"Campanha cadastrada e salva no banco.");},onError:(error)=>notify(`Não foi possível publicar a campanha: ${error.message||"erro desconhecido"}`)});
+ const updateCampaign=trpc.ads.update.useMutation({onSuccess:async(result:any)=>{await campaigns.refetch();if(result?.id){setCampaignForm(current=>({...current,...result,id:String(result.id),advertiserCompany:current.advertiserCompany,status:result.status}));}notify(result?.status==="active"?`Campanha publicada/atualizada no site público (ID: ${result?.id||"ok"}).`:"Campanha atualizada.");},onError:(error)=>notify(`Não foi possível salvar a campanha: ${error.message||"erro desconhecido"}`)});
  const mediaUpload=trpc.adRequests.uploadAsset.useMutation();
  const [bannerUploading,setBannerUploading]=useState(false);
- const [campaignForm,setCampaignForm]=useState({id:"",advertiserCompany:"",name:"",adType:"Banner lateral",creativeUrl:"",destinationUrl:"",targetScope:"national",placementId:"home-main",country:"BR",city:"",region:"",state:"",priority:0,startsAtMs:null as number|null,endsAtMs:null as number|null,status:"draft" as "draft"|"approved"|"active"|"paused"|"finished"});
+ const [campaignForm,setCampaignForm]=useState({id:"",advertiserCompany:"",name:"",adType:"Banner lateral",creativeUrl:"",destinationUrl:"",targetScope:"national",placementId:"home-main",country:"BR",city:"",region:"",state:"",priority:0,startsAtMs:null as number|null,endsAtMs:null as number|null,status:"draft" as "draft"|"scheduled"|"active"|"paused"|"finished"});
 
  const uploadBanner=async(file:File)=>{
   const allowed=["image/png","image/jpeg","image/webp","image/gif"];
@@ -50,7 +50,7 @@ export default function Ads({ notify }:{notify:(message:string)=>void}) {
    <p className="field-note">Os pedidos vêm da área pública <strong>/anuncie</strong>. O cliente pode informar a arte própria ou pedir criação pelo PCH News.</p>
    {requests.isLoading?<div className="media-empty compact-empty">Carregando solicitações…</div>:requests.data?.length?requests.data.map((item:any)=><div className="ad-request" key={item.id}>
     <div><strong>{item.business}</strong><small>{item.contactName} · {item.email} · {item.phone}</small><small>{item.adType} · {item.city||"Local não informado"} · {item.period||"Período não informado"}</small><small>{item.creativeNeed==="pch_creation"?"🎨 Cliente pediu criação da arte":item.creativeNeed==="client_artwork"?"🖼️ Cliente enviou/pretende enviar arte própria":"📝 Ainda não definiu a arte"}</small>{item.creativeUrl&&<a href={item.creativeUrl} target="_blank" rel="noreferrer"><ExternalLink size={13}/> Ver arte enviada</a>}{item.destinationUrl&&<a href={item.destinationUrl} target="_blank" rel="noreferrer"><ExternalLink size={13}/> Abrir link de destino</a>}</div>
-    <select value={item.status} onChange={e=>update.mutate({id:item.id,status:e.target.value as any})}><option value="received">Recebido</option><option value="reviewing">Em análise</option><option value="approved">Aprovado</option></select>
+    <select value={item.status} onChange={e=>update.mutate({id:item.id,status:e.target.value as any})}><option value="received">Recebido</option><option value="reviewing">Em análise</option><option value="scheduled">Agendado</option></select>
    </div>):<div className="media-empty compact-empty">Nenhuma solicitação comercial registrada.</div>}
   </section>
 
