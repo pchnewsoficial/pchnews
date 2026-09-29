@@ -1198,6 +1198,8 @@ main > .home-page:first-child{
 @media (max-width:720px){
   .editor-drawer{max-height:96vh}
   .editor-workspace{grid-template-columns:1fr;gap:12px;padding:0 10px 12px}
+}
+
 /* ===== Editorial Studio — document/Word presentation ===== */
 .editor-overlay{
   background:rgba(18,27,39,.62)!important;
