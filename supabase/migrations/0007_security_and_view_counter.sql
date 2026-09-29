@@ -38,17 +38,6 @@ begin
     return jsonb_build_object('counted', false, 'views', 0);
   end if;
 
-  select count(*)
-    into existing_count
-    from public."viewEvents"
-   where "articleId" = p_article_id
-     and "visitorId" = p_visitor_id
-     and "viewedAtMs" > (extract(epoch from now()) * 1000)::bigint - 1800000;
-
-  if existing_count > 0 then
-    return jsonb_build_object('counted', false, 'views', current_views);
-  end if;
-
   insert into public."viewEvents"("id", "articleId", "visitorId", "viewedAtMs")
   values (
     'view-' || extract(epoch from clock_timestamp())::bigint || '-' ||
