@@ -405,36 +405,39 @@
 }
 
 
-/* Desktop: header actions occupy their own protected layer inside the top row.
-   They must never share visual space with the category navigation below. */
+/* Desktop: header actions stay in the fourth grid area of the top row. */
 @media (min-width:981px){
   .site-header .header-main{
+    display:grid!important;
+    grid-template-columns:minmax(230px,250px) minmax(240px,1fr) auto max-content!important;
+    grid-template-rows:72px!important;
+    align-items:center!important;
+    column-gap:14px!important;
     position:relative!important;
     z-index:300!important;
-    isolation:isolate;
     overflow:visible!important;
-    min-height:72px;
   }
+  .site-header .brand-lockup{grid-column:1;grid-row:1;min-width:0!important;width:100%!important;}
+  .site-header .header-motto{grid-column:2;grid-row:1;min-width:0!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0!important;}
+  .site-header .header-live-info{grid-column:3;grid-row:1;min-width:max-content!important;}
   .site-header .header-actions{
+    grid-column:4!important;
+    grid-row:1!important;
     position:relative!important;
-    top:auto!important;
-    right:auto!important;
+    inset:auto!important;
     transform:none!important;
-    z-index:500!important;
+    margin:0!important;
+    min-width:max-content!important;
+    justify-self:end!important;
+    align-self:center!important;
     display:flex!important;
     align-items:center!important;
     justify-content:flex-end!important;
-    align-self:center!important;
-    margin-left:0!important;
+    z-index:500!important;
     visibility:visible!important;
     opacity:1!important;
     pointer-events:auto!important;
   }
-  .site-header .header-actions > *{position:relative!important;z-index:501!important;}
-  .site-header .nav-wrap{
-    position:relative!important;
-    z-index:20!important;
-    clear:both!important;
-  }
-  .site-header .header-motto{padding-right:0!important;min-width:0;}
+  .site-header .header-actions>*{position:relative!important;z-index:501!important;}
+  .site-header .nav-wrap{position:relative!important;z-index:20!important;margin-top:0!important;clear:both!important;}
 }
