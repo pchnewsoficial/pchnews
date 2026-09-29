@@ -185,7 +185,7 @@ export const appRouter = router({
       placementId: z.string().default("home-main"), country: z.string().nullable().optional(), city: z.string().nullable().optional(), priority: z.number().int().min(0).max(100).default(0),
       region: z.string().nullable().optional(), state: z.string().nullable().optional(),
       startsAtMs: z.number().int().nullable().optional(), endsAtMs: z.number().int().nullable().optional(),
-      status: z.enum(["draft","approved","active","paused","finished"]).default("draft"),
+      status: z.enum(["draft","scheduled","active","paused","finished"]).default("draft"),
     })).mutation(async ({ input }) => {
       const db = getSupabaseAdmin();
       const now = Date.now();
@@ -204,7 +204,7 @@ export const appRouter = router({
       placementId: z.string().default("home-main"), country: z.string().nullable().optional(), city: z.string().nullable().optional(), priority: z.number().int().min(0).max(100).default(0),
       region: z.string().nullable().optional(), state: z.string().nullable().optional(),
       startsAtMs: z.number().int().nullable().optional(), endsAtMs: z.number().int().nullable().optional(),
-      status: z.enum(["draft","approved","active","paused","finished"]),
+      status: z.enum(["draft","scheduled","active","paused","finished"]),
       destinationUrl: z.string().url().nullable().optional(),
     })).mutation(async ({ input }) => {
       const db = getSupabaseAdmin();
