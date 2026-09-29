@@ -535,3 +535,85 @@ button { border: 0; }
  .hostingpress-channel-track{gap:6px;padding:9px 10px;animation:none;}
  .hostingpress-channel-pill{min-height:28px;padding:0 10px;font-size:9px;}
 }
+
+/* Desktop — cabeçalho compacto e hierárquico. Mantém a versão mobile intacta. */
+@media (min-width: 981px) {
+  .site-header .header-main{
+    height:72px;
+    gap:16px;
+  }
+  .site-header .brand-lockup{
+    min-width:250px;
+    gap:10px;
+  }
+  .site-header .official-logo{
+    width:58px;
+    height:58px;
+  }
+  .site-header .brand-wordmark{
+    font-size:18px;
+    line-height:1;
+    letter-spacing:.02em;
+  }
+  .site-header .brand-caption{
+    font-size:8px;
+    line-height:1.2;
+    letter-spacing:.13em;
+  }
+  .site-header .header-motto{
+    min-width:0;
+    font-size:12px;
+    white-space:nowrap;
+    opacity:.88;
+  }
+  .site-header .header-live-info{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex:0 0 auto;
+    color:#aeb3bf;
+    font-family:'Oswald',sans-serif;
+    font-size:10px;
+    letter-spacing:.04em;
+  }
+  .site-header .header-live-item{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    min-height:28px;
+    padding:0 7px;
+    border:1px solid rgba(255,255,255,.09);
+    border-radius:4px;
+    background:rgba(255,255,255,.025);
+    color:#b8bdc8;
+    white-space:nowrap;
+  }
+  .site-header .header-live-item svg{color:var(--gold);flex:0 0 auto;}
+  .site-header .header-weather{
+    border:1px solid rgba(209,169,75,.18);
+    background:rgba(209,169,75,.035);
+    cursor:pointer;
+  }
+  .site-header .header-actions{
+    gap:10px;
+    flex:0 0 auto;
+  }
+  .site-header .icon-button{
+    width:32px;
+    height:32px;
+  }
+  .site-header .profile-link,
+  .site-header .admin-link{
+    font-size:9px;
+  }
+  .site-header .nav-wrap{
+    min-height:42px;
+  }
+  .site-header .primary-nav{
+    min-height:42px;
+    gap:24px;
+  }
+  .site-header .primary-nav button{
+    font-size:10px;
+  }
+}
