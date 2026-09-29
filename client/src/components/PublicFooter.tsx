@@ -247,27 +247,7 @@ export default function PublicFooter() {
         </section>
       )}
 
-      {columnists.length > 0 && (
-        <section className="container footer-columnists" aria-label="Colunistas PCH News">
-          <div className="footer-columnists-heading">
-            <span>COLUNISTAS PCH NEWS</span>
-            <Link href="/equipe">Conheça nossos colunistas <ArrowRight size={13} /></Link>
-          </div>
-          <div className="footer-columnists-window">
-            <div className="footer-columnists-track">
-              {[...columnists, ...columnists].map((profile: any, index: number) => {
-                const slug = profile.slug || "evaldo-poeta";
-                return (
-                  <Link key={"footer-columnist-" + slug + "-" + index} href={"/equipe/" + slug} className="footer-columnist-pill">
-                    <img src={profile.photo} alt={profile.name} loading="lazy" onError={(e) => { e.currentTarget.style.visibility = "hidden"; }} />
-                    <span><strong>{profile.name}</strong><small>{profile.role || profile.beat || "Colunista PCH News"}</small></span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
+
 
       <div className="container footer-inner">
         <div className="footer-brand-block">
@@ -326,6 +306,33 @@ export default function PublicFooter() {
           <Link className="footer-cta-link" href="/anuncie">Fale com o comercial <ArrowRight size={14} /></Link>
           <small>© 2026 PCH News · Responsabilidade editorial PCH News</small>
         </div>
+      {columnists.length > 0 && (
+        <section className="container footer-columnists" aria-label="Colunistas PCH News">
+          <div className="footer-columnists-heading">
+            <span>COLUNISTAS PCH NEWS</span>
+            <Link href="/equipe">Conheça nossos colunistas <ArrowRight size={13} /></Link>
+          </div>
+          <div className="footer-columnists-window">
+            <div className="footer-columnists-track">
+              {[...columnists, ...columnists].map((profile: any, index: number) => {
+                const slug = profile.slug || "evaldo-poeta";
+                return (
+                  <Link key={"footer-columnist-" + slug + "-" + index} href={"/equipe/" + slug} className="footer-columnist-pill">
+                    <img src={profile.photo} alt={profile.name} loading="lazy" onError={(e) => { e.currentTarget.style.visibility = "hidden"; }} />
+                    <span><strong>{profile.name}</strong><small>{profile.role || profile.beat || "Colunista PCH News"}</small></span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      <div className="container footer-bottom">
+        <span>PCH News · Brasil e mundo</span>
+        <span>Notícia, análise, opinião e publicidade identificada.</span>
+      </div>
+
       </div>
     </footer>
   );
