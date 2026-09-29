@@ -136,14 +136,14 @@ export default function Admin() {
     if (localStorage.getItem(key) !== "done") setOnboardingOpen(true);
   }, [user]);
   const displayInitials = getInitials(displayName);
-  const { data: editorialRemote, refetch: refetchEditorial } = trpc.editorial.bootstrap.useQuery(undefined, { enabled: Boolean(user), retry: false });
+  const { data: editorialRemote, refetch: refetchEditorial } = trpc.editorial.bootstrap.useQuery(undefined, { enabled: Boolean(user), retry: false, refetchInterval: 5000, refetchIntervalInBackground: true });
   const adRequests = editorialRemote?.adRequests ?? [];
   const pendingComments = comments.filter((comment) => comment.status === "pending").length;
   const pendingAdRequests = adRequests.filter((request: any) => request.status === "received" || request.status === "reviewing").length;
   const pendingTasks = pendingComments + pendingAdRequests;
   const isAdmin = currentRole === "admin";
   const canManageAgenda = isAdmin || currentRole === "editor";
-  const { data: analytics } = trpc.editorial.analytics.useQuery({ author: undefined, authorOpenId: undefined }, { enabled: Boolean(user), retry: false });
+  const { data: analytics } = trpc.editorial.analytics.useQuery({ author: undefined, authorOpenId: undefined }, { enabled: Boolean(user), retry: false, refetchInterval: 5000, refetchIntervalInBackground: true });
   const { data: accessUsers = [], refetch: refetchAccess } = trpc.access.list.useQuery(undefined, { enabled: isAdmin, retry: false });
   const { data: auditEntries = [] } = trpc.editorial.audit.useQuery({}, { enabled: isAdmin, retry: false });
   const { data: articleHistory = [] } = trpc.editorial.history.useQuery({ articleId: editing?.id || "" }, { enabled: Boolean(user && editing), retry: false });
