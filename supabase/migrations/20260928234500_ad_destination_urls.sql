@@ -75,3 +75,14 @@ alter table public."adCampaignEvents" enable row level security;
 alter table public."adCampaignAccess" enable row level security;
 revoke all on table public."adCampaignEvents" from anon, authenticated;
 revoke all on table public."adCampaignAccess" from anon, authenticated;
+
+
+-- Inventory placement and geographic targeting for the same slot.
+alter table public."adCampaigns"
+  add column if not exists "placementId" text not null default 'home-main',
+  add column if not exists country text,
+  add column if not exists city text,
+  add column if not exists priority integer not null default 0;
+
+create index if not exists "adCampaigns_placement_geo_idx"
+  on public."adCampaigns" ("placementId","targetScope",country,state,city,status);
