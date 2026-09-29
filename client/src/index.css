@@ -517,3 +517,8 @@ button { border: 0; }
  .banner-art-preview img{width:100%;height:auto;max-height:180px;object-fit:contain;}
  .banner-upload-box{align-items:flex-start;}
 }
+
+.ad-creative-image{display:block;width:100%;height:100%;object-fit:cover;border-radius:5px;transform:rotate(0deg);}
+.ad-device:has(.ad-creative-image){overflow:hidden;transform:rotate(-2deg);background:#fff;}
+.ad-device:has(.ad-creative-image) a{display:block;width:100%;height:100%;}
+@media(max-width:700px){.ad-device:has(.ad-creative-image){width:180px;height:96px;}.ad-creative-image{border-radius:3px;}}
