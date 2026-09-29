@@ -868,3 +868,193 @@
   .site-header .brand-lockup,.site-header .official-logo{width:82px!important;min-width:82px!important;max-width:82px!important;}
   .site-header .official-logo{height:50px!important;}
 }
+
+
+/* PCH NEWS — DESKTOP EDITORIAL REFINEMENT
+   Inspired by the information hierarchy and density of major news portals.
+   Desktop-only: intentionally does not modify the approved mobile header. */
+@media (min-width: 981px){
+  :root{
+    --pch-desktop-max: 1240px;
+    --pch-desktop-gap: 22px;
+    --pch-editorial-border: #e2e6eb;
+  }
+
+  main > .container,
+  main .container{
+    max-width: var(--pch-desktop-max);
+  }
+
+  /* Give the editorial front page a deliberate newspaper-like rhythm. */
+  .lead-layout{
+    display:grid;
+    grid-template-columns:minmax(0,1.65fr) minmax(300px,.78fr);
+    gap:var(--pch-desktop-gap);
+    align-items:start;
+  }
+  .lead-story,
+  .recent-panel,
+  .latest-grid > *,
+  .columnist-rail > *{
+    min-width:0;
+  }
+
+  /* Avoid oversized empty areas while keeping the lead as the visual anchor. */
+  .lead-story{
+    min-height:0;
+  }
+  .lead-story img,
+  .lead-story picture img{
+    width:100%;
+    display:block;
+    object-fit:cover;
+  }
+
+  /* Editorial section headings: consistent label + rule instead of floating text. */
+  .section-heading{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:14px;
+  }
+  .section-heading h2,
+  .section-heading h3{
+    margin:0;
+    line-height:1.05;
+  }
+  .section-heading::after{
+    content:"";
+    flex:1 1 auto;
+    height:1px;
+    margin-bottom:4px;
+    background:var(--pch-editorial-border);
+  }
+
+  /* Secondary/latest stories: stronger hierarchy and stable card geometry. */
+  .latest-grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:16px;
+    align-items:stretch;
+  }
+  .latest-grid > article,
+  .latest-grid > a{
+    min-width:0;
+    height:100%;
+  }
+
+  .columnist-rail{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:14px;
+    align-items:stretch;
+  }
+  .columnist-rail > *{
+    min-width:0;
+  }
+
+  /* Keep long headlines readable instead of producing ragged module heights. */
+  .latest-grid h2,
+  .latest-grid h3,
+  .columnist-rail h2,
+  .columnist-rail h3{
+    overflow-wrap:anywhere;
+  }
+
+  /* Lower-page service/media modules share one editorial grid language. */
+  .services-section,
+  .media-hub-section,
+  .hostingpress-section{
+    max-width:var(--pch-desktop-max);
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .services-grid{
+    gap:14px;
+  }
+  .service-card{
+    min-height:104px;
+    padding:18px 20px;
+  }
+  .media-hub-grid{
+    gap:14px;
+  }
+  .media-hub-card{
+    min-height:158px;
+    padding:18px;
+  }
+
+  /* Advertising should read as a reserved commercial module, not a layout gap. */
+  .ad-banner{
+    max-width:var(--pch-desktop-max);
+    margin-left:auto!important;
+    margin-right:auto!important;
+    border-radius:10px;
+  }
+
+  /* Beyond-news module: align it to the same content column and reduce visual noise. */
+  .beyond-news-home{
+    max-width:var(--pch-desktop-max);
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .beyond-news-cards{
+    gap:12px;
+  }
+
+  /* Footer: balanced columns, clear hierarchy and no compressed-looking blocks. */
+  .site-footer{
+    margin-top:42px;
+  }
+  .site-footer .footer-inner{
+    width:min(var(--pch-desktop-max),calc(100% - 48px));
+    margin:0 auto;
+    display:grid;
+    grid-template-columns:minmax(230px,1.25fr) repeat(3,minmax(130px,1fr)) minmax(190px,1.1fr);
+    gap:30px;
+    align-items:start;
+    padding:30px 0 26px!important;
+  }
+  .site-footer .footer-brand-block{
+    min-width:0;
+  }
+  .site-footer .footer-column{
+    min-width:0;
+  }
+  .site-footer .footer-column>span{
+    display:block;
+    margin-bottom:8px!important;
+    font-size:9px!important;
+    letter-spacing:.08em;
+  }
+  .site-footer .footer-column a,
+  .site-footer .footer-column button{
+    display:block;
+    width:100%;
+    text-align:left;
+    padding:3px 0;
+    font-size:10px!important;
+    line-height:1.35;
+  }
+  .site-footer .footer-signature{
+    min-width:0;
+    text-align:right;
+  }
+  .site-footer .footer-bottom{
+    padding:9px 24px!important;
+  }
+
+  /* Prevent accidental horizontal overflow from any desktop module. */
+  .site-footer,
+  main{
+    overflow-x:clip;
+  }
+}
+
+@media (min-width: 1280px){
+  :root{--pch-desktop-max:1280px;}
+}
+@media (min-width: 1600px){
+  :root{--pch-desktop-max:1320px;}
+}
