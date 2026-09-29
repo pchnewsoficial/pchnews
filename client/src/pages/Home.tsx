@@ -261,14 +261,6 @@ export default function Home() {
             <span className="brand-caption">Informação para<br /><strong>libertar a mente.</strong></span>
           </Link>
           <div className="header-motto">Jornalismo nacional, pensamento amplo <span>●</span></div>
-          <div className="mobile-weather-strip" aria-label="Previsão do tempo">
-            <button type="button" onClick={requestLocalWeather} title="Usar a previsão da sua localização">
-              <Thermometer size={14} aria-hidden="true" />
-              <strong>{weatherTemperature != null ? `${Math.round(Number(weatherTemperature))}°C` : "--°C"}</strong>
-              <span>{weatherPlace}</span>
-              {weatherMax != null && weatherMin != null && <small>máx. {Math.round(Number(weatherMax))}° · mín. {Math.round(Number(weatherMin))}°</small>}
-            </button>
-          </div>
           <div className="header-live-info" aria-label="Informações locais">
             <div className="header-live-item">
               <Clock3 size={15} aria-hidden="true" />
