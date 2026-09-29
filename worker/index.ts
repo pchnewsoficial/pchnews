@@ -192,7 +192,16 @@ export default {
     // Serve the SPA shell from "/" (not "/index.html"): Cloudflare Assets answers
     // "/index.html" with a 307 redirect to "/", which sent every deep link
     // (/admin, /login, /materia/...) back to the home page.
-    if (isSpaRoute) return env.ASSETS.fetch(new Request(new URL("/", request.url), request));
+    if (isSpaRoute || url.pathname === "/") {
+      const response = await env.ASSETS.fetch(new Request(new URL("/", request.url), request));
+      const headers = new Headers(response.headers);
+      // Never cache the SPA shell: hashed JS/CSS assets are cacheable, but the
+      // HTML entrypoint must always point the browser at the newest deployment.
+      headers.set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+      headers.set("Pragma", "no-cache");
+      headers.set("X-PCH-Deployment", "a30acee330edd446a81e1efc63d1638147f491bd");
+      return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+    }
     return env.ASSETS.fetch(request);
   },
 };
