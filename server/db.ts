@@ -136,6 +136,42 @@ export async function syncEditorial(payload:EditorialSyncPayload,accessToken?:st
 }
 export async function createInvite(invite:ColumnistInvite,accessToken?:string|null){const db=await getDb(accessToken);if(!db)throw new Error("Database unavailable");const {error}=await db.from("columnistInvites").insert(invite);if(error)throw error;return invite;}
 export async function listInvites(accessToken?:string|null){const db=await getDb(accessToken);if(!db)return [];const {data,error}=await db.from("columnistInvites").select("*").order("createdAtMs",{ascending:false});if(error)throw error;return data??[];}
+export async function markInviteOpened(tokenHash:string, ip?:string|null, userAgent?:string|null){
+  const db=getSupabaseAdmin();
+  const nowMs=Date.now();
+  const {error}=await db.from("columnistInvites").update({
+    openedAtMs: nowMs,
+    openedIp: ip ?? null,
+    openedUserAgent: userAgent ?? null
+  }).eq("tokenHash",tokenHash).is("acceptedAtMs",null).is("revokedAtMs",null);
+  if(error)throw error;
+  return {success:true,openedAtMs:nowMs};
+}
+export async function manuallyReleaseInvite(id:string, actorOpenId:string, reason?:string|null, accessToken?:string|null){
+  const db=getSupabaseAdmin();
+  const {data:invite,error:ie}=await db.from("columnistInvites").select("*").eq("id",id).maybeSingle();
+  if(ie)throw ie;
+  if(!invite)throw new Error("Convite não encontrado.");
+  if(invite.revokedAtMs)throw new Error("Esse convite está revogado.");
+  const nowMs=Date.now();
+  const {data:existingUser,error:ue}=await db.from("users").select("openId,email,role,name").ilike("email",invite.email).maybeSingle();
+  if(ue)throw ue;
+  const role=String(invite.id).split("-")[1] || "columnist";
+  if(existingUser){
+    const nextRole=existingUser.role==="admin" ? "admin" : role;
+    const {error:re}=await db.from("users").update({role:nextRole,name:existingUser.name || invite.name}).eq("openId",existingUser.openId);
+    if(re)throw re;
+  }
+  const {data:updated,error:ue2}=await db.from("columnistInvites").update({
+    manualReleasedAtMs:nowMs,
+    manualReleasedByOpenId:actorOpenId,
+    manualReleaseReason:reason?.trim() || "Liberação manual pelo administrador.",
+    expiresAtMs: Math.max(Number(invite.expiresAtMs || 0), nowMs + 7*24*60*60*1000),
+    revokedAtMs:null
+  }).eq("id",id).select("*").single();
+  if(ue2)throw ue2;
+  return {success:true,invite:updated,existingUser:Boolean(existingUser),role};
+}
 export async function findInvite(tokenHash:string,accessToken?:string|null){
   // Public invite preview must work before authentication. The token itself is a
   // high-entropy secret, so perform this single-row lookup with the server-only
