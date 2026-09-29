@@ -17,6 +17,20 @@ async function assertEditorialAgentAccess(ctx: any) {
   if (!allowed) throw new Error("Os Agentes Editoriais estão liberados somente para o Administrador.");
 }
 
+function applySafeEditorialFix(article: any, findingCode: string) {
+  const textNodes = (html: string, transform: (text: string) => string) =>
+    String(html || "").replace(/>([^<]+)</g, (_match, text) => `>${transform(String(text))}<`);
+  const next = { ...article };
+  if (findingCode === "double-spaces") {
+    next.bodyHtml = textNodes(next.bodyHtml, (text) => text.replace(/[ \t]{2,}/g, " "));
+  } else if (findingCode === "punctuation") {
+    next.bodyHtml = textNodes(next.bodyHtml, (text) => text.replace(/!{2,}/g, "!").replace(/\?{2,}/g, "?"));
+  } else {
+    return { applied: false, article };
+  }
+  return { applied: next.bodyHtml !== article.bodyHtml, article: next };
+}
+
 type InviteRole = (typeof INVITE_ROLES)[number];
 /** Invite role is encoded in the invite id (invite-<role>-<ts>-<hex>); legacy ids are columnist invites. */
 function roleFromInviteId(id: string): InviteRole {
@@ -133,6 +147,27 @@ export const appRouter = router({
       await assertEditorialAgentAccess(ctx);
       const now = Date.now();
       return recordEditorialFindingDecision({ ...input, note: input.note ?? null, actorOpenId: ctx.user.openId, createdAtMs: now, updatedAtMs: now }, ctx.accessToken);
+    }),
+    applyAcceptedFinding: protectedProcedure.input(z.object({
+      id: z.string().min(1), articleId: z.string().min(1), agentRunId: z.string().min(1), findingCode: z.string().min(1)
+    })).mutation(async ({ input, ctx }) => {
+      await assertEditorialAgentAccess(ctx);
+      const article = await getArticle(input.articleId, ctx.accessToken);
+      if (!article) throw new Error("Publicação não encontrada.");
+      const fixed = applySafeEditorialFix(article, input.findingCode);
+      if (!fixed.applied) return { applied: false, article, message: "Este achado foi aceito, mas não possui correção automática segura. A redação deve editar o conteúdo manualmente." };
+      const before = { ...article };
+      await saveArticle({ ...fixed.article, updatedAt: new Date() }, ctx.accessToken);
+      await recordArticleAudit({
+        id: `audit-${Date.now()}-${randomBytes(4).toString("hex")}`,
+        articleId: input.articleId,
+        actorOpenId: ctx.user.openId,
+        actorName: ctx.user.name || ctx.user.email || "Usuário",
+        action: "updated",
+        beforeJson: JSON.stringify(before),
+        afterJson: JSON.stringify(fixed.article)
+      }, ctx.accessToken);
+      return { applied: true, article: fixed.article, message: "Correção aplicada automaticamente, sem API de IA e sem consumo de créditos." };
     }),
   }),
   ads: router({
