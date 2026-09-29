@@ -3067,3 +3067,12 @@ main > .home-page:first-child{
   .pauta-studio-actions{margin-left:-14px!important;margin-right:-14px!important;padding-left:14px!important;padding-right:14px!important;}
   .pauta-studio-field.pauta-studio-briefing textarea{min-height:280px!important;}
 }
+
+/* Pauta Studio — wider Skills drawer when opened */
+.pauta-studio-overlay.pauta-studio-skills-open{--pauta-right:360px!important;}
+.pauta-studio-overlay.pauta-studio-skills-closed{--pauta-right:58px!important;}
+.pauta-studio-skills{width:360px!important;}
+@media(max-width:760px){
+  .pauta-studio-overlay.pauta-studio-skills-open{--pauta-right:0px!important;}
+  .pauta-studio-skills{width:min(94vw,380px)!important;}
+}
