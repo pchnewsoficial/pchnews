@@ -9,6 +9,7 @@ export type EditorialAgentId =
   | "ethics-advisor"
   | "multi-platform-distributor"
   | "liberdade-editorial"
+  | "beyond-news"
   | "journalism-master-orchestrator";
 
 export type EditorialArticleInput = {
@@ -186,6 +187,30 @@ function distributor(article: EditorialArticleInput): AgentResult {
   };
 }
 
+function beyondNews(article: EditorialArticleInput): AgentResult {
+  const { body } = base(article);
+  const findings: AgentFinding[] = [];
+  const hasContext = /\b(contexto|histórico|historia|origem|por que|porque|impacto|consequência|consequências|efeito|reação|repercussão)\b/i.test(body);
+  const hasHumanDimension = /\b(pessoa|pessoas|família|familias|comunidade|comportamento|emocional|emoção|emoções|psicológ|saúde mental|sociedade|humano)\b/i.test(body);
+  const hasBeyondQuestion = /\b(além|significa|revela|o que isso muda|o que está por trás|implicação|implicações|aprend|reflexão)\b/i.test(body);
+  if (!hasContext) findings.push({ severity: "warning", code: "missing-context-layer", message: "A matéria apresenta o fato, mas não deixa evidente uma camada de contexto.", suggestion: "Considere explicar origem, histórico, contexto ou por que o fato importa." });
+  if (!hasHumanDimension) findings.push({ severity: "info", code: "missing-human-dimension", message: "Não foi identificada uma dimensão humana, comportamental ou social explícita.", suggestion: "Quando houver base e relevância, explore impactos sobre pessoas, comunidades, comportamento ou experiência humana." });
+  if (!hasBeyondQuestion) findings.push({ severity: "warning", code: "missing-beyond-news-layer", message: "A segunda leitura do PCH News ainda não está evidente.", suggestion: "Pergunte: o que este fato revela, muda, ensina ou permite compreender além do acontecimento em si?" });
+  const sensitive = /\b(suicíd|suicid|depress|ansiedade|pânico|transtorno|diagnóst|saúde mental|trauma)\b/i.test(body);
+  if (sensitive) findings.push({ severity: "info", code: "sensitive-mental-health-topic", message: "O texto toca em saúde mental ou sofrimento psicológico.", suggestion: "Evite diagnóstico de pessoas, generalizações clínicas e linguagem sensacionalista; diferencie informação de orientação profissional." });
+  return {
+    agentId: "beyond-news",
+    agentName: "Além da Notícia — PCH News",
+    status: findings.some((f) => f.severity === "warning") ? "review" : "pass",
+    findings,
+    output: {
+      principle: "informar + contextualizar + ampliar compreensão",
+      checks: { hasContext, hasHumanDimension, hasBeyondQuestion, sensitiveMentalHealthTopic: sensitive },
+      editorialQuestion: "Depois de ler, o leitor entende apenas o que aconteceu ou também compreende por que isso importa?"
+    }
+  };
+}
+
 function liberdadeEditorial(article: EditorialArticleInput): AgentResult {
   const report = runFreedomReview(article);
   const findings: AgentFinding[] = report.checks.filter((c) => c.severity !== "ok").map((c) => ({
@@ -206,6 +231,7 @@ export function runEditorialAgent(agentId: EditorialAgentId, article: EditorialA
     case "ethics-advisor": return ethics(enrichedArticle);
     case "multi-platform-distributor": return distributor(enrichedArticle);
     case "liberdade-editorial": return liberdadeEditorial(enrichedArticle);
+    case "beyond-news": return beyondNews(enrichedArticle);
     case "journalism-master-orchestrator": {
       const results = [
         storyEditor(enrichedArticle),
@@ -213,6 +239,7 @@ export function runEditorialAgent(agentId: EditorialAgentId, article: EditorialA
         seo(enrichedArticle),
         ethics(enrichedArticle),
         liberdadeEditorial(enrichedArticle),
+        beyondNews(enrichedArticle),
         publicationReadiness(enrichedArticle),
         distributor(enrichedArticle)
       ];
