@@ -1763,3 +1763,44 @@ section.container.ad-banner.ad-carousel { height:auto !important; min-height:0 !
   .recent-panel-commercial .side-ad-slot-secondary{margin-bottom:-18px;}
   .recent-panel .section-heading{flex:0 0 auto;}
 }
+
+/* ===== Desktop editorial hierarchy: reference portals — 2026-09-29 ===== */
+@media (min-width:981px){
+  /* Desktop reading order: news first, interpretation next, secondary content after. */
+  main{display:flex;flex-direction:column;}
+  main .events-promo-home{order:20;}
+  main .lead-layout{order:2;}
+  main .ad-carousel{order:3;}
+  main .quote-strip{order:40;}
+  main .beyond-news-home{order:7;}
+  main .latest-section{order:5;}
+  main .most-read-section{order:6;}
+  main .columnist-showcase{order:8;}
+  main .pilulas-showcase{order:30;}
+  main .editorial-sections{order:9;}
+}
+.beyond-news-home{padding-top:30px;}
+.beyond-news-inner{
+  border:1px solid var(--pch-line);
+  border-radius:10px;
+  padding:24px;
+  background:linear-gradient(135deg,rgba(7,26,45,.98),rgba(11,39,64,.94));
+  color:#fff;
+}
+.beyond-news-heading{max-width:760px;}
+.beyond-news-heading h2{margin:4px 0 8px;font-size:clamp(24px,3vw,36px);}
+.beyond-news-heading p{margin:0;color:rgba(255,255,255,.76);font-size:14px;line-height:1.55;}
+.beyond-news-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:20px;}
+.beyond-news-cards article{display:flex;gap:10px;min-height:104px;padding:15px;border:1px solid rgba(255,255,255,.12);border-radius:8px;background:rgba(255,255,255,.045);}
+.beyond-news-icon{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;border-radius:50%;background:rgba(244,183,45,.13);color:var(--pch-gold);}
+.beyond-news-cards strong{font-size:13px;}
+.beyond-news-cards p{margin:5px 0 0;color:rgba(255,255,255,.68);font-size:11px;line-height:1.4;}
+.beyond-news-link{display:inline-flex;align-items:center;gap:7px;margin-top:16px;color:var(--pch-gold);font-size:11px;font-weight:800;text-decoration:none;}
+@media(max-width:700px){
+  .beyond-news-home{padding-top:18px;}
+  .beyond-news-inner{padding:16px;border-radius:8px;}
+  .beyond-news-heading h2{font-size:23px;}
+  .beyond-news-heading p{font-size:12px;}
+  .beyond-news-cards{grid-template-columns:1fr;gap:8px;margin-top:14px;}
+  .beyond-news-cards article{min-height:0;padding:11px;}
+}
