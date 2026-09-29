@@ -649,3 +649,53 @@ img{max-width:100%;}
     grid-template-columns:repeat(2,minmax(0,1fr))!important;
   }
 }
+
+
+/* ===== Social icons only + editorial breathing room ===== */
+.site-footer .footer-social-column .footer-socials{
+  display:flex!important;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:9px!important;
+  width:auto!important;
+}
+.site-footer .footer-social-column .footer-social-link{
+  width:38px!important;
+  min-width:38px!important;
+  height:38px!important;
+  min-height:38px!important;
+  padding:0!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:9px!important;
+}
+.site-footer .footer-social-column .footer-social-link span{
+  display:none!important;
+}
+.site-footer .footer-social-column .footer-social-link svg{
+  width:18px!important;
+  height:18px!important;
+  margin:0!important;
+}
+.site-footer .footer-social-column .footer-social-note{
+  display:none!important;
+}
+
+/* Keep the first editorial block visually separated from the two-level header. */
+main > .container:first-child,
+main > .home-page:first-child{
+  padding-top:18px;
+}
+.site-header + main{
+  padding-top:18px;
+}
+@media(max-width:700px){
+  .site-header + main{
+    padding-top:14px;
+  }
+}
+@media(max-width:480px){
+  .site-header + main{
+    padding-top:12px;
+  }
+}
