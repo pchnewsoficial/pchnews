@@ -935,3 +935,15 @@ main > .home-page:first-child{
  .personal-invitation-status{grid-column:1/-1;justify-self:start;}
  .personal-invitation-copy h2{font-size:18px;}
 }
+
+
+/* HostingPRESS channel/talents rail: real continuous random rotation */
+.hostingpress-channel-window{overflow:hidden;position:relative;width:100%;mask-image:linear-gradient(to right,transparent,#000 5%,#000 95%,transparent);}
+.hostingpress-channel-track{display:flex;width:max-content;gap:9px;animation:pch-hostingpress-marquee 30s linear infinite;will-change:transform;}
+.hostingpress-channel-pill{flex:0 0 auto;white-space:nowrap;padding:7px 11px;border:1px solid rgba(192,150,56,.28);border-radius:999px;background:rgba(255,255,255,.7);font-size:10px;font-weight:700;letter-spacing:.035em;}
+.hostingpress-channel-window:hover .hostingpress-channel-track{animation-play-state:paused;}
+@keyframes pch-hostingpress-marquee{from{transform:translateX(0)}to{transform:translateX(calc(-50% - 4.5px))}}
+@media(prefers-reduced-motion:reduce){.hostingpress-channel-track{animation:none;}}
+/* Social icons: slightly smaller and cleaner */
+.site-footer .footer-social-link svg{width:14px!important;height:14px!important;flex-basis:14px!important;}
+.site-footer .footer-social-link{gap:6px;padding:6px 8px;min-height:30px;}
