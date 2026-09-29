@@ -699,3 +699,59 @@ main > .home-page:first-child{
     padding-top:12px;
   }
 }
+
+/* Commercial ad marketplace: compact, premium and low-noise. */
+.ad-marketplace{margin-top:22px;margin-bottom:30px;}
+.ad-marketplace-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:12px;padding:0 2px;}
+.ad-marketplace-heading h2{margin:3px 0 4px;font-size:22px;line-height:1.1;letter-spacing:-.025em;}
+.ad-marketplace-heading p{margin:0;max-width:700px;color:#687586;font-size:12px;line-height:1.5;}
+.ad-marketplace-link{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;}
+.ad-marketplace-feature{max-width:920px;margin:0 auto 12px;}
+.ad-feature-card{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(280px,.95fr);min-height:158px;border:1px solid rgba(18,35,52,.12);border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 10px 28px rgba(15,31,48,.07);}
+.ad-feature-copy{padding:20px 24px;display:flex;flex-direction:column;justify-content:center;}
+.ad-mini-label,.ad-small-badge{font-size:8px;font-weight:850;letter-spacing:.12em;text-transform:uppercase;color:#8a6a25;}
+.ad-feature-copy h3{margin:5px 0 6px;font-size:24px;line-height:1.05;letter-spacing:-.025em;}
+.ad-feature-copy h3 em{font-style:normal;}
+.ad-feature-copy p{margin:0 0 12px;color:#687586;font-size:11px;line-height:1.45;max-width:520px;}
+.ad-feature-copy .gold-button{align-self:flex-start;padding:8px 11px;font-size:9px;}
+.ad-feature-creative{min-height:158px;background:#eef1f3;display:flex;align-items:center;justify-content:center;}
+.ad-feature-creative a,.ad-feature-creative img{display:block;width:100%;height:100%;}
+.ad-feature-creative img{object-fit:cover;}
+.ad-feature-placeholder{display:flex;flex-direction:column;align-items:center;gap:5px;color:#728091;}
+.ad-feature-placeholder span{font-weight:900;font-size:26px;letter-spacing:.08em;}
+.ad-feature-placeholder small{font-size:8px;letter-spacing:.14em;}
+.ad-small-rows{display:grid;gap:8px;}
+.ad-small-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+.ad-small-card{position:relative;min-height:58px;border:1px solid rgba(18,35,52,.10);border-radius:9px;overflow:hidden;background:#f7f8f9;display:flex;align-items:center;justify-content:center;}
+.ad-small-card img{width:100%;height:58px;object-fit:cover;display:block;}
+.ad-small-copy{display:flex;align-items:center;gap:7px;padding:9px 12px;font-size:11px;color:#243247;}
+.ad-small-copy strong{font-weight:800;}
+.ad-small-copy em{font-style:normal;color:#7b8795;}
+.ad-small-badge{position:absolute;z-index:2;top:5px;left:7px;padding:2px 4px;border-radius:3px;background:rgba(255,255,255,.88);}
+.ad-marketplace-controls{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:10px;}
+.ad-marketplace-controls>button{width:27px;height:27px;border:1px solid rgba(18,35,52,.14);border-radius:50%;background:#fff;display:grid;place-items:center;}
+.ad-marketplace-controls .ad-carousel-dots{display:flex;gap:5px;}
+.ad-marketplace-controls .ad-carousel-dots button{width:5px;height:5px;border:0;border-radius:50%;padding:0;background:#b9c0c8;}
+.ad-marketplace-controls .ad-carousel-dots button.active{width:16px;border-radius:4px;background:#8a6a25;}
+@media(max-width:700px){
+ .ad-marketplace{margin-top:16px;margin-bottom:22px;}
+ .ad-marketplace-heading{display:block;margin-bottom:10px;}
+ .ad-marketplace-heading h2{font-size:19px;}
+ .ad-marketplace-heading p{font-size:11px;max-width:none;}
+ .ad-marketplace-link{margin-top:7px;font-size:9px;}
+ .ad-marketplace-feature{max-width:none;}
+ .ad-feature-card{grid-template-columns:1fr;min-height:0;}
+ .ad-feature-copy{padding:15px 16px;}
+ .ad-feature-copy h3{font-size:20px;}
+ .ad-feature-creative{min-height:105px;max-height:105px;}
+ .ad-small-row{gap:6px;}
+ .ad-small-card{min-height:48px;}
+ .ad-small-card img{height:48px;}
+ .ad-small-copy{padding:7px 8px;font-size:9px;gap:4px;flex-wrap:wrap;}
+ .ad-small-badge{font-size:7px;}
+}
+@media(max-width:480px){
+ .ad-small-row{grid-template-columns:1fr 1fr;}
+ .ad-small-copy{display:block;}
+ .ad-small-copy strong,.ad-small-copy em{display:block;}
+}
