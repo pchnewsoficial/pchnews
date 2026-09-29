@@ -21,6 +21,7 @@ export default function InviteAccept() {
   const { user, loading, refresh, logout } = useAuth() as ReturnType<typeof useAuth> & { logout?: () => Promise<void> };
   const token = params?.token || (typeof window !== "undefined" ? window.location.pathname.split("/")[2] || "" : "");
   const { data: invite, isLoading } = trpc.invites.preview.useQuery({ token }, { enabled: token.length >= 3, retry: false });
+  const directAccess = trpc.invites.accessLink.useQuery({ token }, { enabled: token.length === 32 && Boolean(invite?.valid && invite?.manuallyReleased) && !user && !loading, retry: false });
   const accept = trpc.invites.accept.useMutation({
     onSuccess: async () => {
       try { localStorage.removeItem(PENDING_INVITE_KEY); } catch { /* ignore */ }
@@ -37,6 +38,12 @@ export default function InviteAccept() {
   const [passwordSaving, setPasswordSaving] = useState(false);
   const invitedEmail = invite?.valid && invite.email ? invite.email : "";
   const roleLabel = ROLE_LABELS[(invite as { role?: string } | undefined)?.role || "columnist"] || "colunista";
+
+  useEffect(() => {
+    if (directAccess.data?.actionLink && !user) {
+      window.location.replace(directAccess.data.actionLink);
+    }
+  }, [directAccess.data?.actionLink, user]);
 
   // Remember the invite across the login round-trip (OAuth / magic link land on /admin).
   useEffect(() => {
@@ -67,7 +74,7 @@ export default function InviteAccept() {
     <div className="invite-highlight"><strong>Por que você?</strong><p>Este convite é pessoal e foi enviado porque o PCH News acredita que sua contribuição pode fazer parte da construção desta redação.</p><p>Ao aceitar, você terá um espaço editorial compatível com seu papel e acesso às ferramentas do fluxo editorial do PCH News.</p></div>
     <div className="invite-values"><div><b>Informação</b><span>Fato antes de opinião.</span></div><div><b>Contexto</b><span>Mais compreensão para o leitor.</span></div><div><b>Liberdade da mente</b><span>O leitor pensa por si.</span></div></div>
     <div className="invite-access"><span className="admin-kicker">SEU CONVITE</span><p><strong>{invitedEmail}</strong> · acesso como <strong>{roleLabel}</strong></p></div>
-    <div className="invite-login-box"><div className="invite-icon"><Mail size={22} /></div><strong>Para continuar, confirme seu acesso</strong><span>Use exatamente o e-mail que recebeu o convite.</span><button className="primary-cta" disabled={sending} onClick={sendMagicLink}>{sending ? "Enviando…" : "Receber link de acesso por e-mail"} <ArrowRight size={16} /></button><button className="secondary-cta" onClick={() => { markLoginStarted(); void startLogin(); }}>Entrar com Google</button>{message && <small role="status">{message}</small>}</div>
+    <div className="invite-login-box"><div className="invite-icon"><Mail size={22} /></div><strong>{invite.manuallyReleased ? "Preparando seu acesso…" : "Para continuar, confirme seu acesso"}</strong><span>{invite.manuallyReleased ? "Seu convite já foi liberado pelo administrador. O acesso será aberto neste mesmo link." : "Use exatamente o e-mail que recebeu o convite."}</span>{!invite.manuallyReleased && <><button className="primary-cta" disabled={sending} onClick={sendMagicLink}>{sending ? "Enviando…" : "Receber link de acesso por e-mail"} <ArrowRight size={16} /></button><button className="secondary-cta" onClick={() => { markLoginStarted(); void startLogin(); }}>Entrar com Google</button></>}{message && <small role="status">{message}</small>}{directAccess.error && <small role="alert">Não foi possível abrir o acesso automaticamente. Solicite ao administrador uma nova liberação.</small>}</div>
     <small className="invite-footer-note">Este convite é individual e deve ser aceito com o e-mail indicado acima.</small>
   </section></main>;
 
