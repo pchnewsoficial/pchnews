@@ -1128,3 +1128,28 @@ main > .home-page:first-child{
 @media(max-width:480px){
   .site-footer .footer-columnists{padding-left:14px;padding-right:14px;}
 }
+
+/* Invite: clear agreement layer before the acceptance controls */
+.invite-agreement-summary{
+  margin:18px 48px 0;
+  padding:15px 16px;
+  border:1px solid #e1e6ec;
+  border-radius:14px;
+  background:#f8fafc;
+}
+.invite-agreement-summary>div{
+  display:flex;
+  align-items:flex-start;
+  gap:9px;
+  padding:7px 0;
+  color:#657080;
+}
+.invite-agreement-summary>div+div{border-top:1px solid #e7eaee;}
+.invite-agreement-summary svg{flex:0 0 auto;color:#8d6b29;margin-top:1px;}
+.invite-agreement-summary span{display:flex;flex-direction:column;gap:3px;}
+.invite-agreement-summary strong{font-size:11px;color:#243246;}
+.invite-agreement-summary small{font-size:10px;line-height:1.45;color:#748091;}
+.invite-agreement-summary p{margin:9px 0 0;padding-top:9px;border-top:1px solid #e7eaee;font-size:9px;line-height:1.5;color:#8a94a2;}
+@media(max-width:760px){
+  .invite-agreement-summary{margin-left:20px;margin-right:20px;}
+}
