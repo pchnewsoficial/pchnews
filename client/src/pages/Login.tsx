@@ -52,7 +52,7 @@ export default function Login() {
   const handleForgotPassword = async () => {
     const normalized = email.trim().toLowerCase();
     setSending(true); setMessage("");
-    const redirectTo = typeof window !== "undefined" ? `${window.location.origin}/admin?reset=1` : undefined;
+    const redirectTo = typeof window !== "undefined" ? `${window.location.origin}/login?reset=1` : undefined;
     const { error } = await supabase.auth.resetPasswordForEmail(
       normalized,
       redirectTo ? { redirectTo } : undefined,
