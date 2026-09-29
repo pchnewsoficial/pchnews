@@ -688,3 +688,59 @@ button { border: 0; }
     font-size:10px;
   }
 }
+
+/* Mobile header icon stabilization */
+@media (max-width: 700px){
+  .site-header .header-main > .icon-button.mobile-only{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    flex:0 0 36px!important;
+    width:36px!important;
+    min-width:36px!important;
+    height:36px!important;
+    min-height:36px!important;
+    margin:0!important;
+    padding:0!important;
+    border:1px solid rgba(255,255,255,.28)!important;
+    border-radius:8px!important;
+    background:rgba(255,255,255,.06)!important;
+    color:#fff!important;
+    transform:none!important;
+    line-height:1!important;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .site-header .header-actions .icon-button{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    flex:0 0 36px!important;
+    width:36px!important;
+    min-width:36px!important;
+    height:36px!important;
+    min-height:36px!important;
+    margin:0!important;
+    padding:0!important;
+    border:1px solid rgba(255,255,255,.28)!important;
+    border-radius:8px!important;
+    background:rgba(255,255,255,.06)!important;
+    color:#fff!important;
+    transform:none!important;
+    line-height:1!important;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .site-header .header-main > .icon-button.mobile-only svg,
+  .site-header .header-actions .icon-button svg{
+    display:block!important;
+    width:19px!important;
+    height:19px!important;
+    flex:0 0 19px!important;
+    stroke-width:2!important;
+  }
+  .site-header .header-main > .icon-button.mobile-only:active,
+  .site-header .header-actions .icon-button:active{
+    border-color:var(--gold)!important;
+    color:var(--gold)!important;
+    background:rgba(209,169,75,.12)!important;
+  }
+}
