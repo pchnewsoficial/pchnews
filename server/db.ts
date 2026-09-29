@@ -143,7 +143,7 @@ export async function markInviteOpened(tokenHash:string, ip?:string|null, userAg
     openedAtMs: nowMs,
     openedIp: ip ?? null,
     openedUserAgent: userAgent ?? null
-  }).eq("tokenHash",tokenHash).is("acceptedAtMs",null).is("revokedAtMs",null);
+  }).eq("tokenHash",tokenHash).is("acceptedAtMs",null).is("revokedAtMs",null).is("openedAtMs",null);
   if(error)throw error;
   return {success:true,openedAtMs:nowMs};
 }
