@@ -8,7 +8,7 @@ export default function Ads({ notify }:{notify:(message:string)=>void}) {
  const campaigns=trpc.ads.list.useQuery(undefined,{retry:false,refetchInterval:30000});
  const createCampaign=trpc.ads.create.useMutation({onSuccess:()=>{void campaigns.refetch();notify("Campanha cadastrada e salva no banco.");}});
  const updateCampaign=trpc.ads.update.useMutation({onSuccess:()=>{void campaigns.refetch();notify("Campanha atualizada.");}});
- const mediaUpload=trpc.media.upload.useMutation();
+ const mediaUpload=trpc.adRequests.uploadAsset.useMutation();
  const [bannerUploading,setBannerUploading]=useState(false);
  const [campaignForm,setCampaignForm]=useState({id:"",advertiserCompany:"",name:"",adType:"Banner lateral",creativeUrl:"",destinationUrl:"",targetScope:"national",region:"",state:"",startsAtMs:null as number|null,endsAtMs:null as number|null,status:"draft" as "draft"|"approved"|"active"|"paused"|"finished"});
 
