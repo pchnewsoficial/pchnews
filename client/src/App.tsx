@@ -10,6 +10,7 @@ import EventsAgenda from "./pages/EventsAgenda";
 import EventDetail from "./pages/EventDetail";
 import ArticlePage from "./pages/ArticlePage";
 import ColumnistProfile from "./pages/ColumnistProfile";
+import TeamPage from "./pages/TeamPage";
 import InviteAccept from "./pages/InviteAccept";
 import Profile from "./pages/Profile";
 import ApiHubAdminPage from "./pages/ApiHubAdminPage";
@@ -120,7 +121,7 @@ function Router() {
   if (normalizedPath.startsWith("/eventos/") || normalizedPath.startsWith("/agenda/")) { const eventId = normalizedPath.split("/")[2] || ""; return <EventDetail eventId={decodeURIComponent(eventId)} />; }
 
   return <Switch><Route path="/" component={HomeOrAdmin} /><Route path="/login" component={Login} />
-    <Route path="/perfil" component={Profile} /><Route path="/perfil/" component={Profile} /><Route path="/admin/integracoes/" component={ProtectedAdmin} /><Route path="/materia/:slug" component={ArticlePage} /><Route path="/colunista/:slug" component={ColumnistProfile} /><Route path="/convite/:token" component={InviteAccept} /><Route path="/institucional" component={Institutional} /><Route path="/institucional/" component={Institutional} /><Route path="/anuncie" component={PublicAds} /><Route path="/anuncie/" component={PublicAds} /><Route path="/conhecimento-pch" component={KnowledgePage} /><Route path="/conhecimento-pch/" component={KnowledgePage} /><Route path="/principios-editoriais" component={EditorialPrinciplesPage} /><Route path="/principios-editoriais/" component={EditorialPrinciplesPage} /><Route path="/lei" component={LawNews} /><Route path="/lei/" component={LawNews} />
+    <Route path="/equipe" component={TeamPage} /><Route path="/equipe/" component={TeamPage} /><Route path="/perfil" component={Profile} /><Route path="/perfil/" component={Profile} /><Route path="/admin/integracoes/" component={ProtectedAdmin} /><Route path="/materia/:slug" component={ArticlePage} /><Route path="/colunista/:slug" component={ColumnistProfile} /><Route path="/convite/:token" component={InviteAccept} /><Route path="/institucional" component={Institutional} /><Route path="/institucional/" component={Institutional} /><Route path="/anuncie" component={PublicAds} /><Route path="/anuncie/" component={PublicAds} /><Route path="/conhecimento-pch" component={KnowledgePage} /><Route path="/conhecimento-pch/" component={KnowledgePage} /><Route path="/principios-editoriais" component={EditorialPrinciplesPage} /><Route path="/principios-editoriais/" component={EditorialPrinciplesPage} /><Route path="/lei" component={LawNews} /><Route path="/lei/" component={LawNews} />
     <Route path="/privacidade" component={PrivacyPage} /><Route path="/privacidade/" component={PrivacyPage} />
     <Route path="/termos" component={TermsPage} /><Route path="/termos/" component={TermsPage} />
     <Route path="/cookies" component={CookiesPage} /><Route path="/cookies/" component={CookiesPage} />
