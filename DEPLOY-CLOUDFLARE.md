@@ -103,3 +103,6 @@ Depois de qualquer alteração relevante, verificar pelo menos:
 O banco de produção foi verificado no projeto Supabase `dlfipxqtbzmmbuksppvk`, região `sa-east-1`, PostgreSQL 17. O schema público possui RLS habilitado nas tabelas do PCH News.
 
 Qualquer alteração de schema deve ser feita por migration rastreável e validada no banco antes de ser considerada concluída.
+
+
+<!-- Production redeploy trigger: 2026-09-29 03:51 BRT. No application code change. -->
