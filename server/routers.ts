@@ -126,20 +126,51 @@ export const appRouter = router({
     }),
   }),
   ads: router({
-    active: publicProcedure.query(async () => {
+    active: publicProcedure.query(async ({ ctx }) => {
       const db = getSupabaseAdmin();
       const now = Date.now();
-      const { data, error } = await db.from("adCampaigns").select("id,name,adType,creativeUrl,destinationUrl,targetScope,region,state,startsAtMs,endsAtMs,status").in("status", ["approved","active"]).or(`startsAtMs.is.null,startsAtMs.lte.${now}`).or(`endsAtMs.is.null,endsAtMs.gte.${now}`).order("updatedAtMs", { ascending: false }).limit(8);
+      const country = String(ctx.req.headers["x-pch-geo-country"] || ctx.req.headers["cf-ipcountry"] || "").trim().toUpperCase();
+      const state = String(ctx.req.headers["x-pch-geo-state"] || "").trim();
+      const city = String(ctx.req.headers["x-pch-geo-city"] || "").trim();
+      const { data, error } = await db.from("adCampaigns")
+        .select("id,name,adType,creativeUrl,destinationUrl,targetScope,placementId,country,region,state,city,priority,startsAtMs,endsAtMs,status,updatedAtMs")
+        .in("status", ["approved","active"])
+        .or(`startsAtMs.is.null,startsAtMs.lte.${now}`)
+        .or(`endsAtMs.is.null,endsAtMs.gte.${now}`)
+        .order("updatedAtMs", { ascending: false }).limit(100);
       if (error) throw error;
-      return (data || []).map((item: any) => ({
-        id: item.id,
-        creativeUrl: item.creativeUrl || null,
-        eyebrow: item.adType || "PUBLICIDADE",
-        title: item.name,
+      const normalize = (value: any) => String(value || "").trim().toLowerCase();
+      const matches = (item: any) => {
+        const scope = normalize(item.targetScope || "national");
+        if (scope === "national") return true;
+        if (scope === "country") return !item.country || normalize(item.country) === normalize(country);
+        if (scope === "state" || scope === "regional") return (!item.country || normalize(item.country) === normalize(country)) && (!item.state || normalize(item.state) === normalize(state));
+        if (scope === "city") return (!item.country || normalize(item.country) === normalize(country)) && (!item.state || normalize(item.state) === normalize(state)) && (!item.city || normalize(item.city) === normalize(city));
+        return true;
+      };
+      const specificity = (item: any) => {
+        const scope = normalize(item.targetScope || "national");
+        return scope === "city" ? 400 : scope === "state" || scope === "regional" ? 300 : scope === "country" ? 200 : 100;
+      };
+      const eligible = (data || []).filter(matches);
+      const placements = new Map<string, any[]>();
+      for (const item of eligible) {
+        const placement = item.placementId || "home-main";
+        const list = placements.get(placement) || [];
+        list.push(item);
+        placements.set(placement, list);
+      }
+      const selected: any[] = [];
+      for (const [placement, list] of placements) {
+        const maxSpecificity = Math.max(...list.map(specificity));
+        selected.push(...list.filter(item => specificity(item) === maxSpecificity).sort((a,b) => Number(b.priority || 0) - Number(a.priority || 0) || Number(b.updatedAtMs || 0) - Number(a.updatedAtMs || 0)).slice(0, 6));
+      }
+      return selected.map((item: any) => ({
+        id: item.id, placementId: item.placementId || "home-main", creativeUrl: item.creativeUrl || null,
+        eyebrow: item.adType || "PUBLICIDADE", title: item.name,
         emphasis: item.creativeUrl ? "Confira a campanha." : "Sua marca em destaque.",
         text: item.creativeUrl ? "Conheça esta campanha no PCH News." : "Espaço comercial administrado pela redação.",
-        cta: "CONHEÇA A CAMPANHA",
-        href: item.destinationUrl || "/anuncie",
+        cta: "CONHEÇA A CAMPANHA", href: item.destinationUrl || "/anuncie",
       }));
     }),
     list: adminProcedure.query(async () => {
@@ -151,6 +182,7 @@ export const appRouter = router({
     create: adminProcedure.input(z.object({
       id: z.string().min(2).optional(), advertiserCompany: z.string().min(2), name: z.string().min(2), adType: z.string().min(2),
       creativeUrl: z.string().url().nullable().optional(), destinationUrl: z.string().url().nullable().optional(), targetScope: z.string().default("national"),
+      placementId: z.string().default("home-main"), country: z.string().nullable().optional(), city: z.string().nullable().optional(), priority: z.number().int().min(0).max(100).default(0),
       region: z.string().nullable().optional(), state: z.string().nullable().optional(),
       startsAtMs: z.number().int().nullable().optional(), endsAtMs: z.number().int().nullable().optional(),
       status: z.enum(["draft","approved","active","paused","finished"]).default("draft"),
@@ -161,7 +193,7 @@ export const appRouter = router({
       const { error: advertiserError } = await db.from("advertisers").upsert({ id: advertiserId, company: input.advertiserCompany, status: "active", createdAtMs: now, updatedAtMs: now }, { onConflict: "id" });
       if (advertiserError) throw advertiserError;
       const { advertiserCompany: _advertiserCompany, ...campaignInput } = input;
-      const row = { id: input.id || `campaign-${now}-${randomBytes(4).toString("hex")}`, ...campaignInput, advertiserId, creativeUrl: input.creativeUrl || null, destinationUrl: input.destinationUrl || null, region: input.region || null, state: input.state || null, startsAtMs: input.startsAtMs ?? null, endsAtMs: input.endsAtMs ?? null, createdAtMs: now, updatedAtMs: now };
+      const row = { id: input.id || `campaign-${now}-${randomBytes(4).toString("hex")}`, ...campaignInput, advertiserId, creativeUrl: input.creativeUrl || null, destinationUrl: input.destinationUrl || null, placementId: input.placementId || "home-main", country: input.country || null, city: input.city || null, priority: input.priority ?? 0, region: input.region || null, state: input.state || null, startsAtMs: input.startsAtMs ?? null, endsAtMs: input.endsAtMs ?? null, createdAtMs: now, updatedAtMs: now };
       const { data, error } = await db.from("adCampaigns").insert(row).select("*").single();
       if (error) throw error;
       return data;
@@ -169,6 +201,7 @@ export const appRouter = router({
     update: adminProcedure.input(z.object({
       id: z.string().min(1), name: z.string().min(2), adType: z.string().min(2),
       creativeUrl: z.string().url().nullable().optional(), targetScope: z.string().default("national"),
+      placementId: z.string().default("home-main"), country: z.string().nullable().optional(), city: z.string().nullable().optional(), priority: z.number().int().min(0).max(100).default(0),
       region: z.string().nullable().optional(), state: z.string().nullable().optional(),
       startsAtMs: z.number().int().nullable().optional(), endsAtMs: z.number().int().nullable().optional(),
       status: z.enum(["draft","approved","active","paused","finished"]),
@@ -176,7 +209,7 @@ export const appRouter = router({
     })).mutation(async ({ input }) => {
       const db = getSupabaseAdmin();
       const { id, ...rest } = input;
-      const { data, error } = await db.from("adCampaigns").update({ ...rest, creativeUrl: rest.creativeUrl || null, destinationUrl: rest.destinationUrl || null, region: rest.region || null, state: rest.state || null, startsAtMs: rest.startsAtMs ?? null, endsAtMs: rest.endsAtMs ?? null, updatedAtMs: Date.now() }).eq("id", id).select("*").single();
+      const { data, error } = await db.from("adCampaigns").update({ ...rest, creativeUrl: rest.creativeUrl || null, destinationUrl: rest.destinationUrl || null, placementId: rest.placementId || "home-main", country: rest.country || null, city: rest.city || null, priority: rest.priority ?? 0, creativeUrl: rest.creativeUrl || null, region: rest.region || null, state: rest.state || null, startsAtMs: rest.startsAtMs ?? null, endsAtMs: rest.endsAtMs ?? null, updatedAtMs: Date.now() }).eq("id", id).select("*").single();
       if (error) throw error;
       return data;
     }),
