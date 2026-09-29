@@ -27,15 +27,21 @@ export default function Ads({ notify }:{notify:(message:string)=>void}) {
   finally{setBannerUploading(false);}
  };
 
+ const buildCampaignPayload=(status?: "draft"|"scheduled"|"active"|"paused"|"finished")=>{
+  const { id, ...form } = campaignForm;
+  const base={...form, ...(status ? {status} : {}), creativeUrl:campaignForm.creativeUrl||null, destinationUrl:campaignForm.destinationUrl||null, region:campaignForm.region||null, state:campaignForm.state||null};
+  return campaignForm.id ? {...base,id:campaignForm.id} : base;
+ };
  const saveCampaign=(event:any)=>{
   event.preventDefault();
-  const payload={...campaignForm,creativeUrl:campaignForm.creativeUrl||null,destinationUrl:campaignForm.destinationUrl||null,region:campaignForm.region||null,state:campaignForm.state||null};
+  const payload=buildCampaignPayload();
   if(campaignForm.id) updateCampaign.mutate(payload as any); else createCampaign.mutate(payload as any);
  };
  const publishCampaignNow=()=>{
   if(!campaignForm.advertiserCompany.trim()||!campaignForm.name.trim()||!campaignForm.adType.trim()){notify("Preencha empresa, nome da campanha e tipo antes de publicar.");return;}
   const now=Date.now();
-  const payload={...campaignForm,status:"active" as const,startsAtMs:campaignForm.startsAtMs??now,creativeUrl:campaignForm.creativeUrl||null,destinationUrl:campaignForm.destinationUrl||null,region:campaignForm.region||null,state:campaignForm.state||null};
+  const payload=buildCampaignPayload("active");
+  payload.startsAtMs=campaignForm.startsAtMs??now;
   if(campaignForm.id) updateCampaign.mutate(payload as any); else createCampaign.mutate(payload as any);
  };
 
