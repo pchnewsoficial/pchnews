@@ -790,7 +790,7 @@ function InvitePanel() {
   const [inviteRole, setInviteRole] = useState<"columnist" | "journalist" | "editor" | "reviewer">("columnist");
   const [delivery, setDelivery] = useState("");
   const [editingInvite, setEditingInvite] = useState<any>(null);
-  const { data: invites = [], refetch } = trpc.invites.list.useQuery();
+  const { data: invites = [], refetch } = trpc.invites.list.useQuery(undefined, { refetchInterval: 10000 });
   const create = trpc.invites.create.useMutation({ onSuccess: (invite) => { refetch(); setEmail(""); setName(""); setLastUrl(`${window.location.origin}${invite.inviteUrl}`); setDelivery(invite.emailSent ? "E-mail enviado pelo SMTP." : invite.smtpConfigured ? "Convite criado, mas o SMTP não confirmou o envio." : "Convite criado. Use WhatsApp, e-mail ou copie o link abaixo."); } });
   const resend = trpc.invites.resend.useMutation({ onSuccess: (result) => { refetch(); setEditingInvite(null); setLastUrl(`${window.location.origin}${result.inviteUrl}`); setDelivery(result.emailSent ? "Convite reenviado pelo SMTP. A validade foi renovada por 7 dias." : result.smtpConfigured ? "Convite renovado, mas o SMTP não confirmou o envio." : "Convite renovado. Você pode enviar por WhatsApp, e-mail ou copiar o link."); }, onError: (error) => setDelivery(error.message) });
   const revoke = trpc.invites.revoke.useMutation({ onSuccess: () => refetch() });
