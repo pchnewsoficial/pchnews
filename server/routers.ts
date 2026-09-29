@@ -71,7 +71,7 @@ export const appRouter = router({
   editorialAgents: router({
     run: columnistProcedure.input(z.object({
       articleId: z.string().min(1),
-      agentId: z.enum(["story-editor","fact-checker","seo-optimization-specialist","publication-readiness","ethics-advisor","multi-platform-distributor","liberdade-editorial","journalism-master-orchestrator"]),
+      agentId: z.enum(["story-editor","fact-checker","seo-optimization-specialist","publication-readiness","ethics-advisor","multi-platform-distributor","liberdade-editorial","beyond-news","journalism-master-orchestrator"]),
       article: z.object({
         id: z.string(), title: z.string(), category: z.string(), author: z.string(), summary: z.string(),
         bodyHtml: z.string(), image: z.string(), tags: z.string(), status: z.string(), scheduledAt: z.number().nullable().optional(),
