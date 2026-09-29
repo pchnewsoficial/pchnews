@@ -7,6 +7,7 @@ import superjson from "superjson";
 import App from "./App";
 import { supabase } from "./lib/supabase";
 import "./index.css";
+import "./pch-redesign.css";
 import { initClarity, applyClarityConsent } from "./lib/clarity";
 import { readPrivacyConsent } from "./lib/privacyConsent";
 
