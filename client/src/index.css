@@ -617,3 +617,74 @@ button { border: 0; }
     font-size:10px;
   }
 }
+
+/* Mobile — cabeçalho próprio: compacto, sem overflow e com ícones realmente clicáveis. */
+@media (max-width: 700px) {
+  .site-header .header-main{
+    height:60px;
+    min-height:60px;
+    padding-left:12px;
+    padding-right:12px;
+    gap:8px;
+  }
+  .site-header .mobile-only{
+    display:inline-flex;
+    width:34px;
+    height:34px;
+    flex:0 0 34px;
+    padding:0;
+  }
+  .site-header .brand-lockup{
+    min-width:0;
+    flex:1 1 auto;
+    gap:0;
+    overflow:hidden;
+  }
+  .site-header .official-logo{
+    width:96px;
+    height:42px;
+    flex:0 0 96px;
+    object-fit:contain;
+    object-position:left center;
+    border-radius:0;
+    box-shadow:none;
+  }
+  .site-header .brand-wordmark,
+  .site-header .brand-caption,
+  .site-header .header-motto,
+  .site-header .header-live-info,
+  .site-header .mobile-weather-strip,
+  .site-header .profile-link,
+  .site-header .admin-link{
+    display:none;
+  }
+  .site-header .header-actions{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    margin-left:auto;
+    flex:0 0 auto;
+  }
+  .site-header .header-actions .icon-button{
+    width:34px;
+    height:34px;
+    min-width:34px;
+    padding:0;
+  }
+  .site-header .nav-wrap{
+    display:none;
+  }
+  .site-header .nav-wrap.is-open{
+    display:block;
+  }
+  .site-header .primary-nav{
+    min-height:0;
+    gap:0 18px;
+    padding:10px 16px 12px;
+    overflow-x:visible;
+  }
+  .site-header .primary-nav button{
+    min-height:30px;
+    font-size:10px;
+  }
+}
