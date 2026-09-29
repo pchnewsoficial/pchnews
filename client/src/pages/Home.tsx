@@ -322,7 +322,6 @@ export default function Home() {
                 <img src={imageUrl(lead)} alt={lead.title} onError={(event) => { event.currentTarget.src = LOGO_URL; }} />
                 <div className="story-overlay">
                   <span className="category-tag">{lead.category}</span>
-                  <span className="featured-kicker"><Eye size={12} /> {lead.views.toLocaleString("pt-BR")} visualizações</span>
                   <h2>{lead.title}</h2>
                   <p className="lead-summary">{lead.summary}</p>
                   <Meta article={lead} />
