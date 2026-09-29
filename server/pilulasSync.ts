@@ -66,6 +66,20 @@ function dateFromText(value: string) {
   return m ? m[3] + "-" + m[2] + "-" + m[1] : new Date().toISOString().slice(0, 10);
 }
 
+function extractViews(html: string, ld: any) {
+  const ldCount =
+    ld?.interactionStatistic?.userInteractionCount ??
+    (Array.isArray(ld?.interactionStatistic) ? ld.interactionStatistic.find((item: any) => item?.userInteractionCount)?.userInteractionCount : null);
+  if (ldCount != null && Number.isFinite(Number(ldCount))) return Number(ldCount);
+
+  const plain = stripTags(html);
+  const match = plain.match(/(?:·|\|)?\s*([\d.\s]+)\s+visualiza(?:ç|c)[õo]es?/i);
+  if (!match) return null;
+  const normalized = match[1].replace(/[.\s]/g, "");
+  const count = Number(normalized);
+  return Number.isFinite(count) ? count : null;
+}
+
 export async function syncHostingPressPilulas(accessToken?: string | null) {
   const homeResponse = await fetch(SOURCE + "/", { headers: { "user-agent": USER_AGENT }, redirect: "follow" });
   if (!homeResponse.ok) throw new Error("HostingPRESS respondeu HTTP " + homeResponse.status + ".");
@@ -102,6 +116,7 @@ export async function syncHostingPressPilulas(accessToken?: string | null) {
           }
         } catch (error) { console.warn("[PCH] Pílula image migration skipped:", url, error); }
       }
+      const remoteViews = extractViews(html, ld);
       const articleBody = typeof ld?.articleBody === "string" ? ld.articleBody.trim() : "";
       const bodyHtml = articleBody ? toBodyHtml(articleBody) : (description ? "<p>" + escapeHtml(description) + "</p>" : "<p>Conteúdo sincronizado da fonte editorial.</p>");
       const slug = url.split("/materia/")[1]?.replace(/\/$/, "") || headline.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -125,6 +140,10 @@ export async function syncHostingPressPilulas(accessToken?: string | null) {
         if (!existing.image && image) patch.image = image;
         if (existing.editionNumber == null && editionNumber != null) patch.editionNumber = editionNumber;
         if (!existing.contentType) patch.contentType = "pilula";
+        // HostingPRESS supplies a cumulative audience counter. Import it without
+        // ever reducing local PCH News views; subsequent syncs only move the
+        // counter forward when the remote number is higher.
+        if (remoteViews != null && remoteViews > Number(existing.views || 0)) patch.views = remoteViews;
         if (Object.keys(patch).length) {
           await saveArticle({ ...existing, ...patch, updated: new Date().toISOString() }, accessToken);
           imported.push(headline + " (completada)");
@@ -144,7 +163,7 @@ export async function syncHostingPressPilulas(accessToken?: string | null) {
         date,
         updated: new Date().toISOString(),
         status: "published",
-        views: 0,
+        views: remoteViews ?? 0,
         image,
         bodyHtml,
         tags: ["Pílula do Poeta", "Evaldo Poeta", "reflexão"],
