@@ -13,6 +13,7 @@ const LOGO_URL = officialLogoUrl;
 const LOGO_FALLBACK_URL = officialLogoUrl;
 const imageUrl = (article: NewsArticle) => editorialImageUrl(article);
 const categories = ["Todas", "Brasil", "Regiões", "Política", "Economia", "Internacional"];
+const HOSTINGPRESS_CHANNELS = ["Doutor Imprensa Talk Show","Café de Negócios","Intelectualidade Online","Talento Gospel","Maternidade INFOCO","De Frente com Randal","Casa HUB Digital","Sofá Jurídico"];
 
 
 function Meta({ article }: { article: NewsArticle }) {
@@ -43,6 +44,7 @@ export default function Home() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [activeAdSlide, setActiveAdSlide] = useState(0);
   const [adPaused, setAdPaused] = useState(false);
+  const [hostingpressChannels] = useState(() => [...HOSTINGPRESS_CHANNELS].sort(() => Math.random() - 0.5));
   const { data: managedAds = [] } = trpc.ads.active.useQuery(undefined, { retry: false, staleTime: 60_000 });
   const [now, setNow] = useState(() => new Date());
   // Weather defaults to São Paulo; the visitor's own location is only used when
@@ -448,8 +450,8 @@ export default function Home() {
 
             <div className="hostingpress-channel-window" aria-label="Canais do parceiro HostingPRESS">
               <div className="hostingpress-channel-track">
-                {["Doutor Imprensa Talk Show","Café de Negócios","Intelectualidade Online","Talento Gospel","Maternidade INFOCO","De Frente com Randal","Casa HUB Digital","Sofá Jurídico"].map((channel) => <span key={channel} className="hostingpress-channel-pill">{channel}</span>)}
-                {["Doutor Imprensa Talk Show","Café de Negócios","Intelectualidade Online","Talento Gospel","Maternidade INFOCO","De Frente com Randal","Casa HUB Digital","Sofá Jurídico"].map((channel) => <span key={channel+"-clone"} className="hostingpress-channel-pill">{channel}</span>)}
+                {hostingpressChannels.map((channel) => <span key={channel} className="hostingpress-channel-pill">{channel}</span>)}
+                {hostingpressChannels.map((channel) => <span key={channel+"-clone"} className="hostingpress-channel-pill">{channel}</span>)}
               </div>
             </div>
           </div>
