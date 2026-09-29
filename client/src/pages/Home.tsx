@@ -198,14 +198,14 @@ export default function Home() {
   const houseMain = [
     { id: "house-main", placementId: "home-main", eyebrow: "PCH NEWS • MÍDIA ESTRATÉGICA", title: "Sua marca em evidência", emphasis: "", text: "Um espaço comercial discreto, integrado à navegação editorial.", cta: "ANUNCIE NO PCH NEWS", href: "/anuncie#formatos" },
   ];
-  const houseSmall = [];
-  const normalizeAd = (slide: any) => ({ ...slide, href: slide.href || slide.targetUrl || "/anuncie", placementId: slide.placementId || "home-main" });
+
+  const normalizeAd = (slide: any) => ({ ...slide, href: slide.href || slide.destinationUrl || slide.targetUrl || "/anuncie", placementId: slide.placementId || "home-main" });
   const allAds = managedAds.map(normalizeAd);
   // Toda a publicidade da home ocupa um único inventário visual no desktop/mobile.
   // As campanhas continuam separadas no Admin por placement + geolocalização; aqui apenas
   // evitamos duplicação visual e alternamos as peças dentro do mesmo espaço discreto.
   const adSlides = allAds.length ? allAds : houseMain;
-  const smallAdSlides: any[] = [];
+
   useEffect(() => {
     if (adPaused) return;
     const timer = window.setInterval(() => setActiveAdSlide((current) => (current + 1) % adSlides.length), 6000);
