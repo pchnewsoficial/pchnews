@@ -1098,3 +1098,49 @@ a.footer-social-link:hover{transform:translateY(-1px);border-color:var(--gold,#c
   .footer-social-link{min-height:36px;font-size:10px!important;}
   .footer-social-note{font-size:8px;}
 }
+
+
+/* Navegação rápida da página — topo e rodapé */
+.scroll-navigation{
+  position:fixed;
+  right:18px;
+  bottom:22px;
+  z-index:1200;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  pointer-events:none;
+}
+.scroll-navigation-button{
+  width:40px;
+  height:40px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(30,38,48,.16);
+  border-radius:50%;
+  background:rgba(255,255,255,.96);
+  color:#27313d;
+  box-shadow:0 5px 18px rgba(20,28,38,.14);
+  cursor:pointer;
+  pointer-events:auto;
+  transition:transform .15s ease,box-shadow .15s ease,opacity .15s ease;
+}
+.scroll-navigation-button:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 22px rgba(20,28,38,.20);
+}
+.scroll-navigation-button:focus-visible{
+  outline:2px solid #b38a3b;
+  outline-offset:2px;
+}
+@media(max-width:700px){
+  .scroll-navigation{
+    right:12px;
+    bottom:16px;
+    gap:7px;
+  }
+  .scroll-navigation-button{
+    width:38px;
+    height:38px;
+  }
+}
