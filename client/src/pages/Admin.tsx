@@ -240,7 +240,7 @@ export default function Admin() {
     if (!article) { notify("A pauta está vinculada, mas a publicação ainda não foi carregada."); return; }
     openEdit(article);
     setView("articles");
-    notify(`Pauta aberta no editor: \${pauta.title}`);
+    notify(`Pauta aberta no editor: ${pauta.title}`);
   };
 
   useEffect(() => {
