@@ -2790,3 +2790,89 @@ main > .home-page:first-child{
     grid-template-columns:minmax(0,1fr)!important;
   }
 }
+
+
+/* ===== Pauta Studio — fixed central document + independent side panels ===== */
+.pauta-studio-overlay{
+  position:fixed!important;inset:0!important;z-index:3000!important;
+  display:grid!important;grid-template-columns:var(--pauta-left,236px) minmax(0,1fr) var(--pauta-right,58px)!important;
+  background:#eef0f3!important;overflow:hidden!important;
+}
+.pauta-studio-overlay.pauta-studio-left-closed{--pauta-left:0px}
+.pauta-studio-overlay.pauta-studio-skills-closed{--pauta-right:0px}
+.pauta-studio-backdrop{display:none!important}
+.pauta-studio-left{
+  background:#111827!important;color:#fff!important;height:100%!important;overflow:auto!important;
+  padding:22px 14px!important;box-sizing:border-box!important;box-shadow:8px 0 24px rgba(0,0,0,.12)!important;
+}
+.pauta-studio-brand{padding:4px 10px 24px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;gap:4px}
+.pauta-studio-brand .admin-kicker{color:#b9a675!important}
+.pauta-studio-brand strong{font:700 18px/1 'DM Sans',sans-serif}
+.pauta-studio-nav{padding-top:20px;display:flex;flex-direction:column;gap:5px}
+.pauta-studio-nav-title{font:800 9px/1 'DM Sans',sans-serif;letter-spacing:.18em;color:#8d96a5;padding:0 10px 8px}
+.pauta-studio-nav button{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;color:#c9ced7;padding:10px;border-radius:7px;text-align:left;font:600 12px/1.2 'DM Sans',sans-serif}
+.pauta-studio-nav button.active,.pauta-studio-nav button:hover{background:#202a3a;color:#fff}
+.pauta-studio-left-foot{margin-top:auto;padding:18px 10px;color:#8d96a5;font-size:10px;display:flex;flex-direction:column;gap:4px}
+.pauta-studio-toggle{position:fixed!important;top:72px!important;z-index:3010!important;width:32px!important;height:32px!important;display:grid!important;place-items:center!important;border:1px solid #d8dde4!important;border-radius:7px!important;background:#fff!important;color:#344054!important;box-shadow:0 4px 12px rgba(15,23,42,.12)!important}
+.pauta-studio-toggle-left{left:calc(var(--pauta-left) - 16px)!important}
+.pauta-studio-toggle-right{right:calc(var(--pauta-right) - 16px)!important}
+.pauta-studio-main{min-width:0!important;height:100%!important;overflow:auto!important;padding:26px 34px 42px!important;box-sizing:border-box!important}
+.pauta-studio-paper{
+  width:min(940px,100%)!important;margin:0 auto!important;background:#fff!important;border:1px solid #dfe3e8!important;
+  border-radius:4px!important;box-shadow:0 12px 35px rgba(15,23,42,.1)!important;padding:34px 54px 86px!important;
+  box-sizing:border-box!important;min-height:calc(100vh - 68px)!important;
+}
+.pauta-studio-header{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid #e6e8ec;padding-bottom:16px;margin-bottom:12px}
+.pauta-studio-header h2{margin:4px 0 0;font:700 25px/1.15 Georgia,'Times New Roman',serif;color:#17202c}
+.pauta-studio-close{border:0;background:transparent;color:#667085;width:34px;height:34px;border-radius:6px;display:grid;place-items:center}
+.pauta-studio-close:hover{background:#f2f4f7}
+.pauta-studio-status{font:500 10px/1.3 'DM Sans',sans-serif;color:#8b93a1;margin-bottom:24px}
+.pauta-studio-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#9d8244;margin-right:6px}
+.pauta-studio-field{display:flex!important;flex-direction:column!important;gap:7px!important;margin:0 0 17px!important;font:700 10px/1 'DM Sans',sans-serif!important;letter-spacing:.06em!important;text-transform:uppercase!important;color:#667085!important}
+.pauta-studio-field input,.pauta-studio-field textarea,.pauta-studio-grid input,.pauta-studio-grid select{
+  width:100%!important;box-sizing:border-box!important;border:0!important;border-bottom:1px solid #dfe3e8!important;border-radius:0!important;
+  background:#fff!important;padding:8px 0!important;outline:0!important;font:500 15px/1.5 'DM Sans',sans-serif!important;color:#17202c!important;
+}
+.pauta-studio-field input:focus,.pauta-studio-field textarea:focus,.pauta-studio-grid input:focus,.pauta-studio-grid select:focus{border-bottom-color:#9d8244!important;box-shadow:none!important}
+.pauta-studio-title{margin-top:2px!important}
+.pauta-studio-title input{font:700 31px/1.18 Georgia,'Times New Roman',serif!important;color:#151b24!important;padding:5px 0 11px!important}
+.pauta-studio-briefing textarea{min-height:110px!important;resize:vertical!important}
+.pauta-studio-section{border-top:1px solid #e7e9ed;margin-top:25px;padding-top:20px}
+.pauta-studio-section-title{font:800 9px/1 'DM Sans',sans-serif;letter-spacing:.18em;color:#7d6a3c}
+.pauta-studio-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:15px}
+.pauta-studio-grid>label{display:flex;flex-direction:column;gap:7px;font:700 10px/1 'DM Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#667085;min-width:0}
+.pauta-studio-checklist{border-top:1px solid #e7e9ed;margin-top:25px;padding-top:20px;display:flex;flex-direction:column;gap:8px}
+.pauta-studio-checklist>div{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.pauta-studio-checklist>div small{font:500 10px/1.2 'DM Sans',sans-serif;color:#98a0ac}
+.pauta-studio-checklist>button{border:0;background:transparent;display:flex;align-items:center;gap:9px;text-align:left;padding:7px 0;color:#344054;font:500 12px/1.3 'DM Sans',sans-serif}
+.pauta-studio-checklist .check-empty,.pauta-studio-checklist .check-done{width:16px;height:16px;border:1px solid #c9ced6;border-radius:3px;display:grid;place-items:center;flex:none}
+.pauta-studio-checklist .check-done{background:#17202c;border-color:#17202c;color:#fff}
+.pauta-studio-actions{position:sticky;bottom:-1px;margin:30px -54px -86px;padding:14px 54px;background:rgba(255,255,255,.96);border-top:1px solid #e4e7eb;display:flex;justify-content:flex-end;gap:9px}
+.pauta-studio-skills{
+  width:58px;height:100%;box-sizing:border-box;background:#f7f8fa;border-left:1px solid #d9dee5;padding:9px 5px;
+  overflow:visible;box-shadow:-5px 0 18px rgba(15,23,42,.06)
+}
+.pauta-skills-head{height:34px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #e5e7eb;position:relative}
+.pauta-skills-head strong{display:none}
+.pauta-skills-head button{display:none}
+.pauta-skills-orb{width:28px;height:28px;display:grid;place-items:center;border:1px solid #dfe3e8;border-radius:7px;background:#fff;color:#806321}
+.pauta-skills-list{display:flex;flex-direction:column;gap:7px;margin-top:8px}
+.pauta-skills-list button{position:relative;width:46px;height:42px;border:1px solid #e0e4e9;border-radius:7px;background:#fff;color:#344054;display:grid;place-items:center;padding:0}
+.pauta-skills-list button:hover,.pauta-skills-list button.active{background:#fbf8f0;border-color:#c8b98f;color:#806321}
+.pauta-skills-list button span{display:none}
+.pauta-skills-hint{position:absolute;right:68px;top:58px;width:210px;background:#fff;border:1px solid #dfe3e8;border-radius:7px;padding:10px;box-shadow:0 8px 22px rgba(15,23,42,.12);font:500 10px/1.4 'DM Sans',sans-serif;color:#667085;opacity:0;pointer-events:none;transition:opacity .15s}
+.pauta-studio-skills:hover .pauta-skills-hint{opacity:1}
+@media(max-width:760px){
+  .pauta-studio-overlay{grid-template-columns:0 minmax(0,1fr) 0!important}
+  .pauta-studio-left{position:fixed;left:0;top:0;width:236px;transform:translateX(-102%);transition:transform .2s;z-index:3005}
+  .pauta-studio-left-open .pauta-studio-left{transform:translateX(0)}
+  .pauta-studio-skills{position:fixed;right:0;top:0;width:58px;transform:translateX(102%);transition:transform .2s;z-index:3005}
+  .pauta-studio-skills-open .pauta-studio-skills{transform:translateX(0)}
+  .pauta-studio-main{padding:8px 8px 22px!important}
+  .pauta-studio-paper{width:100%!important;min-height:calc(100vh - 16px)!important;padding:24px 22px 80px!important}
+  .pauta-studio-title input{font-size:25px!important}
+  .pauta-studio-grid{grid-template-columns:1fr!important}
+  .pauta-studio-actions{margin-left:-22px!important;margin-right:-22px!important;padding-left:22px!important;padding-right:22px!important}
+  .pauta-studio-toggle-left{left:7px!important}
+  .pauta-studio-toggle-right{right:7px!important}
+}

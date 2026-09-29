@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
-import { CalendarDays, Check, ChevronDown, CircleAlert, Edit3, Archive, ExternalLink, FilePlus2, Filter, ListChecks, Plus, Search, Target, UserRound } from "lucide-react";
+import { CalendarDays, Check, ChevronDown, CircleAlert, Edit3, Archive, ExternalLink, FilePlus2, Filter, ListChecks, Plus, Search, Target, UserRound, PanelLeft, PanelLeftClose, PanelRight, PanelRightClose, X, Sparkles } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { makeArticleId } from "@/lib/news";
+import { EDITORIAL_AGENTS } from "./EditorialAgents";
 
 type PautaStatus = "idea" | "planned" | "assigned" | "reporting" | "review" | "ready" | "published" | "archived";
 type Priority = "low" | "normal" | "high" | "urgent";
@@ -46,6 +47,9 @@ export default function Pauta({ isAdmin, currentAuthor, accessUsers, notify, onO
   const [draft, setDraft] = useState(blank);
   const [query, setQuery] = useState("");
   const [priority, setPriority] = useState<Priority | "all">("all");
+  const [studioLeftOpen, setStudioLeftOpen] = useState(true);
+  const [skillsOpen, setSkillsOpen] = useState(true);
+  const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
 
   const pautas = (remote as any[]).map((p) => ({ ...p, sourcesJson: Array.isArray(p.sourcesJson) ? p.sourcesJson : [], checklistJson: Array.isArray(p.checklistJson) ? p.checklistJson : [] })) as Pauta[];
   const filtered = useMemo(() => pautas.filter(p => {
@@ -148,20 +152,95 @@ export default function Pauta({ isAdmin, currentAuthor, accessUsers, notify, onO
       </section>)}
     </div>
 
-    {modal && <div className="pauta-modal-overlay"><button className="overlay-dismiss" onClick={() => setModal(false)} aria-label="Fechar pauta"/><form className="pauta-modal" onSubmit={savePauta}>
-      <div className="editor-header"><div><span className="admin-kicker">{editing ? "EDITAR PAUTA" : "NOVA PAUTA"}</span><h2>{editing ? "Refinar pauta" : "Abrir pauta"}</h2></div><button type="button" className="close-editor" onClick={() => setModal(false)}>×</button></div>
-      <label>Título da pauta<input value={draft.title} onChange={e=>setDraft({...draft,title:e.target.value})} placeholder="Ex.: Como a cidade está mudando..." autoFocus/></label>
-      <label>Ângulo editorial<input value={draft.angle} onChange={e=>setDraft({...draft,angle:e.target.value})} placeholder="Qual é a pergunta central que a matéria precisa responder?"/></label>
-      <label>Briefing<textarea rows={4} value={draft.briefing} onChange={e=>setDraft({...draft,briefing:e.target.value})} placeholder="Contexto, perguntas, personagens, dados e próximos passos."/></label>
-      <div className="form-grid"><label>Editoria<select value={draft.category} onChange={e=>setDraft({...draft,category:e.target.value})}><option>Brasil</option><option>Política</option><option>Economia</option><option>Cidade</option><option>Cultura</option><option>Saúde</option><option>Esportes</option><option>Tecnologia</option><option>Opinião</option></select></label><label>Prioridade<select value={draft.priority} onChange={e=>setDraft({...draft,priority:e.target.value as Priority})}>{Object.entries(priorityLabel).map(([k,v])=><option key={k} value={k}>{v}</option>)}</select></label></div>
-      <div className="form-grid"><label>Responsável<select value={draft.assignedToOpenId} onChange={e=>{const u=accessUsers.find(x=>x.openId===e.target.value);setDraft({...draft,assignedToOpenId:e.target.value,assignedToName:u?.name||u?.email||""})}} disabled={!isAdmin}><option value="">Sem responsável</option>{accessUsers.filter(u=>u.role==="columnist"||u.role==="admin").map(u=><option key={u.openId} value={u.openId}>{u.name||u.email}</option>)}</select></label><label>Prazo<input type="datetime-local" value={draft.deadline} onChange={e=>setDraft({...draft,deadline:e.target.value})}/></label></div>
-      <label>Publicação planejada<input type="datetime-local" value={draft.plannedPublish} onChange={e=>setDraft({...draft,plannedPublish:e.target.value})}/></label>
-      <label>Tags <span className="field-hint">separe por vírgulas</span><input value={draft.tags} onChange={e=>setDraft({...draft,tags:e.target.value})} placeholder="ex.: mobilidade, centro, entrevista"/></label>
-      <div className="editor-section-label">DOSSIÊ DE APURAÇÃO</div>
-      <div className="form-grid"><label>URL da fonte principal<input type="url" value={draft.sourceUrl} onChange={e=>setDraft({...draft,sourceUrl:e.target.value})} placeholder="https://..."/></label><label>Nome da fonte<input value={draft.sourceName} onChange={e=>setDraft({...draft,sourceName:e.target.value})} placeholder="Ex.: Prefeitura"/></label></div>
-      <label>Observação da fonte<textarea rows={2} value={draft.sourceNote} onChange={e=>setDraft({...draft,sourceNote:e.target.value})} placeholder="O que esta fonte confirma ou ainda precisa ser verificado?"/></label>
-      <div className="pauta-checklist-preview"><strong>Checklist editorial</strong>{(draft.checklist || defaultChecklist).map((item,i)=><button type="button" key={i} onClick={()=>setDraft({...draft,checklist:(draft.checklist || defaultChecklist).map((x,j)=>j===i?{...x,done:!x.done}:x)})}><span className={item.done ? "check-done" : "check-empty"}>{item.done && <Check size={11}/>}</span>{item.label}</button>)}</div>
-      <div className="editor-actions"><button type="button" className="secondary-cta" onClick={()=>setModal(false)}>Cancelar</button><button className="primary-cta" type="submit"><Check size={16}/> {editing ? "Salvar pauta" : "Criar pauta"}</button></div>
-    </form></div>}
+    {modal && <div className={`pauta-studio-overlay ${studioLeftOpen ? "pauta-studio-left-open" : "pauta-studio-left-closed"} ${skillsOpen ? "pauta-studio-skills-open" : "pauta-studio-skills-closed"}`}>
+      <button className="pauta-studio-backdrop" onClick={() => setModal(false)} aria-label="Fechar estúdio" />
+      <aside className="pauta-studio-left">
+        <div className="pauta-studio-brand"><span className="admin-kicker">ESTÚDIO</span><strong>PCH News</strong></div>
+        <div className="pauta-studio-nav">
+          <span className="pauta-studio-nav-title">REDAÇÃO</span>
+          <button className="active"><FilePlus2 size={16}/> Pauta</button>
+          <button type="button"><Search size={16}/> Apuração</button>
+          <button type="button"><Check size={16}/> Revisão</button>
+          <button type="button"><ExternalLink size={16}/> Publicação</button>
+        </div>
+        <div className="pauta-studio-left-foot"><span>Workspace editorial</span><small>documento salvo no banco</small></div>
+      </aside>
+
+      <button type="button" className="pauta-studio-toggle pauta-studio-toggle-left" onClick={() => setStudioLeftOpen(v => !v)} aria-label={studioLeftOpen ? "Fechar painel do estúdio" : "Abrir painel do estúdio"} title={studioLeftOpen ? "Fechar estúdio" : "Abrir estúdio"}>
+        {studioLeftOpen ? <PanelLeftClose size={17}/> : <PanelLeft size={17}/>}
+      </button>
+
+      <main className="pauta-studio-main">
+        <form className="pauta-studio-paper" onSubmit={savePauta}>
+          <header className="pauta-studio-header">
+            <div>
+              <span className="admin-kicker">{editing ? "EDITAR PAUTA" : "NOVA PAUTA"}</span>
+              <h2>{editing ? "Refinar pauta" : "Abrir pauta"}</h2>
+            </div>
+            <button type="button" className="pauta-studio-close" onClick={() => setModal(false)} aria-label="Fechar"><X size={18}/></button>
+          </header>
+
+          <div className="pauta-studio-status"><span className="pauta-studio-dot"/> Rascunho de pauta · salvo após criar</div>
+
+          <label className="pauta-studio-field pauta-studio-title">Título da pauta
+            <input value={draft.title} onChange={e=>setDraft({...draft,title:e.target.value})} placeholder="Escreva o título da pauta..." autoFocus/>
+          </label>
+          <label className="pauta-studio-field">Ângulo editorial
+            <input value={draft.angle} onChange={e=>setDraft({...draft,angle:e.target.value})} placeholder="Qual é a pergunta central que a matéria precisa responder?"/>
+          </label>
+          <label className="pauta-studio-field pauta-studio-briefing">Briefing
+            <textarea rows={5} value={draft.briefing} onChange={e=>setDraft({...draft,briefing:e.target.value})} placeholder="Contexto, perguntas, personagens, dados e próximos passos."/>
+          </label>
+
+          <section className="pauta-studio-section">
+            <div className="pauta-studio-section-title">DIRETRIZES DA PAUTA</div>
+            <div className="pauta-studio-grid">
+              <label> Editoria<select value={draft.category} onChange={e=>setDraft({...draft,category:e.target.value})}><option>Brasil</option><option>Política</option><option>Economia</option><option>Cidade</option><option>Cultura</option><option>Saúde</option><option>Esportes</option><option>Tecnologia</option><option>Opinião</option></select></label>
+              <label> Prioridade<select value={draft.priority} onChange={e=>setDraft({...draft,priority:e.target.value as Priority})}>{Object.entries(priorityLabel).map(([k,v])=><option key={k} value={k}>{v}</option>)}</select></label>
+              <label> Responsável<select value={draft.assignedToOpenId} onChange={e=>{const u=accessUsers.find(x=>x.openId===e.target.value);setDraft({...draft,assignedToOpenId:e.target.value,assignedToName:u?.name||u?.email||""})}} disabled={!isAdmin}><option value="">Sem responsável</option>{accessUsers.filter(u=>u.role==="columnist"||u.role==="admin").map(u=><option key={u.openId} value={u.openId}>{u.name||u.email}</option>)}</select></label>
+              <label> Prazo<input type="datetime-local" value={draft.deadline} onChange={e=>setDraft({...draft,deadline:e.target.value})}/></label>
+              <label> Publicação planejada<input type="datetime-local" value={draft.plannedPublish} onChange={e=>setDraft({...draft,plannedPublish:e.target.value})}/></label>
+              <label> Tags <input value={draft.tags} onChange={e=>setDraft({...draft,tags:e.target.value})} placeholder="mobilidade, centro, entrevista"/></label>
+            </div>
+          </section>
+
+          <section className="pauta-studio-section">
+            <div className="pauta-studio-section-title">DOSSIÊ DE APURAÇÃO</div>
+            <div className="pauta-studio-grid">
+              <label>URL da fonte principal<input type="url" value={draft.sourceUrl} onChange={e=>setDraft({...draft,sourceUrl:e.target.value})} placeholder="https://..."/></label>
+              <label>Nome da fonte<input value={draft.sourceName} onChange={e=>setDraft({...draft,sourceName:e.target.value})} placeholder="Ex.: Prefeitura"/></label>
+            </div>
+            <label className="pauta-studio-field">Observação da fonte<textarea rows={3} value={draft.sourceNote} onChange={e=>setDraft({...draft,sourceNote:e.target.value})} placeholder="O que esta fonte confirma ou ainda precisa ser verificado?"/></label>
+          </section>
+
+          <section className="pauta-studio-checklist">
+            <div><span className="pauta-studio-section-title">CHECKLIST EDITORIAL</span><small>marque conforme a apuração avança</small></div>
+            {(draft.checklist || defaultChecklist).map((item,i)=><button type="button" key={i} onClick={()=>setDraft({...draft,checklist:(draft.checklist || defaultChecklist).map((x,j)=>j===i?{...x,done:!x.done}:x)})}><span className={item.done ? "check-done" : "check-empty"}>{item.done && <Check size={11}/>}</span>{item.label}</button>)}
+          </section>
+
+          <footer className="pauta-studio-actions">
+            <button type="button" className="secondary-cta" onClick={() => setModal(false)}>Cancelar</button>
+            <button className="primary-cta" type="submit"><Check size={16}/> {editing ? "Salvar pauta" : "Criar pauta"}</button>
+          </footer>
+        </form>
+      </main>
+
+      <button type="button" className="pauta-studio-toggle pauta-studio-toggle-right" onClick={() => setSkillsOpen(v => !v)} aria-label={skillsOpen ? "Fechar skills" : "Abrir skills"} title={skillsOpen ? "Fechar skills" : "Abrir skills"}>
+        {skillsOpen ? <PanelRightClose size={17}/> : <PanelRight size={17}/>}
+      </button>
+
+      <aside className="pauta-studio-skills">
+        <div className="pauta-skills-head"><span className="pauta-skills-orb"><Sparkles size={15}/></span><strong>SKILLS</strong><button type="button" onClick={() => setSkillsOpen(false)} aria-label="Fechar skills"><PanelRightClose size={15}/></button></div>
+        <div className="pauta-skills-list">
+          {EDITORIAL_AGENTS.map(agent => {
+            const Icon = agent.icon;
+            return <button type="button" key={agent.id} className={selectedSkill === agent.id ? "active" : ""} title={agent.description} aria-label={agent.name} onClick={() => { setSelectedSkill(agent.id); notify(`${agent.name} selecionado para esta pauta.`); }}>
+              <Icon size={17}/><span>{agent.name}</span>
+            </button>;
+          })}
+        </div>
+        <div className="pauta-skills-hint">Clique no ícone para executar o skill no contexto desta pauta.</div>
+      </aside>
+    </div>
   </div>;
 }
