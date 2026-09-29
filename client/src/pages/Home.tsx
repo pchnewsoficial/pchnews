@@ -196,18 +196,16 @@ export default function Home() {
   useEffect(() => setActiveSlide(0), [activeCategory, activeTopic, query]);
 
   const houseMain = [
-    { id: "house-main", placementId: "home-main", eyebrow: "PCH NEWS • MÍDIA ESTRATÉGICA", title: "Sua marca pode ser", emphasis: "a próxima notícia.", text: "Apresente sua empresa, produto ou serviço para uma audiência que busca informação.", cta: "ANUNCIE NO PCH NEWS", href: "/anuncie#formatos" },
+    { id: "house-main", placementId: "home-main", eyebrow: "PCH NEWS • MÍDIA ESTRATÉGICA", title: "Sua marca em evidência", emphasis: "", text: "Um espaço comercial discreto, integrado à navegação editorial.", cta: "ANUNCIE NO PCH NEWS", href: "/anuncie#formatos" },
   ];
-  const houseSmall = Array.from({ length: 4 }, (_, index) => ({
-    id: `house-small-${index + 1}`, placementId: `home-small-${index + 1}`, eyebrow: "PUBLICIDADE", title: "Espaço comercial", emphasis: `Banner pequeno ${index + 1}`, text: "Reserve este espaço para sua marca.", cta: "ANUNCIE", href: "/anuncie#formatos",
-  }));
+  const houseSmall = [];
   const normalizeAd = (slide: any) => ({ ...slide, href: slide.href || slide.targetUrl || "/anuncie", placementId: slide.placementId || "home-main" });
   const allAds = managedAds.map(normalizeAd);
+  // Toda a publicidade da home ocupa um único inventário visual no desktop/mobile.
+  // As campanhas continuam separadas no Admin por placement + geolocalização; aqui apenas
+  // evitamos duplicação visual e alternamos as peças dentro do mesmo espaço discreto.
   const adSlides = (allAds.filter((slide: any) => slide.placementId === "home-main").length ? allAds.filter((slide: any) => slide.placementId === "home-main") : houseMain);
-  const smallAdSlides = Array.from({ length: 4 }, (_, index) => {
-    const placement = `home-small-${index + 1}`;
-    return allAds.find((slide: any) => slide.placementId === placement) || houseSmall[index];
-  });
+  const smallAdSlides: any[] = [];
   useEffect(() => {
     if (adPaused) return;
     const timer = window.setInterval(() => setActiveAdSlide((current) => (current + 1) % adSlides.length), 6000);
@@ -354,12 +352,27 @@ export default function Home() {
               {sideStories.map((article, index) => <Link href={`/materia/${article.id}`} className="recent-item" key={article.id}><div className={`recent-thumb thumb-${index + 1}`} style={{ backgroundImage: `url(${imageUrl(article)})` }}><span>{String(index + 1).padStart(2, "0")}</span></div><div><span className="item-category">{article.category}</span><h3>{article.title}</h3><p><Eye size={12} /> {article.views.toLocaleString("pt-BR")} visualizações</p></div></Link>)}
             </div>
             <div className="recent-panel-commercial">
-              <div className="side-ad-slot" aria-label="Publicidade principal">
-                <span className="ad-tag">PUBLICIDADE</span>
-                <strong>Coloque sua marca em evidência</strong>
-                <p>Apresente sua empresa ao público do PCH News com espaços publicitários pensados para a sua campanha.</p>
-                <a href="/anuncie#formatos">Anuncie no PCH News <ArrowRight size={14} /></a>
-              </div>
+              {adSlides.filter((_, index) => index === activeAdSlide).map((slide: any) => (
+                <article className="side-ad-slot" key={slide.id || slide.title} aria-label="Publicidade">
+                  <span className="ad-tag">PUBLICIDADE</span>
+                  {slide.creativeUrl ? (
+                    <a className="side-ad-creative" href={slide.href} target="_blank" rel="noreferrer" onClick={() => {
+                      if (slide?.id && !String(slide.id).startsWith("house-")) void adEvent.mutateAsync({ campaignId: String(slide.id), eventType: "click" }).catch(() => undefined);
+                    }} aria-label={`Abrir anúncio: ${slide.title}`}>
+                      <img src={slide.creativeUrl} alt={slide.title} />
+                    </a>
+                  ) : (
+                    <>
+                      <strong>{slide.title}</strong>
+                      <p>{slide.text}</p>
+                      <a href={slide.href}>Saiba mais <ArrowRight size={14} /></a>
+                    </>
+                  )}
+                </article>
+              ))}
+              {adSlides.length > 1 && <div className="side-ad-dots" aria-label="Alternar publicidade">
+                {adSlides.map((slide: any, index: number) => <button key={slide.id || slide.title} type="button" className={index === activeAdSlide ? "active" : ""} aria-label={`Publicidade ${index + 1}`} onClick={() => setActiveAdSlide(index)} />)}
+              </div>}
             </div>
           </aside>
         </section>
@@ -368,52 +381,6 @@ export default function Home() {
 
           <div className="container empty-state"><Search size={24} /><h3>Nada encontrado por aqui</h3><p>Tente outra busca ou escolha uma editoria no menu.</p><button onClick={() => { setQuery(""); setActiveCategory("Todas"); setActiveTopic(null); }}>Limpar filtros</button></div>
         )}
-
-        <section className="container ad-marketplace" id="anuncie" aria-label="Espaços publicitários PCH News">
-          <div className="ad-marketplace-heading">
-            <div>
-              <span className="ad-tag">PUBLICIDADE</span>
-              <h2>Coloque sua marca em evidência</h2>
-              <p>Apresente sua empresa ao público do PCH News com espaços comerciais objetivos, identificados e pensados para cada campanha.</p>
-            </div>
-            <Link className="ad-marketplace-link" href="/anuncie#formatos">Ver formatos e anunciar <ArrowRight size={15} /></Link>
-          </div>
-
-          <div className="ad-marketplace-feature">
-            {adSlides.filter((_, index) => index === activeAdSlide).map((slide: any) => (
-              <article className="ad-feature-card" key={slide.id || slide.title}>
-                <div className="ad-feature-copy">
-                  <span className="ad-mini-label">{slide.eyebrow}</span>
-                  <h3>{slide.title} <em>{slide.emphasis}</em></h3>
-                  <p>{slide.text}</p>
-                  <Link className="gold-button" href={slide.href} onClick={() => { if (slide?.id && !String(slide.id).startsWith("house-")) void adEvent.mutateAsync({ campaignId: String(slide.id), eventType: "click" }).catch(() => undefined); }}>{slide.cta} <ArrowRight size={15} /></Link>
-                </div>
-                <div className="ad-feature-creative">
-                  {slide.creativeUrl ? <a href={slide.href} target="_blank" rel="noreferrer" onClick={() => { if (slide?.id && !String(slide.id).startsWith("house-")) void adEvent.mutateAsync({ campaignId: String(slide.id), eventType: "click" }).catch(() => undefined); }} aria-label={`Abrir anúncio: ${slide.title}`}><img src={slide.creativeUrl} alt={slide.title} /></a> : <div className="ad-feature-placeholder"><span>PCH</span><small>ESPAÇO COMERCIAL</small></div>}
-                </div>
-              </article>
-            ))}
-          </div>
-
-          <div className="ad-small-rows" aria-label="Espaços publicitários menores">
-            {[0, 1].map((row) => (
-              <div className="ad-small-row" key={row}>
-                {smallAdSlides.slice(row * 2, row * 2 + 2).map((slide: any, index: number) => (
-                  <a className="ad-small-card" href={slide.href} key={slide.id || `${slide.title}-${index}`} onClick={() => { if (slide?.id && !String(slide.id).startsWith("house-")) void adEvent.mutateAsync({ campaignId: String(slide.id), eventType: "click" }).catch(() => undefined); }}>
-                    <span className="ad-small-badge">PUBLICIDADE</span>
-                    {slide.creativeUrl ? <img src={slide.creativeUrl} alt={slide.title} /> : <span className="ad-small-copy"><strong>{slide.title}</strong><em>{slide.emphasis}</em></span>}
-                  </a>
-                ))}
-              </div>
-            ))}
-          </div>
-
-          <div className="ad-marketplace-controls">
-            <button type="button" aria-label="Publicidade anterior" onClick={() => setActiveAdSlide((current) => (current - 1 + adSlides.length) % adSlides.length)}><ArrowLeft size={15} /></button>
-            <div className="ad-carousel-dots">{adSlides.map((slide: any, index: number) => <button type="button" key={slide.id || slide.title} aria-label={`Ir para peça ${index + 1}`} className={index === activeAdSlide ? "active" : ""} onClick={() => setActiveAdSlide(index)} />)}</div>
-            <button type="button" aria-label="Próxima publicidade" onClick={() => setActiveAdSlide((current) => (current + 1) % adSlides.length)}><ArrowRight size={15} /></button>
-          </div>
-        </section>
 
         <section className="quote-strip"><div className="container quote-inner"><span className="quote-mark">“</span><p>Conteúdo e interação com responsabilidade, ética e entretenimento.</p><span className="quote-sign">PCH <i>NEWS</i></span></div></section>
 
