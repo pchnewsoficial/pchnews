@@ -206,7 +206,13 @@ function beyondNews(article: EditorialArticleInput): AgentResult {
     output: {
       principle: "informar + contextualizar + ampliar compreensão",
       checks: { hasContext, hasHumanDimension, hasBeyondQuestion, sensitiveMentalHealthTopic: sensitive },
-      editorialQuestion: "Depois de ler, o leitor entende apenas o que aconteceu ou também compreende por que isso importa?"
+      editorialQuestion: "Depois de ler, o leitor entende apenas o que aconteceu ou também compreende por que isso importa?",
+      guideQuestions: [
+        "O que aconteceu? Quem informou? Quais são as fontes e evidências disponíveis?",
+        "O que o leitor precisa saber para compreender o fato além do título?",
+        "Como pessoas, comunidades, comportamentos e relações podem ser afetados?",
+        "Que perguntas, aprendizados, consequências ou perspectivas relevantes o fato permite explorar?"
+      ]
     }
   };
 }
