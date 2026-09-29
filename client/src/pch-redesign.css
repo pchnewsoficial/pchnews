@@ -293,6 +293,16 @@
 .mobile-app-item:hover span,.mobile-app-item:focus-visible span{border-color:#d1a94b;background:#fffaf0;}
 @media(max-width:700px){.mobile-app-nav{display:grid !important;position:fixed;left:50%;bottom:max(8px,env(safe-area-inset-bottom));z-index:80;transform:translateX(-50%);display:grid;width:calc(100% - 12px);min-height:64px;margin:0;padding:6px;border:1px solid rgba(209,169,75,.22);border-radius:12px;background:rgba(11,17,28,.98);box-shadow:0 -4px 28px rgba(4,10,18,.28);backdrop-filter:blur(10px)}.mobile-app-item{min-height:52px;gap:3px;padding:4px 2px;color:#c7ccd4}.mobile-app-item span{width:30px;height:30px;border-color:rgba(255,255,255,.10);background:rgba(255,255,255,.055);color:#e0b457}.mobile-app-item small{font-size:8px}.mobile-app-item:hover,.mobile-app-item:focus-visible{color:#fff;background:rgba(255,255,255,.045)}}
 
+/* Desktop header actions lock: keep Search, Salvos and Painel editorial above the navigation layer. */
+@media (min-width:981px){
+  .site-header .header-main{position:relative;z-index:30;overflow:visible;}
+  .site-header .header-actions{position:relative;z-index:40;display:flex;align-items:center;justify-content:flex-end;visibility:visible;opacity:1;}
+  .site-header .header-actions .icon-button,
+  .site-header .header-actions .profile-link,
+  .site-header .header-actions .admin-link{position:relative;z-index:41;}
+  .site-header .nav-wrap{position:relative;z-index:10;}
+}
+
 /* Desktop header lock: prevent motto/weather collisions. */
 @media (min-width:981px){
   .site-header .header-main{display:grid;grid-template-columns:minmax(230px,250px) minmax(0,1fr) auto auto;align-items:center;column-gap:14px;}
