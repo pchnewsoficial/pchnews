@@ -8,6 +8,7 @@ import App from "./App";
 import { supabase } from "./lib/supabase";
 import "./index.css";
 import "./pch-redesign.css";
+import "./pch-layout-refinement.css";
 import { initClarity, applyClarityConsent } from "./lib/clarity";
 import { readPrivacyConsent } from "./lib/privacyConsent";
 
