@@ -34,6 +34,7 @@ export default function PublicFooter() {
           <span>TRANSPARÊNCIA</span>
           <Link href="/institucional">Missão e princípios</Link>
           <Link href="/institucional">Política editorial</Link>
+          <Link href="/principios-editoriais">Além da notícia</Link>
           <Link href="/institucional">Publicidade</Link>
           <Link href="/privacidade">LGPD e Privacidade</Link>
           <Link href="/termos">Termos de uso</Link>
