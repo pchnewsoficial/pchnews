@@ -345,9 +345,9 @@ export default function Home() {
             <div className="recent-panel-commercial">
               <div className="side-ad-slot" aria-label="Publicidade principal">
                 <span className="ad-tag">PUBLICIDADE</span>
-                <strong>Sua marca em destaque</strong>
-                <p>Espaço lateral reservado para campanhas, parceiros e divulgação.</p>
-                <a href="/anuncie#formatos">Conheça os formatos <ArrowRight size={14} /></a>
+                <strong>Coloque sua marca em evidência</strong>
+                <p>Apresente sua empresa ao público do PCH News com espaços publicitários pensados para a sua campanha.</p>
+                <a href="/anuncie#formatos">Anuncie no PCH News <ArrowRight size={14} /></a>
               </div>
             </div>
           </aside>
