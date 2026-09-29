@@ -430,7 +430,16 @@ export const appRouter = router({
   }),
   access: router({ list: adminProcedure.query(async ({ ctx }) => { return listUsers(ctx.accessToken); }), setRole: adminProcedure.input(z.object({ openId: z.string(), role: z.enum(["user", "admin", "editor", "journalist", "columnist", "reviewer"]) })).mutation(async ({ input, ctx }) => { return setUserRole(input.openId,input.role,ctx.accessToken); }) }),
   pilulas: router({ sync: adminProcedure.mutation(({ ctx }) => syncHostingPressPilulas(ctx.accessToken)) }),
-  invites: router({
+  invitation: protectedProcedure.query(async ({ ctx }) => {
+      const db = getSupabaseAdmin();
+      const email = (ctx.user.email || "").trim().toLowerCase();
+      if (!email) return null;
+      const { data, error } = await db.from("columnistInvites").select("id,name,email,slug,createdAtMs,expiresAtMs,acceptedAtMs,responsibilityAcceptedAtMs,responsibilityVersion,partnershipAcceptedAtMs,partnershipVersion,confidentialityAcceptedAtMs,confidentialityVersion,termsAcceptedTermsId").eq("email", email).order("createdAtMs", { ascending: false }).limit(1).maybeSingle();
+      if (error) throw error;
+      if (!data) return null;
+      return { ...data, role: roleFromInviteId(data.id) };
+    }),
+    invites: router({
     list: adminProcedure.query(({ ctx }) => listInvites(ctx.accessToken)),
     revoke: adminProcedure.input(z.object({ id: z.string() })).mutation(({ input, ctx }) => revokeInvite(input.id, ctx.accessToken)),
     delete: adminProcedure.input(z.object({ id: z.string() })).mutation(({ input, ctx }) => deleteInvite(input.id, ctx.accessToken)),
