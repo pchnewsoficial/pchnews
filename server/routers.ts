@@ -75,7 +75,7 @@ export const appRouter = router({
   }),
   auth: router({ me: publicProcedure.query((opts) => opts.ctx.user), logout: publicProcedure.mutation(({ ctx }) => { const cookieOptions = getSessionCookieOptions(ctx.req); ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 }); return { success: true } as const; }) }),
   editorialAgents: router({
-    access: protectedProcedure.query(async ({ ctx }) => ({ enabled: await getEditorialAgentAccess(ctx.user.role, ctx.accessToken), role: ctx.user.role })),
+    access: protectedProcedure.query(async ({ ctx }) => { const roles = ["editor","journalist","columnist","reviewer"] as const; if (ctx.user.role === "admin") { const db = getSupabaseAdmin(); const { data, error } = await db.from("editorialAgentAccess").select("role,enabled").eq("agentId","*"); if (error) throw error; const roleAccess = Object.fromEntries(roles.map((role) => [role, Boolean((data || []).find((row: any) => row.role === role)?.enabled)])); return { enabled: true, role: "admin" as const, roles: roleAccess }; } const enabled = await getEditorialAgentAccess(ctx.user.role, ctx.accessToken); return { enabled, role: ctx.user.role, roles: { [ctx.user.role]: enabled } as Record<string, boolean> }; }),
     setAccess: adminProcedure.input(z.object({ role: z.enum(["editor","journalist","columnist","reviewer"]), enabled: z.boolean() })).mutation(({ input, ctx }) => setEditorialAgentAccess(input.role, input.enabled, ctx.accessToken)),
     run: protectedProcedure.input(z.object({
       articleId: z.string().min(1),
