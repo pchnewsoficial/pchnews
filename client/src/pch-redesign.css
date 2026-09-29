@@ -403,3 +403,35 @@
 @media (max-width:700px){
   .ad-banner{min-height:0!important;padding:18px 16px!important;gap:14px!important;margin-top:16px!important;margin-bottom:20px!important;}
 }
+
+
+/* Desktop: header actions occupy their own protected layer inside the top row.
+   They must never share visual space with the category navigation below. */
+@media (min-width:981px){
+  .site-header .header-main{
+    position:relative!important;
+    z-index:300!important;
+    isolation:isolate;
+    overflow:visible!important;
+    min-height:72px;
+  }
+  .site-header .header-actions{
+    position:absolute!important;
+    top:50%!important;
+    right:0!important;
+    transform:translateY(-50%)!important;
+    z-index:500!important;
+    display:flex!important;
+    align-items:center!important;
+    visibility:visible!important;
+    opacity:1!important;
+    pointer-events:auto!important;
+  }
+  .site-header .header-actions > *{position:relative!important;z-index:501!important;}
+  .site-header .nav-wrap{
+    position:relative!important;
+    z-index:20!important;
+    clear:both!important;
+  }
+  .site-header .header-motto{padding-right:250px;}
+}
