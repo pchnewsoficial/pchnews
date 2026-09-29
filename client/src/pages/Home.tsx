@@ -43,7 +43,7 @@ export default function Home() {
   const [activeAdSlide, setActiveAdSlide] = useState(0);
   const [adPaused, setAdPaused] = useState(false);
   const [hostingpressChannels] = useState(() => [...HOSTINGPRESS_CHANNELS].sort(() => Math.random() - 0.5));
-  const { data: managedAds = [] } = trpc.ads.active.useQuery(undefined, { retry: false, staleTime: 60_000 });
+  const { data: managedAds = [] } = trpc.ads.active.useQuery(undefined, { retry: false, staleTime: 10_000 });
   const [now, setNow] = useState(() => new Date());
   // Weather defaults to São Paulo; the visitor's own location is only used when
   // permission was already granted or after clicking the weather chip.
