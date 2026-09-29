@@ -10,6 +10,9 @@ export type EditorialAgentId =
   | "multi-platform-distributor"
   | "liberdade-editorial"
   | "beyond-news"
+  | "pauta-triage"
+  | "workflow-gate"
+  | "source-readiness"
   | "journalism-master-orchestrator";
 
 export type EditorialArticleInput = {
@@ -71,6 +74,64 @@ const parseTags = (value: string) => {
 function base(article: EditorialArticleInput) {
   const body = stripHtml(article.bodyHtml || "");
   return { body, words: body ? body.split(/\s+/).length : 0, sentences: sentences(body) };
+}
+
+
+function pautaTriage(article: EditorialArticleInput): AgentResult {
+  const findings: AgentFinding[] = [];
+  const title = article.title.trim();
+  const summary = article.summary.trim();
+  const body = base(article).body;
+  const tags = parseTags(article.tags);
+  if (!title) findings.push({ severity: "block", code: "pauta-missing-title", message: "A pauta não tem título definido." });
+  if (!summary) findings.push({ severity: "warning", code: "pauta-missing-briefing", message: "Falta um resumo/briefing para orientar a apuração." });
+  if (!article.category.trim()) findings.push({ severity: "block", code: "pauta-missing-editoria", message: "A pauta precisa de uma editoria." });
+  const priority = /(urgente|agora|hoje|morreu|morte|alerta|risco|crise|decisão)/i.test(title + " " + summary) ? "high" : body.length < 500 ? "normal" : "normal";
+  const suggestedAngle = summary || title;
+  const sourceChecklist = [
+    "Fonte primária ou documento original",
+    "Data e horário da informação",
+    "Quem confirma ou contesta o fato",
+    "Dados e números usados na matéria",
+    "Contexto mínimo para o leitor"
+  ];
+  if (!tags.length) findings.push({ severity: "info", code: "pauta-no-tags", message: "A pauta ainda não possui tags.", suggestion: "Adicione termos que ajudem a organizar a cobertura." });
+  return {
+    agentId: "pauta-triage",
+    agentName: "Agente de Pauta",
+    status: findings.some((f) => f.severity === "block") ? "block" : findings.some((f) => f.severity === "warning") ? "review" : "pass",
+    findings,
+    output: { priority, suggestedAngle, sourceChecklist, suggestedTags: tags.slice(0, 8), nextStep: "Apurar, registrar fontes e devolver para revisão editorial." }
+  };
+}
+
+function workflowGate(article: EditorialArticleInput): AgentResult {
+  const findings: AgentFinding[] = [];
+  const body = base(article).body;
+  if (!article.title.trim()) findings.push({ severity: "block", code: "workflow-title", message: "Não pode avançar sem título." });
+  if (!article.author.trim()) findings.push({ severity: "block", code: "workflow-author", message: "Não pode avançar sem autoria." });
+  if (!article.category.trim()) findings.push({ severity: "block", code: "workflow-category", message: "Não pode avançar sem editoria." });
+  if (!article.summary.trim()) findings.push({ severity: "block", code: "workflow-summary", message: "Não pode avançar sem resumo." });
+  if (body.length < 180) findings.push({ severity: "block", code: "workflow-body", message: "O corpo ainda está curto para avançar no fluxo." });
+  if (article.status === "scheduled" && !article.scheduledAt) findings.push({ severity: "block", code: "workflow-schedule", message: "Agendamento sem data/hora." });
+  const next = findings.length ? "review" : article.status === "draft" ? "review" : article.status === "review" ? "approved" : article.status === "approved" ? "scheduled" : article.status === "scheduled" ? "published" : article.status;
+  return {
+    agentId: "workflow-gate",
+    agentName: "Agente de Fluxo Editorial",
+    status: findings.some((f) => f.severity === "block") ? "block" : "pass",
+    findings,
+    output: { currentStatus: article.status, suggestedNextStatus: next, humanApprovalRequired: true, rule: "Nenhum agente publica sozinho." }
+  };
+}
+
+function sourceReadiness(article: EditorialArticleInput): AgentResult {
+  const { body } = base(article);
+  const findings: AgentFinding[] = [];
+  const urls = (article.bodyHtml || "").match(/https?:\/\/[^"'\s<]+/gi) || [];
+  const attribution = sentences(body).filter((line) => /\b(segundo|afirmou|disse|informou|de acordo com|apontou)\b/i.test(line));
+  if (!urls.length) findings.push({ severity: "warning", code: "source-no-links", message: "Nenhum link de fonte foi encontrado no conteúdo." });
+  if (attribution.length) findings.push({ severity: "info", code: "source-attribution", message: `${attribution.length} trecho(s) usam atribuição e devem ter a fonte correspondente registrada.` });
+  return { agentId: "source-readiness", agentName: "Agente de Fontes", status: findings.some((f) => f.severity === "warning") ? "review" : "pass", findings, output: { sourceLinks: urls, attributedClaims: attribution, readyForHumanVerification: true } };
 }
 
 function storyEditor(article: EditorialArticleInput): AgentResult {
@@ -230,6 +291,9 @@ function liberdadeEditorial(article: EditorialArticleInput): AgentResult {
 export function runEditorialAgent(agentId: EditorialAgentId, article: EditorialArticleInput, researchContext?: EditorialResearchContext): AgentResult {
   const enrichedArticle = researchContext ? { ...article, researchContext } : article;
   switch (agentId) {
+    case "pauta-triage": return pautaTriage(enrichedArticle);
+    case "workflow-gate": return workflowGate(enrichedArticle);
+    case "source-readiness": return sourceReadiness(enrichedArticle);
     case "story-editor": return storyEditor(enrichedArticle);
     case "fact-checker": return factChecker(enrichedArticle);
     case "seo-optimization-specialist": return seo(enrichedArticle);
@@ -240,6 +304,9 @@ export function runEditorialAgent(agentId: EditorialAgentId, article: EditorialA
     case "beyond-news": return beyondNews(enrichedArticle);
     case "journalism-master-orchestrator": {
       const results = [
+        pautaTriage(enrichedArticle),
+        workflowGate(enrichedArticle),
+        sourceReadiness(enrichedArticle),
         storyEditor(enrichedArticle),
         factChecker(enrichedArticle),
         seo(enrichedArticle),
