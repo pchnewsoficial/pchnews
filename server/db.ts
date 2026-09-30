@@ -438,3 +438,43 @@ export async function updateEvent(id: string, input: any, accessToken?: string |
   if (error) throw error;
   return { success: true };
 }
+
+
+export async function listEditorialSubthemes(includeInactive = false, accessToken?: string | null) {
+  const db = includeInactive ? await getDb(accessToken) : getSupabasePublic();
+  if (!db) return [];
+  let query = db.from("editorialSubthemes").select("*").order("sortOrder", { ascending: true }).order("label", { ascending: true });
+  if (!includeInactive) query = query.eq("active", true);
+  const { data, error } = await query;
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function saveEditorialSubtheme(input: { id?: string; label: string; parentCategory?: string; sortOrder?: number; active?: boolean }, accessToken?: string | null) {
+  const db = await getDb(accessToken);
+  if (!db) throw new Error("Database unavailable");
+  const label = input.label.trim().slice(0, 120);
+  if (!label) throw new Error("O nome do tema é obrigatório.");
+  const slug = label.toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  if (!slug) throw new Error("Não foi possível gerar um identificador para o tema.");
+  const payload = {
+    ...(input.id ? { id: input.id } : {}),
+    label,
+    slug,
+    parentCategory: (input.parentCategory || "Sociedade").trim().slice(0, 120),
+    sortOrder: Number.isFinite(input.sortOrder) ? Math.max(0, Math.round(input.sortOrder as number)) : 0,
+    active: input.active !== false,
+    updatedAt: new Date().toISOString(),
+  };
+  const { data, error } = await db.from("editorialSubthemes").upsert(payload, { onConflict: input.id ? "id" : "slug" }).select("*").single();
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteEditorialSubtheme(id: string, accessToken?: string | null) {
+  const db = await getDb(accessToken);
+  if (!db) throw new Error("Database unavailable");
+  const { error } = await db.from("editorialSubthemes").delete().eq("id", id);
+  if (error) throw error;
+  return { id };
+}
