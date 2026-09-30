@@ -80,7 +80,7 @@ export async function getUserByOpenId(openId:string, accessToken?: string | null
   if(error) throw error; return data ?? undefined;
 }
 export async function getEditorialSnapshot(includePrivate=false, accessToken?: string | null) {
-  const db=includePrivate ? await getDb(accessToken) : getSupabaseAdmin();
+  const db=includePrivate ? await getDb(accessToken) : getSupabasePublic();
   if(!db) return {articles:[],comments:[],profiles:[],adRequests:[]};
   const articlesQ=includePrivate?db.from("articles").select("*"):db.from("articles").select("*").in("status",["published","updated"]);
   const commentsQ=includePrivate?db.from("comments").select("*"):db.from("comments").select("*").eq("status","approved");
