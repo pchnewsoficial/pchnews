@@ -12,9 +12,10 @@ import Stats from "./Stats";
 import { EDITORIAL_AGENTS } from "./EditorialAgents";
 import EditorialCommandCenter from "./EditorialCommandCenter";
 import ApiHubPanel from "@/components/ApiHubPanel";
+import EditorialSubthemesAdmin from "@/components/EditorialSubthemesAdmin";
 import { ArticleStatus, EDITORIAL_CATEGORIES, EDITORIAL_SCOPES, EDITORIAL_CONTENT_TYPES, EDITORIAL_CHECKLIST_DEFAULT, EDITORIAL_CHECKLIST_LABELS, MediaAsset, NewsArticle, makeArticleId, statusLabels } from "@/lib/news";
 
-type View = "overview" | "articles" | "media" | "settings" | "team" | "profile" | "comments" | "ads" | "stats" | "audit" | "apiHub" | "hostingPress" | "events" | "editorialRequests";
+type View = "overview" | "articles" | "media" | "settings" | "team" | "profile" | "comments" | "ads" | "stats" | "audit" | "apiHub" | "hostingPress" | "events" | "editorialRequests" | "subthemes";
 type AccessUser = { id: number; openId: string; name: string | null; email: string | null; role: "user" | "admin" | "editor" | "journalist" | "columnist" | "reviewer"; lastSignedIn: Date };
 import officialLogoUrl from "@/assets/pch-news-official-current.svg";
 const LOGO_URL = officialLogoUrl;
@@ -488,6 +489,7 @@ export default function Admin() {
     ]},
     { label: "Equipe e conteúdo", items: [
       ...(isAdmin ? [{ id: "team" as View, label: "Colunistas e equipe", icon: Users }] : []),
+      ...(isAdmin ? [{ id: "subthemes" as View, label: "Temas específicos", icon: MoreHorizontal }] : []),
       { id: "media", label: "Mídia", icon: FolderOpen },
       { id: "comments", label: "Comentários", icon: MessageCircle },
       ...(isAdmin ? [{ id: "ads" as View, label: "Anúncios", icon: Megaphone }] : []),
@@ -546,6 +548,7 @@ export default function Admin() {
           {view === "profile" && (isAdmin ? <AdminAccountProfile user={user} roleLabel={roleLabels[currentRole as AccessUser["role"]] || "Administrador"} /> : <ProfileEditor profile={profiles[slugify(currentAuthor)] || Object.values(profiles)[0]} onSave={saveProfile} onUpload={uploadProfilePhoto} notify={notify} />)}
           {view === "media" && <MediaLibrary media={media} onUpload={uploadMedia} onDelete={(id) => { if (window.confirm("Remover esta mídia do armazenamento?")) mediaDelete.mutate({ key: id }); }} />}
           {view === "team" && isAdmin && <><AccessSettings users={accessUsers} onRoleChange={(openId, role) => setRole.mutate({ openId, role })} /><ProfileCommercialAdmin profiles={profiles} onToggle={(profile, approved) => profileSave.mutate({ ...profile, productsJson: typeof profile.productsJson === "string" ? profile.productsJson : JSON.stringify(profile.productsJson || []), commercialApproved: approved }, { onSuccess: () => { notify(approved ? "Divulgação aprovada." : "Divulgação retirada."); void refetchEditorial(); }, onError: (error) => notify(error.message) })} /></>}
+          {view === "subthemes" && isAdmin && <EditorialSubthemesAdmin notify={notify} />}
           {view === "settings" && isAdmin && <section className="panel"><div className="admin-heading compact"><div><span className="admin-kicker">CONFIGURAÇÕES</span><h1>Configurações<span>.</span></h1><p>Preferências administrativas do PCH News.</p></div></div><p className="editor-note">As funções de equipe e convites ficam no módulo <strong>Colunistas e equipe</strong>, no menu lateral.</p></section>}
         </main>
       </div>
