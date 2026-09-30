@@ -31,18 +31,22 @@ export async function upsertUser(user: InsertUser, _accessToken?: string | null)
   const isOwner = (user.email ?? "").trim().toLowerCase() === "pchnews.oficial@gmail.com";
 
   if (existing.data) {
-    // Keep the owner account as admin even if its role was changed by mistake
-    // (e.g. accepting a test invite or editing the team list).
-    const writer = adminDb ?? publicDb!;
-    const { error } = await writer.from("users").update({
-      ...(isOwner && existing.data.role !== "admin" && adminDb ? { role: "admin" } : {}),
-      // Never overwrite a name edited in the panel with the provider/e-mail fallback.
-      name: existing.data.name || user.name || null,
-      email: user.email ?? null,
-      loginMethod: user.loginMethod ?? "supabase",
-      lastSignedIn: new Date(),
-    }).eq("openId", user.openId);
-    if (error) throw error;
+    // An existing user is already authenticated and can continue with the role
+    // loaded from public.users. Do not perform a normal-user UPDATE here: the
+    // current RLS policy intentionally reserves UPDATE on users for admins, and
+    // a failed profile sync must never turn a valid login into an authentication
+    // failure. Privileged role/name synchronization remains available when the
+    // server has the service-role client.
+    if (adminDb) {
+      const { error } = await adminDb.from("users").update({
+        ...(isOwner && existing.data.role !== "admin" ? { role: "admin" } : {}),
+        name: existing.data.name || user.name || null,
+        email: user.email ?? null,
+        loginMethod: user.loginMethod ?? "supabase",
+        lastSignedIn: new Date(),
+      }).eq("openId", user.openId);
+      if (error) throw error;
+    }
     return;
   }
 
