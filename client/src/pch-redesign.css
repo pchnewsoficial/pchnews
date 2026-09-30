@@ -1195,7 +1195,7 @@ a.footer-social-link:hover{transform:translateY(-1px);border-color:var(--gold,#c
   border-radius:5px;
   background:#fff;
   color:#25313b;
-  font-size:8px;
+  font-size:7.5px;
   font-weight:750;
   line-height:1.15;
   text-align:center;
@@ -1232,11 +1232,11 @@ a.footer-social-link:hover{transform:translateY(-1px);border-color:var(--gold,#c
 }
 .more-menu-anchor .more-menu{
   position:absolute;
-  left:calc(100% + 10px);
+  left:calc(100% + 7px);
   top:50%;
   transform:translateY(-50%);
-  width:min(680px,calc(100vw - 40px));
-  max-width:680px;
+  width:min(500px,calc(100vw - 260px));
+  max-width:500px;
   padding:0;
   margin:0;
   overflow:hidden;
@@ -1247,13 +1247,13 @@ a.footer-social-link:hover{transform:translateY(-1px);border-color:var(--gold,#c
   z-index:1400;
 }
 .more-menu-anchor .more-menu-topics{
-  padding:9px 11px 10px;
+  padding:7px 8px 8px;
   background:#fbfcfd;
 }
 .more-menu-topics-title{
   display:flex;
   align-items:center;
-  margin-bottom:7px;
+  margin-bottom:5px;
 }
 .more-menu-topics-title .more-menu-label{
   font-size:8px;
@@ -1268,12 +1268,12 @@ a.footer-social-link:hover{transform:translateY(-1px);border-color:var(--gold,#c
 }
 .more-menu-anchor .more-topics-grid{
   display:grid;
-  grid-template-columns:repeat(6,minmax(0,1fr));
-  gap:5px;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:4px;
 }
 .more-menu-anchor .more-topics-grid button{
-  min-height:31px;
-  padding:5px 6px;
+  min-height:27px;
+  padding:4px 5px;
   border:1px solid #e0e5ea;
   border-radius:5px;
   background:#fff;
