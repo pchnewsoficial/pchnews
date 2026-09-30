@@ -40,6 +40,17 @@ export default function Home() {
   const [moreOpen, setMoreOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const slug = new URLSearchParams(window.location.search).get("tema");
+    if (!slug) return;
+    const match = (editorialSubthemes as any[]).find((topic: any) => topic.slug === slug);
+    if (match) {
+      setActiveTopic(match.label);
+      setActiveCategory(match.parentCategory || "Todas");
+    }
+  }, [editorialSubthemes]);
+
   const [activeSlide, setActiveSlide] = useState(0);
   const [activeAdSlide, setActiveAdSlide] = useState(0);
   const [adPaused, setAdPaused] = useState(false);
