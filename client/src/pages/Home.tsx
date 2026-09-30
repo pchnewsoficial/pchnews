@@ -292,22 +292,21 @@ export default function Home() {
         <div className={`nav-wrap ${menuOpen ? "is-open" : ""}`}>
           <nav id="primary-navigation" className="container primary-nav" aria-label="Navegação principal">
             {categories.filter((category) => category === "Todas" || category === "Regiões" || category === "Internacional" || populatedCategories.has(category)).map((category) => <button key={category} className={activeCategory === category && !activeTopic ? "active" : ""} onClick={() => { setActiveCategory(category); setActiveTopic(null); setMenuOpen(false); setMoreOpen(false); }}>{category.toUpperCase()}</button>)}
-            <button className={`more-trigger ${moreOpen ? "active" : ""}`} type="button" aria-expanded={moreOpen} aria-haspopup="menu" onClick={() => setMoreOpen((open) => !open)}>+ MAIS <ChevronDown size={14} /></button>
-
-          </nav>
-          {moreOpen && <div className="more-menu" role="menu">
-              <div className="more-menu-section more-menu-topics">
-                <button type="button" className="more-menu-topics-trigger" aria-expanded="true" aria-controls="more-topics-panel">
-                  <span><span className="more-menu-label">TEMAS ESPECÍFICOS</span><small>Explore os assuntos por tema</small></span>
-                  <ChevronDown size={16} aria-hidden="true" />
-                </button>
-                <div id="more-topics-panel" className="more-topics-panel">
-                  <div className="more-topics-grid">
-                    {editorialSubthemes.map((topic: any) => <button key={topic.id || topic.slug} type="button" role="menuitem" className={activeTopic === topic.label ? "is-selected" : ""} onClick={() => { setActiveTopic(topic.label); setActiveCategory(topic.parentCategory || "Todas"); setMoreOpen(false); setMenuOpen(false); }}>{topic.label}</button>)}
+            <div className="more-menu-anchor">
+              <button className={`more-trigger ${moreOpen ? "active" : ""}`} type="button" aria-expanded={moreOpen} aria-haspopup="menu" onClick={() => setMoreOpen((open) => !open)}>+ MAIS <ChevronDown size={14} /></button>
+              {moreOpen && <div className="more-menu" role="menu" aria-label="Temas específicos">
+                <div className="more-menu-section more-menu-topics">
+                  <div className="more-menu-topics-title"><span className="more-menu-label">TEMAS ESPECÍFICOS</span></div>
+                  <div id="more-topics-panel" className="more-topics-panel">
+                    <div className="more-topics-grid">
+                      {editorialSubthemes.map((topic: any) => <button key={topic.id || topic.slug} type="button" role="menuitem" className={activeTopic === topic.label ? "is-selected" : ""} onClick={() => { setActiveTopic(topic.label); setActiveCategory(topic.parentCategory || "Todas"); setMoreOpen(false); setMenuOpen(false); }}>{topic.label}</button>)}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>}
+              </div>}
+            </div>
+
+          </nav>
         </div>
         {searchOpen && <div className="search-row container"><Search size={17} /><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar no PCH News..." aria-label="Buscar no PCH News" />{query && <button onClick={() => setQuery("")} aria-label="Limpar busca"><X size={16} /></button>}<span>{visible.length} resultados</span></div>}
       </header>
