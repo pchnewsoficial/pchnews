@@ -178,7 +178,7 @@ export default function Admin() {
   const canManageArticle = (article: NewsArticle) => isAdmin || currentRole === "editor" || ((currentRole === "journalist" || currentRole === "columnist") && ((Boolean(article.authorOpenId) && article.authorOpenId === user?.openId) || article.author === currentAuthor));
   const [, navigate] = useLocation();
 
-  const saveProfile = (profile: ProfileData) => { const next = { ...profiles, [profile.slug]: profile }; setProfiles(next); profileSave.mutate(profile, { onSuccess: () => notify("Perfil atualizado e publicado no banco."), onError: () => notify("Não foi possível salvar o perfil agora.") }); };
+  const saveProfile = (profile: ProfileData) => { const next = { ...profiles, [profile.slug]: profile }; setProfiles(next); profileSave.mutate(profile, { onSuccess: () => notify("Perfil atualizado e publicado no banco."), onError: (error) => { notify(error.message || "Não foi possível salvar o perfil agora."); } }); };
   const uploadProfilePhoto = async (file: File, setUrl: (url: string) => void) => { try { const bytes = new Uint8Array(await file.arrayBuffer()); let binary = ""; bytes.forEach((byte) => { binary += String.fromCharCode(byte); }); const result = await profileUpload.mutateAsync({ slug: slugify(currentAuthor), fileName: file.name, contentType: file.type as "image/png" | "image/jpeg" | "image/webp" | "image/gif", base64: btoa(binary) }); setUrl(result.url); notify("Foto enviada para o armazenamento seguro."); } catch { notify("Não foi possível enviar a foto."); } };
   const logout = async () => { await oauthLogout(); navigate("/login"); };
 
