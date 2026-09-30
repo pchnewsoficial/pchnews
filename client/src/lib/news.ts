@@ -24,7 +24,7 @@ export type NewsArticle = {
   sourceUrl?: string | null;
   sourceName?: string | null;
   youtubeUrl?: string | null;
-  socialLinks?: { instagram?: string; facebook?: string; x?: string; linkedin?: string; tiktok?: string; website?: string };
+  socialLinks?: { instagram?: string; facebook?: string; x?: string; linkedin?: string; youtube?: string; tiktok?: string; website?: string };
   slug?: string | null; seoTitle?: string | null; metaDescription?: string | null; canonicalUrl?: string | null; focusKeyword?: string | null; ogTitle?: string | null; ogDescription?: string | null; imageAlt?: string | null; noindex?: boolean;
   contentType?: EditorialContentType; editionNumber?: number | null; authorProfileSlug?: string | null; editorialChecklist?: EditorialChecklist; editorialNotes?: string | null; contraponto?: string | null; keyTakeaway?: string | null;
 };
