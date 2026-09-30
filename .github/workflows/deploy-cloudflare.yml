@@ -244,3 +244,4 @@ jobs:
 # Manual production redeploy trigger: keep deployment synchronized with main.
 
 # Production deployment trigger audit: 2026-09-29.
+# Manual redeploy requested after confirming main was not published: 2026-09-30.
