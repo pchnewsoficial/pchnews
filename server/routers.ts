@@ -463,7 +463,10 @@ export const appRouter = router({
       return data;
     }),
   }),
-  access: router({ list: adminProcedure.query(async ({ ctx }) => { return listUsers(ctx.accessToken); }), setRole: adminProcedure.input(z.object({ openId: z.string(), role: z.enum(["user", "admin", "editor", "journalist", "columnist", "reviewer"]) })).mutation(async ({ input, ctx }) => { return setUserRole(input.openId,input.role,ctx.accessToken); }) }),\n  editorialSubthemes: router({\n    list: publicProcedure.query(() => listEditorialSubthemes(false)),\n    adminList: adminProcedure.query(({ ctx }) => listEditorialSubthemes(true, ctx.accessToken)),\n    save: adminProcedure.input(z.object({ id: z.string().uuid().optional(), label: z.string().min(1).max(120), parentCategory: z.string().max(120).optional(), sortOrder: z.number().int().min(0).optional(), active: z.boolean().optional() })).mutation(({ input, ctx }) => saveEditorialSubtheme(input, ctx.accessToken)),\n    remove: adminProcedure.input(z.object({ id: z.string().uuid() })).mutation(({ input, ctx }) => deleteEditorialSubtheme(input.id, ctx.accessToken)),\n  }),
+  access: router({ list: adminProcedure.query(async ({ ctx }) => { return listUsers(ctx.accessToken); }), setRole: adminProcedure.input(z.object({ openId: z.string(), role: z.enum(["user", "admin", "editor", "journalist", "columnist", "reviewer"]) })).mutation(async ({ input, ctx }) => { return setUserRole(input.openId,input.role,ctx.accessToken); }) }),
+  editorialSubthemes: router({
+    list: publicProcedure.query(() => listEditorialSubthemes(false)),\n    adminList: adminProcedure.query(({ ctx }) => listEditorialSubthemes(true, ctx.accessToken)),\n    save: adminProcedure.input(z.object({ id: z.string().uuid().optional(), label: z.string().min(1).max(120), parentCategory: z.string().max(120).optional(), sortOrder: z.number().int().min(0).optional(), active: z.boolean().optional() })).mutation(({ input, ctx }) => saveEditorialSubtheme(input, ctx.accessToken)),\n    remove: adminProcedure.input(z.object({ id: z.string().uuid() })).mutation(({ input, ctx }) => deleteEditorialSubtheme(input.id, ctx.accessToken)),
+  }),
   pilulas: router({ sync: adminProcedure.mutation(({ ctx }) => syncHostingPressPilulas(ctx.accessToken)) }),
   invitation: protectedProcedure.query(async ({ ctx }) => {
       const db = getSupabaseAdmin();
