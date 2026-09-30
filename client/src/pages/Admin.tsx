@@ -697,6 +697,7 @@ export default function Admin() {
         <div className="editor-actions">
           <button type="button" className="preview-cta" onClick={openDraftPreview}><Eye size={15} /> Visualizar</button>
           <button type="button" className="secondary-cta" onClick={() => setEditorOpen(false)}>Cancelar</button>
+          {isAdmin && <button type="button" className="secondary-cta" onClick={() => { window.open("https://hostingpress.com.br/login", "_blank", "noopener,noreferrer"); notify("HostingPress aberto em uma nova aba para publicação."); }}><ExternalLink size={15} /> Publicar também no HostingPress</button>}
           <button type="submit" className="primary-cta"><Check size={16} /> {editing ? "Salvar alterações" : "Salvar notícia"}</button>
         </div>
       </form>
