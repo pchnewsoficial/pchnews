@@ -3396,3 +3396,13 @@ main > .home-page:first-child{
     width:min(78vw,220px)!important;
   }
 }
+
+/* PCH News — ajuda contextual do Editor Editorial */
+.editor-guide{display:flex;flex-direction:column;gap:3px;margin:0 0 18px;padding:12px 14px;border:1px solid var(--border,#e5e7eb);border-left:3px solid var(--gold,#b38b2e);border-radius:10px;background:var(--muted,#f8fafc);color:var(--text,#1f2937);font-size:12px;line-height:1.45}
+.editor-guide strong{font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+.editor-field-help{display:block;margin:3px 0 6px;color:var(--muted-foreground,#64748b);font-size:10.5px;font-weight:400;line-height:1.35}
+.editor-field-caption{display:block;font-weight:600;line-height:1.2}
+.editor-document-title .editor-field-help{max-width:760px;margin-bottom:8px}
+.editor-document-summary .editor-field-help{max-width:760px}
+.editor-option-section>.editor-field-help{margin:-2px 0 10px}
+.editor-advanced>.editor-field-help{margin:6px 0 10px}
