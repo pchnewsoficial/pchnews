@@ -296,14 +296,6 @@ export default function Home() {
 
           </nav>
           {moreOpen && <div className="more-menu" role="menu">
-              <div className="more-menu-section more-menu-shortcuts">
-                <span className="more-menu-label">ACESSOS RÁPIDOS</span>
-                <div className="more-menu-grid more-menu-grid-shortcuts">
-                  <Link href="/eventos" role="menuitem" className="more-menu-link">Agenda de eventos</Link>
-                  <Link href="/anuncie" role="menuitem" className="more-menu-link">Anuncie no PCH News</Link>
-                  <Link href="/parceiros" role="menuitem" className="more-menu-link">Parceiros</Link>
-                </div>
-              </div>
               <div className="more-menu-section more-menu-topics">
                 <button type="button" className="more-menu-topics-trigger" aria-expanded="true" aria-controls="more-topics-panel">
                   <span><span className="more-menu-label">TEMAS ESPECÍFICOS</span><small>Explore os assuntos por tema</small></span>
