@@ -3,7 +3,7 @@ import officialLogoUrl from "@/assets/pch-news-official-current.svg";
 import { ArrowLeft, ArrowRight, Bookmark, CalendarDays, Megaphone, ChevronDown, Clock3, Eye, Home as HomeIcon, MapPin, Menu, Search, Thermometer, UserRound, X } from "lucide-react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { EDITORIAL_CATEGORIES, EDITORIAL_SUBTHEMES, NewsArticle } from "@/lib/news";
+import { EDITORIAL_CATEGORIES, NewsArticle } from "@/lib/news";
 import PublicFooter from "@/components/PublicFooter";
 import PageMeta from "@/components/PageMeta";
 import { editorialImageUrl } from "@/lib/editorialImage";
@@ -33,6 +33,7 @@ export default function Home() {
   // Supabase is the only source of editorial content. Do not seed or read articles from browser storage.
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const { data: remoteEditorial, isLoading: editorialLoading, error: editorialError, refetch: refetchEditorial } = trpc.editorial.bootstrap.useQuery(undefined, { retry: 2, retryDelay: 1200, staleTime: 5_000, refetchInterval: 5_000, refetchIntervalInBackground: true });
+  const { data: editorialSubthemes = [] } = trpc.editorialSubthemes.list.useQuery(undefined, { retry: false, staleTime: 60_000 });
   const [activeCategory, setActiveCategory] = useState("Todas");
   const [activeTopic, setActiveTopic] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -294,7 +295,7 @@ export default function Home() {
                 {moreCategories.map((category) => <button key={category} type="button" role="menuitem" className={activeCategory === category && !activeTopic ? "is-selected" : ""} onClick={() => { setActiveCategory(category); setActiveTopic(null); setMoreOpen(false); setMenuOpen(false); }}>{category}</button>)}
               </div></div>
               <div className="more-menu-section"><span className="more-menu-label">TEMAS ESPECÍFICOS</span><div className="more-menu-grid">
-                {EDITORIAL_SUBTHEMES.map((topic) => <button key={topic.label} type="button" role="menuitem" className={activeTopic === topic.label ? "is-selected" : ""} onClick={() => { setActiveTopic(topic.label); setActiveCategory(topic.parent); setMoreOpen(false); setMenuOpen(false); }}>{topic.label}</button>)}
+                {editorialSubthemes.map((topic: any) => <button key={topic.id || topic.slug} type="button" role="menuitem" className={activeTopic === topic.label ? "is-selected" : ""} onClick={() => { setActiveTopic(topic.label); setActiveCategory(topic.parentCategory || "Todas"); setMoreOpen(false); setMenuOpen(false); }}>{topic.label}</button>)}
               </div></div>
             </div>}
         </div>
