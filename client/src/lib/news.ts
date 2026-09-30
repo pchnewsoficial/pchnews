@@ -42,19 +42,6 @@ export const EDITORIAL_CHECKLIST_LABELS: Array<[keyof EditorialChecklist,string]
   ["fatoConfirmado","Fato confirmado"],["fontesIdentificadas","Fontes identificadas"],["dadosConferidos","Nomes, datas e números conferidos"],["contraditorioQuandoNecessario","Contraditório quando necessário"],["fatoOpiniaoSeparados","Fato e opinião separados"],["tituloCorresponde","Título corresponde ao conteúdo"],["aberturaEntregaRelevancia","Abertura entrega a relevância"],["leitorLeigoEntende","Leitor leigo entenderia"],["pchAcrescentaCompreensao","PCH acrescenta compreensão"],["chaveFinal","Há uma chave final"],["comercialIdentificado","Conteúdo comercial identificado"],["imagemDireitoCredito","Imagem com direito/crédito"],["revisaoFinal","Revisão final concluída"]
 ];
 
-/**
- * Secondary editorial taxonomy. These are intentionally subthemes, not new
- * top-level categories, so the main navigation stays compact while the
- * newsroom can classify more specific coverage through tags.
- */
-export const EDITORIAL_SUBTHEMES = [
-  { label: "Terapia e Bem-Estar", parent: "Saúde & Beleza" },
-  { label: "Notícias da Lei", parent: "Lei & Justiça" },
-] as const;
-
-export type EditorialSubtheme = typeof EDITORIAL_SUBTHEMES[number]["label"];
-
-
 export const EDITORIAL_SCOPES: Array<{ id: EditorialScope; label: string }> = [
   { id: "national", label: "Brasil" },
   { id: "regional", label: "Regiões" },
