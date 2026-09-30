@@ -18,6 +18,7 @@ function TikTokIcon() {
 
 export default function PublicFooter() {
   const { data } = trpc.editorial.bootstrap.useQuery(undefined, { retry: false, staleTime: 60_000 });
+  const { data: editorialSubthemes = [] } = trpc.editorialSubthemes.list.useQuery(undefined, { retry: false, staleTime: 60_000 });
   const columnists = (data?.profiles || [])
     .filter((p: any) => p?.name && p?.photo && (p?.role === "columnist" || String(p?.beat || "").toLowerCase().includes("colunista")))
     .slice(0, 12);
@@ -210,6 +211,21 @@ export default function PublicFooter() {
         .site-footer .footer-social-column .footer-social-link span{display:none!important;}
         .site-footer .footer-social-column .footer-social-link svg{width:18px!important;height:18px!important;margin:0!important;}
         .site-footer .footer-social-column .footer-social-note{display:none!important;}
+        .site-footer .footer-themes-list{
+          display:grid;
+          grid-template-columns:repeat(2,minmax(0,1fr));
+          gap:6px 16px;
+        }
+        .site-footer .footer-themes-list a{
+          color:#aeb6c4;
+          font:600 11px/1.35 'DM Sans',sans-serif;
+          transition:color .2s ease;
+        }
+        .site-footer .footer-themes-list a:hover{color:#f0d88d;}
+        @media(max-width:760px){
+          .site-footer .footer-themes-list{grid-template-columns:1fr;}
+        }
+
         @media(max-width:760px){
           .site-footer .footer-news-banner{padding:12px 16px 0;}
           .site-footer .footer-news-banner-inner{grid-template-columns:minmax(0,1fr) auto;gap:10px;min-height:70px;padding:0 12px;}
@@ -266,6 +282,7 @@ export default function PublicFooter() {
           <Link href="/anuncie">Anuncie</Link>
           <Link href="/parceiros">Parceiros</Link>
         </div>
+        <div className="footer-column"><span>TEMAS ESPECÍFICOS</span><div className="footer-themes-list">{(editorialSubthemes as any[]).slice(0, 12).map((topic: any) => <Link key={topic.id || topic.slug} href={`/?tema=${encodeURIComponent(topic.slug)}`}>{topic.label}</Link>)}</div></div>
         <div className="footer-column footer-social-column">
           <span>REDES SOCIAIS</span>
           <div className="footer-socials" aria-label="Redes sociais do PCH News">
