@@ -67,6 +67,10 @@ function sanitizeArticleHtml(html: string) {
     if (node.tagName === "IMG") {
       const src = node.getAttribute("src") || "";
       if (!/^(https?:|\/)/i.test(src)) node.removeAttribute("src");
+      node.setAttribute("loading", "lazy");
+      node.setAttribute("decoding", "async");
+      node.removeAttribute("srcset");
+      node.removeAttribute("sizes");
     }
   });
   return doc.body.innerHTML;
