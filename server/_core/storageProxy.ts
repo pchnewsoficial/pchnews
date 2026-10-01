@@ -9,6 +9,18 @@ export function registerStorageProxy(app: Express) {
       return;
     }
 
+    // Legacy storage keys are opaque, but must never contain traversal or
+    // control characters that could confuse the upstream storage service.
+    if (
+      key.length > 512 ||
+      key.includes("..") ||
+      key.includes("\\") ||
+      /[\u0000-\u001f\u007f]/.test(key)
+    ) {
+      res.status(400).send("Invalid storage key");
+      return;
+    }
+
     if (!ENV.forgeApiUrl || !ENV.forgeApiKey) {
       res.status(500).send("Storage proxy not configured");
       return;
@@ -38,8 +50,24 @@ export function registerStorageProxy(app: Express) {
         return;
       }
 
+      // Only follow absolute HTTP(S) signed URLs. Never redirect to a
+      // javascript:, data:, file:, or malformed target returned by upstream.
+      let signedUrl: URL;
+      try {
+        signedUrl = new URL(url);
+      } catch {
+        res.status(502).send("Invalid signed URL from backend");
+        return;
+      }
+      if (signedUrl.protocol !== "https:" && signedUrl.protocol !== "http:") {
+        res.status(502).send("Invalid signed URL protocol");
+        return;
+      }
+      signedUrl.username = "";
+      signedUrl.password = "";
+
       res.set("Cache-Control", "no-store");
-      res.redirect(307, url);
+      res.redirect(307, signedUrl.toString());
     } catch (err) {
       console.error("[StorageProxy] failed:", err);
       res.status(502).send("Storage proxy error");
