@@ -237,10 +237,6 @@ export default function PublicFooter() {
             padding:28px 30px 22px!important;
           }
           .site-footer .footer-brand-block{grid-column:1;}
-          .site-footer .footer-inner>.footer-column:nth-of-type(1){grid-column:2;}
-          .site-footer .footer-inner>.footer-column:nth-of-type(2){grid-column:3;}
-          .site-footer .footer-inner>.footer-column:nth-of-type(3){grid-column:4;}
-          .site-footer .footer-inner>.footer-column:nth-of-type(4){grid-column:5;}
           .site-footer .footer-inner>.footer-contact-row{
             grid-column:1 / -1;
             display:flex;
