@@ -50,6 +50,22 @@ const profileSchema = z.object({ slug: z.string(), name: z.string(), beat: z.str
 const adSchema = z.object({ id: z.string(), business: z.string(), contact: z.string(), packageName: z.string(), message: z.string(), status: z.enum(["received", "reviewing", "approved"]), createdAtMs: z.number().int() });
 const profileUpdateSchema = z.object({ slug: z.string(), name: z.string().min(1), beat: z.string(), bio: z.string(), photo: z.string(), instagram: z.string(), facebook: z.string(), x: z.string(), linkedin: z.string(), youtube: z.string().default(""), website: z.string().default(""), tiktok: z.string().default(""), productsJson: z.string().default("[]"), commercialApproved: z.boolean().default(false), role: z.string().optional() });
 const uploadSchema = z.object({ slug: z.string().regex(/^[a-z0-9-]{1,120}$/i), fileName: z.string().min(1).max(180).regex(/\.(png|jpe?g|webp|gif)$/i), contentType: z.enum(["image/png", "image/jpeg", "image/webp", "image/gif"]), base64: z.string().min(20).max(8_000_000) });
+
+function validateImageSignature(bytes: Buffer, contentType: string): boolean {
+  if (contentType === "image/png") {
+    return bytes.length >= 8 && bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+  }
+  if (contentType === "image/jpeg") {
+    return bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+  }
+  if (contentType === "image/gif") {
+    return bytes.length >= 6 && (bytes.subarray(0, 6).toString("ascii") === "GIF87a" || bytes.subarray(0, 6).toString("ascii") === "GIF89a");
+  }
+  if (contentType === "image/webp") {
+    return bytes.length >= 12 && bytes.subarray(0, 4).toString("ascii") === "RIFF" && bytes.subarray(8, 12).toString("ascii") === "WEBP";
+  }
+  return false;
+}
 const slugify = (value: string) => Array.from(value.normalize("NFKD").toLowerCase()).filter((char) => !/[\u0300-\u036f]/.test(char)).join("").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 const hashToken = (token: string) => createHash("sha256").update(token).digest("hex");
 
@@ -438,11 +454,11 @@ export const appRouter = router({
       const encoded = input.base64.replace(/^data:[^;]+;base64,/, "");
       const bytes = Buffer.from(encoded, "base64");
       if (bytes.length > 5 * 1024 * 1024) throw new Error("A imagem deve ter no máximo 5 MB.");
-      if (bytes.length === 0) throw new Error("Arquivo de imagem inválido.");
+      if (bytes.length === 0 || !validateImageSignature(bytes, input.contentType)) throw new Error("O conteúdo do arquivo não corresponde ao tipo de imagem informado.");
       return storagePut(`editorial/${ctx.user.openId}/${safeName}`, bytes, input.contentType, ctx.accessToken);
     }),
   }),
-  profiles: router({ save: columnistProcedure.input(profileUpdateSchema).mutation(({ input, ctx }) => { if (ctx.user.role !== "admin" && slugify(ctx.user.name || "") !== input.slug) throw new Error("Você só pode editar o próprio perfil."); let parsed:any[]; try { parsed=JSON.parse(input.productsJson||"[]"); } catch { throw new Error("Produtos e serviços inválidos."); } if(!Array.isArray(parsed)) throw new Error("Produtos e serviços inválidos."); const safeProducts=parsed.slice(0,6).map((item:any)=>({title:String(item.title||"").slice(0,120),description:String(item.description||"").slice(0,300),imageUrl:String(item.imageUrl||"").slice(0,1000),ctaLabel:String(item.ctaLabel||"Conheça").slice(0,40),url:String(item.url||"").slice(0,1000),active:item.active!==false})); const approved=ctx.user.role==="admin"?Boolean(input.commercialApproved):false; return updateColumnistProfile(input.slug,{...input,openId:ctx.user.openId,productsJson:JSON.stringify(safeProducts),commercialApproved:approved},ctx.accessToken); }), uploadPhoto: columnistProcedure.input(uploadSchema).mutation(async ({ input, ctx }) => { if (ctx.user.role !== "admin" && slugify(ctx.user.name || "") !== input.slug) throw new Error("Você só pode editar o próprio perfil."); const safeName = input.fileName.replace(/[^a-zA-Z0-9._-]/g, "-"); const encoded = input.base64.replace(/^data:[^;]+;base64,/, ""); const bytes = Buffer.from(encoded, "base64"); if (bytes.length > 5 * 1024 * 1024 || bytes.length === 0) throw new Error("Arquivo de imagem inválido ou maior que 5 MB."); return storagePut(`columnists/${input.slug}/${safeName}`, bytes, input.contentType, ctx.accessToken); }) }),
+  profiles: router({ save: columnistProcedure.input(profileUpdateSchema).mutation(({ input, ctx }) => { if (ctx.user.role !== "admin" && slugify(ctx.user.name || "") !== input.slug) throw new Error("Você só pode editar o próprio perfil."); let parsed:any[]; try { parsed=JSON.parse(input.productsJson||"[]"); } catch { throw new Error("Produtos e serviços inválidos."); } if(!Array.isArray(parsed)) throw new Error("Produtos e serviços inválidos."); const safeProducts=parsed.slice(0,6).map((item:any)=>({title:String(item.title||"").slice(0,120),description:String(item.description||"").slice(0,300),imageUrl:String(item.imageUrl||"").slice(0,1000),ctaLabel:String(item.ctaLabel||"Conheça").slice(0,40),url:String(item.url||"").slice(0,1000),active:item.active!==false})); const approved=ctx.user.role==="admin"?Boolean(input.commercialApproved):false; return updateColumnistProfile(input.slug,{...input,openId:ctx.user.openId,productsJson:JSON.stringify(safeProducts),commercialApproved:approved},ctx.accessToken); }), uploadPhoto: columnistProcedure.input(uploadSchema).mutation(async ({ input, ctx }) => { if (ctx.user.role !== "admin" && slugify(ctx.user.name || "") !== input.slug) throw new Error("Você só pode editar o próprio perfil."); const safeName = input.fileName.replace(/[^a-zA-Z0-9._-]/g, "-"); const encoded = input.base64.replace(/^data:[^;]+;base64,/, ""); const bytes = Buffer.from(encoded, "base64"); if (bytes.length > 5 * 1024 * 1024 || bytes.length === 0 || !validateImageSignature(bytes, input.contentType)) throw new Error("O conteúdo do arquivo não corresponde ao tipo de imagem informado."); return storagePut(`columnists/${input.slug}/${safeName}`, bytes, input.contentType, ctx.accessToken); }) }),
   comments: router({
     create: publicProcedure.input(z.object({ articleId: z.string().min(1), name: z.string().min(2).max(120), text: z.string().min(2).max(4000) })).mutation(async ({ input, ctx }) => {
       enforcePublicWriteLimit(ctx.req, "comment", 5);
