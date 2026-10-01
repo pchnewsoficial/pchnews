@@ -302,6 +302,7 @@ export const appRouter = router({
       return { id, token, path:`/anuncie?token=${encodeURIComponent(token)}` };
     }),
     record: publicProcedure.input(z.object({ campaignId:z.string().min(1), eventType:z.enum(["impression","click"]) })).mutation(async ({ input, ctx }) => {
+      enforcePublicWriteLimit(ctx.req, "ad-event", 60);
       const db = getSupabaseAdmin();
       const visitorSeed = String(ctx.req.headers["x-forwarded-for"] || ctx.req.headers["user-agent"] || "anonymous");
       const visitorHash = createHash("sha256").update(visitorSeed).digest("hex").slice(0,32);
@@ -439,7 +440,10 @@ export const appRouter = router({
         }
       }
       return { success: true }; }),
-    recordView: publicProcedure.input(z.object({ articleId: z.string().min(1), visitorId: z.string().min(8).max(128) })).mutation(({ input }) => recordArticleView(input.articleId, input.visitorId)),
+    recordView: publicProcedure.input(z.object({ articleId: z.string().min(1), visitorId: z.string().min(8).max(128) })).mutation(({ input, ctx }) => {
+      enforcePublicWriteLimit(ctx.req, "article-view", 30);
+      return recordArticleView(input.articleId, input.visitorId);
+    }),
     analytics: protectedProcedure.input(z.object({ author: z.string().optional(), authorOpenId: z.string().optional(), fromMs: z.number().optional(), toMs: z.number().optional() })).query(({ input, ctx }) => getViewAnalytics(ctx.user.role === "admin" ? input.author : ctx.user.name ?? undefined, ctx.user.role === "admin" ? input.authorOpenId : ctx.user.openId, input.fromMs, input.toMs, ctx.accessToken)),
     audit: adminProcedure.input(z.object({ articleId: z.string().optional() })).query(({ input, ctx }) => listArticleAudit(input.articleId, ctx.accessToken)),
     history: columnistProcedure.input(z.object({ articleId: z.string().min(1) })).query(async ({ input, ctx }) => { const article = await getArticle(input.articleId, ctx.accessToken); if (!article) return []; if (ctx.user.role !== "admin" && article.authorOpenId !== ctx.user.openId) throw new Error("Você não tem acesso ao histórico desta publicação."); return listArticleAudit(input.articleId, ctx.accessToken); }),
@@ -529,7 +533,8 @@ export const appRouter = router({
       const origin = ENV.publicAppUrl || `${ctx.req.protocol}://${ctx.req.get("host")}`;
       return createInviteAccessLink(tokenHash, `${origin}/convite/${encodeURIComponent(input.token.trim().toLowerCase())}`);
     }),
-    preview: publicProcedure.input(z.object({ token: z.string().min(3) })).query(async ({ input, ctx }) => { const raw = input.token.trim().toLowerCase(); const isToken = /^[a-f0-9]{32}$/.test(raw); const tokenHash = isToken ? hashToken(raw) : null; const invite = isToken ? await findInvite(tokenHash!) : await findInviteBySlug(raw); if (!invite || invite.expiresAtMs < Date.now() || invite.revokedAtMs || invite.acceptedAtMs) return { valid: false }; const forwardedFor = (ctx.req as any)?.headers?.["x-forwarded-for"] || (ctx.req as any)?.headers?.["cf-connecting-ip"] || null; const userAgent = typeof (ctx.req as any)?.get === "function" ? (ctx.req as any).get("user-agent") : ((ctx.req as any)?.headers?.["user-agent"] || null); if (tokenHash) { try { await markInviteOpened(tokenHash, typeof forwardedFor === "string" ? forwardedFor.split(",")[0].trim() : null, userAgent); } catch (error) { console.error("[INVITE] open tracking failed:", error); } } return { valid: true, email: invite.email, name: invite.name, role: roleFromInviteId(invite.id), expiresAtMs: invite.expiresAtMs, slug: invite.slug || raw, openedAtMs: Date.now(), manuallyReleased: Boolean((invite as any).manualReleasedAtMs) }; }),
+    preview: publicProcedure.input(z.object({ token: z.string().min(3) })).query(async ({ input, ctx }) => {
+      enforcePublicWriteLimit(ctx.req, "invite-preview", 20); const raw = input.token.trim().toLowerCase(); const isToken = /^[a-f0-9]{32}$/.test(raw); const tokenHash = isToken ? hashToken(raw) : null; const invite = isToken ? await findInvite(tokenHash!) : await findInviteBySlug(raw); if (!invite || invite.expiresAtMs < Date.now() || invite.revokedAtMs || invite.acceptedAtMs) return { valid: false }; const forwardedFor = (ctx.req as any)?.headers?.["x-forwarded-for"] || (ctx.req as any)?.headers?.["cf-connecting-ip"] || null; const userAgent = typeof (ctx.req as any)?.get === "function" ? (ctx.req as any).get("user-agent") : ((ctx.req as any)?.headers?.["user-agent"] || null); if (tokenHash) { try { await markInviteOpened(tokenHash, typeof forwardedFor === "string" ? forwardedFor.split(",")[0].trim() : null, userAgent); } catch (error) { console.error("[INVITE] open tracking failed:", error); } } return { valid: true, email: invite.email, name: invite.name, role: roleFromInviteId(invite.id), expiresAtMs: invite.expiresAtMs, slug: invite.slug || raw, openedAtMs: Date.now(), manuallyReleased: Boolean((invite as any).manualReleasedAtMs) }; }),
     accept: protectedProcedure.input(z.object({ token: z.string().min(3), responsibilityAccepted: z.literal(true), responsibilityVersion: z.string().min(1).max(40), partnershipAccepted: z.literal(true), partnershipVersion: z.string().min(1).max(40), confidentialityAccepted: z.literal(true), confidentialityVersion: z.string().min(1).max(40), termsId: z.string().min(1).max(100) })).mutation(async ({ input, ctx }) => {
       // The invitee is not an admin yet: RLS blocks every step with the user's
       // own JWT. The token is a high-entropy secret validated here, so the
