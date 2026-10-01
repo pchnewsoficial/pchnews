@@ -69,6 +69,15 @@ function validateImageSignature(bytes: Buffer, contentType: string): boolean {
 const slugify = (value: string) => Array.from(value.normalize("NFKD").toLowerCase()).filter((char) => !/[\u0300-\u036f]/.test(char)).join("").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 const hashToken = (token: string) => createHash("sha256").update(token).digest("hex");
 
+function safeExternalUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
 const publicWriteBuckets = new Map<string, { count: number; resetAt: number }>();
 function enforcePublicWriteLimit(req: any, bucket: string, maxRequests: number, windowMs = 60_000) {
   const forwarded = req?.headers?.["cf-connecting-ip"] || req?.headers?.["x-forwarded-for"];
@@ -259,7 +268,7 @@ export const appRouter = router({
     }),
     create: adminProcedure.input(z.object({
       id: z.string().min(2).optional(), advertiserCompany: z.string().min(2), name: z.string().min(2), adType: z.string().min(2),
-      creativeUrl: z.string().url().nullable().optional(), destinationUrl: z.string().url().nullable().optional(), targetScope: z.string().default("national"),
+      creativeUrl: z.string().url().refine(safeExternalUrl, "URL deve usar HTTP ou HTTPS.").nullable().optional(), destinationUrl: z.string().url().refine(safeExternalUrl, "URL deve usar HTTP ou HTTPS.").nullable().optional(), targetScope: z.string().default("national"),
       placementId: z.string().default("home-main"), country: z.string().nullable().optional(), city: z.string().nullable().optional(), priority: z.number().int().min(0).max(100).default(0),
       region: z.string().nullable().optional(), state: z.string().nullable().optional(),
       startsAtMs: z.number().int().nullable().optional(), endsAtMs: z.number().int().nullable().optional(),
@@ -343,11 +352,11 @@ export const appRouter = router({
     create: publicProcedure.input(z.object({
       business: z.string().trim().min(2).max(180), contactName: z.string().trim().min(2).max(120),
       email: z.string().trim().email().max(180), phone: z.string().trim().min(8).max(40),
-      city: z.string().trim().max(120).optional().default(""), website: z.string().trim().max(300).optional().default(""),
+      city: z.string().trim().max(120).optional().default(""), website: z.string().trim().max(300).optional().default("").refine((v) => !v || safeExternalUrl(v), "Website deve usar HTTP ou HTTPS."),
       socials: z.string().trim().max(500).optional().default(""), adType: z.string().trim().min(2).max(120),
       budget: z.string().trim().max(120).optional().default(""), period: z.string().trim().max(120).optional().default(""),
       message: z.string().trim().min(10).max(5000), destinationUrl: z.string().url().nullable().optional(), consent: z.literal(true),
-      creativeUrl: z.string().url().nullable().optional(), creativeNeed: z.enum(["client_artwork", "pch_creation", "no_artwork_yet"]).default("no_artwork_yet"),
+      creativeUrl: z.string().url().refine(safeExternalUrl, "URL deve usar HTTP ou HTTPS.").nullable().optional(), creativeNeed: z.enum(["client_artwork", "pch_creation", "no_artwork_yet"]).default("no_artwork_yet"),
     })).mutation(async ({ input }) => createAdRequest({
       id:`ad-${Date.now()}-${randomBytes(6).toString("hex")}`, business:input.business, contactName:input.contactName,
       email:input.email.toLowerCase(), phone:input.phone, city:input.city||null, website:input.website||null, socials:input.socials||null,
