@@ -226,6 +226,43 @@ export default function PublicFooter() {
           .site-footer .footer-themes-list{grid-template-columns:1fr;}
         }
 
+        /* Desktop footer composition: one clean hierarchy, no accidental grid wrapping. */
+        @media(min-width:1001px){
+          .site-footer .footer-inner{
+            width:min(100%,var(--pch-content-max));
+            display:grid!important;
+            grid-template-columns:minmax(220px,1.25fr) minmax(120px,.7fr) minmax(230px,1.35fr) minmax(120px,.75fr) minmax(220px,1.2fr)!important;
+            gap:28px!important;
+            align-items:start!important;
+            padding:28px 30px 22px!important;
+          }
+          .site-footer .footer-brand-block{grid-column:1;}
+          .site-footer .footer-inner>.footer-column:nth-of-type(1){grid-column:2;}
+          .site-footer .footer-inner>.footer-column:nth-of-type(2){grid-column:3;}
+          .site-footer .footer-inner>.footer-column:nth-of-type(3){grid-column:4;}
+          .site-footer .footer-inner>.footer-column:nth-of-type(4){grid-column:5;}
+          .site-footer .footer-inner>.footer-contact-row{
+            grid-column:1 / -1;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:24px;
+            margin-top:2px;
+            padding-top:18px;
+            border-top:1px solid rgba(255,255,255,.07);
+          }
+          .site-footer .footer-contact-row .footer-social-column{display:flex!important;flex-direction:row!important;align-items:center!important;gap:14px!important;}
+          .site-footer .footer-contact-row .footer-social-column>span{margin:0!important;}
+          .site-footer .footer-contact-row .footer-signature{display:flex!important;flex-direction:row!important;align-items:center!important;gap:14px!important;text-align:right!important;}
+          .site-footer .footer-contact-row .footer-signature>span{margin:0!important;white-space:nowrap;}
+          .site-footer .footer-contact-row .footer-signature strong{margin:0!important;white-space:nowrap;}
+          .site-footer .footer-contact-row .footer-cta-link{margin:0!important;}
+          .site-footer .footer-contact-row .footer-signature small{margin:0!important;white-space:nowrap;}
+        }
+        @media(max-width:1000px){
+          .site-footer .footer-contact-row{display:contents;}
+        }
+
         @media(max-width:760px){
           .site-footer .footer-news-banner{padding:12px 16px 0;}
           .site-footer .footer-news-banner-inner{grid-template-columns:minmax(0,1fr) auto;gap:10px;min-height:70px;padding:0 12px;}
@@ -265,64 +302,6 @@ export default function PublicFooter() {
 
 
 
-      <div className="container footer-inner">
-        <div className="footer-brand-block">
-          <img className="footer-logo" src={LOGO_URL} alt="PCH News" decoding="async" />
-          <div>
-            <strong>PCH News</strong>
-            <p>Jornalismo nacional, pensamento amplo.</p>
-            <small>Informação para libertar a mente.</small>
-          </div>
-        </div>
-        <div className="footer-column">
-          <span>PCH NEWS</span>
-          <Link href="/">Início</Link>
-          <Link href="/institucional">Institucional</Link>
-          <Link href="/lei">Lei &amp; Justiça</Link>
-          <Link href="/anuncie">Anuncie</Link>
-          <Link href="/parceiros">Parceiros</Link>
-        </div>
-        <div className="footer-column"><span>TEMAS ESPECÍFICOS</span><div className="footer-themes-list">{(editorialSubthemes as any[]).slice(0, 12).map((topic: any) => <Link key={topic.id || topic.slug} href={`/?tema=${encodeURIComponent(topic.slug)}`}>{topic.label}</Link>)}</div></div>
-        <div className="footer-column footer-social-column">
-          <span>REDES SOCIAIS</span>
-          <div className="footer-socials" aria-label="Redes sociais do PCH News">
-            {SOCIALS.map(({ label, href, icon: Icon, active }) => active && href ? (
-              <a key={label} className="footer-social-link" href={href} target="_blank" rel="noreferrer" aria-label={label} title={label}>
-                {Icon ? <Icon size={17} aria-hidden="true" /> : <TikTokIcon />}
-                <span>{label}</span>
-              </a>
-            ) : (
-              <span key={label} className="footer-social-link is-coming" aria-label={label} title={label}>
-                {label === "TikTok" ? <TikTokIcon /> : <Icon size={17} aria-hidden="true" />}
-                <span>{label}</span>
-              </span>
-            ))}
-          </div>
-        </div>
-        <div className="footer-column">
-          <span>EDITORIAL</span>
-          <Link href="/#ultimas">Últimas notícias</Link>
-          <Link href="/equipe">Equipe PCH News</Link>
-          <Link href="/colunista/evaldo-poeta">Colunistas</Link>
-          <a href="/admin">Painel editorial</a>
-        </div>
-        <div className="footer-column">
-          <span>TRANSPARÊNCIA</span>
-          <Link href="/institucional">Missão e princípios</Link>
-          <Link href="/institucional">Política editorial</Link>
-          <Link href="/principios-editoriais" className="footer-feature-link"><span>Além da notícia</span><small>Conheça o diferencial editorial do PCH News</small><ArrowRight size={13} /></Link>
-          <Link href="/institucional">Publicidade</Link>
-          <Link href="/privacidade">LGPD e Privacidade</Link>
-          <Link href="/termos">Termos de uso</Link>
-          <Link href="/cookies">Cookies</Link>
-          <button type="button" className="footer-privacy-link" onClick={() => window.dispatchEvent(new CustomEvent("pch-open-privacy-settings"))}>Preferências de privacidade</button>
-        </div>
-        <div className="footer-signature">
-          <span>INFORMAÇÃO PARA</span>
-          <strong className="footer-freedom-highlight">LIBERTAR A MENTE.</strong>
-          <Link className="footer-cta-link" href="/anuncie">Fale com o comercial <ArrowRight size={14} /></Link>
-          <small>© 2026 PCH News · Responsabilidade editorial PCH News</small>
-        </div>
       {columnists.length > 0 && (
         <section className="container footer-columnists" aria-label="Colunistas PCH News">
           <div className="footer-columnists-heading">
@@ -345,11 +324,78 @@ export default function PublicFooter() {
         </section>
       )}
 
+      <div className="container footer-inner">
+        <div className="footer-brand-block">
+          <img className="footer-logo" src={LOGO_URL} alt="PCH News" decoding="async" />
+          <div>
+            <strong>PCH News</strong>
+            <p>Jornalismo nacional, pensamento amplo.</p>
+            <small>Informação para libertar a mente.</small>
+          </div>
+        </div>
+        <div className="footer-column">
+          <span>PCH NEWS</span>
+          <Link href="/">Início</Link>
+          <Link href="/institucional">Institucional</Link>
+          <Link href="/lei">Lei &amp; Justiça</Link>
+          <Link href="/anuncie">Anuncie</Link>
+          <Link href="/parceiros">Parceiros</Link>
+        </div>
+        <div className="footer-column">
+          <span>TEMAS ESPECÍFICOS</span>
+          <div className="footer-themes-list">
+            {(editorialSubthemes as any[]).slice(0, 12).map((topic: any) => (
+              <Link key={topic.id || topic.slug} href={`/?tema=${encodeURIComponent(topic.slug)}`}>{topic.label}</Link>
+            ))}
+          </div>
+        </div>
+        <div className="footer-column">
+          <span>EDITORIAL</span>
+          <Link href="/#ultimas">Últimas notícias</Link>
+          <Link href="/equipe">Equipe PCH News</Link>
+          <Link href="/colunista/evaldo-poeta">Colunistas</Link>
+          <a href="/admin">Painel editorial</a>
+        </div>
+        <div className="footer-column">
+          <span>TRANSPARÊNCIA</span>
+          <Link href="/institucional">Missão e princípios</Link>
+          <Link href="/institucional">Política editorial</Link>
+          <Link href="/principios-editoriais" className="footer-feature-link"><span>Além da notícia</span><small>Conheça o diferencial editorial do PCH News</small><ArrowRight size={13} /></Link>
+          <Link href="/institucional">Publicidade</Link>
+          <Link href="/privacidade">LGPD e Privacidade</Link>
+          <Link href="/termos">Termos de uso</Link>
+          <Link href="/cookies">Cookies</Link>
+          <button type="button" className="footer-privacy-link" onClick={() => window.dispatchEvent(new CustomEvent("pch-open-privacy-settings"))}>Preferências de privacidade</button>
+        </div>
+        <div className="footer-contact-row">
+          <div className="footer-column footer-social-column">
+            <span>REDES SOCIAIS</span>
+            <div className="footer-socials" aria-label="Redes sociais do PCH News">
+              {SOCIALS.map(({ label, href, icon: Icon, active }) => active && href ? (
+                <a key={label} className="footer-social-link" href={href} target="_blank" rel="noreferrer" aria-label={label} title={label}>
+                  {Icon ? <Icon size={17} aria-hidden="true" /> : <TikTokIcon />}
+                  <span>{label}</span>
+                </a>
+              ) : (
+                <span key={label} className="footer-social-link is-coming" aria-label={label} title={label}>
+                  {label === "TikTok" ? <TikTokIcon /> : <Icon size={17} aria-hidden="true" />}
+                  <span>{label}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="footer-signature">
+            <span>INFORMAÇÃO PARA</span>
+            <strong className="footer-freedom-highlight">LIBERTAR A MENTE.</strong>
+            <Link className="footer-cta-link" href="/anuncie">Fale com o comercial <ArrowRight size={14} /></Link>
+            <small>© 2026 PCH News · Responsabilidade editorial PCH News</small>
+          </div>
+        </div>
+      </div>
+
       <div className="container footer-bottom">
         <span>PCH News · Brasil e mundo</span>
         <span>Notícia, análise, opinião e publicidade identificada.</span>
-      </div>
-
       </div>
     </footer>
   );
