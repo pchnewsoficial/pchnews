@@ -3362,9 +3362,10 @@ main > .home-page:first-child{
 .editorial-editor-screen .editor-agent-action strong{
   font-size:10.5px!important;
   line-height:1.2!important;
-  white-space:nowrap!important;
-  overflow:hidden!important;
-  text-overflow:ellipsis!important;
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  overflow-wrap:anywhere!important;
 }
 .editorial-editor-screen .editor-agent-action>em{
   min-width:46px!important;
@@ -3378,8 +3379,8 @@ main > .home-page:first-child{
 }
 @media(max-width:760px){
   .editorial-editor-screen.editor-agents-open .editor-agents-sidebar{
-    width:min(72vw,230px)!important;
-    padding:9px!important;
+    width:min(88vw,320px)!important;
+    padding:10px!important;
   }
   .editorial-editor-screen .editor-agents-sidebar-head strong{
     font-size:13px!important;
