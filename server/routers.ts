@@ -329,12 +329,13 @@ export const appRouter = router({
   }),
   adRequests: router({
     uploadAsset: publicProcedure.input(z.object({
-      fileName: z.string().regex(/\.(png|jpe?g|webp|gif)$/i),
+      fileName: z.string().min(1).max(180).regex(/\.(png|jpe?g|webp|gif)$/i),
       contentType: z.enum(["image/png", "image/jpeg", "image/webp", "image/gif"]),
       base64: z.string().min(20).max(8_000_000),
-    })).mutation(async ({ input }) => {
+    })).mutation(async ({ input, ctx }) => {
+      enforcePublicWriteLimit(ctx.req, "ad-asset-upload", 3);
       const bytes = Buffer.from(input.base64.replace(/^data:[^;]+;base64,/, ""), "base64");
-      if (bytes.length > 5 * 1024 * 1024) throw new Error("A arte deve ter no máximo 5 MB.");
+      if (bytes.length > 5 * 1024 * 1024 || bytes.length === 0 || !validateImageSignature(bytes, input.contentType)) throw new Error("A arte deve ser uma imagem válida de até 5 MB.");
       const safeName = input.fileName.replace(/[^a-zA-Z0-9._-]/g, "-");
       return storagePut(`commercial-requests/${Date.now()}-${randomBytes(4).toString("hex")}/${safeName}`, bytes, input.contentType);
     }),
