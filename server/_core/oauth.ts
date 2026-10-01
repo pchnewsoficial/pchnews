@@ -13,7 +13,9 @@ export function registerOAuthRoutes(app: Express) {
       const supabase = getSupabasePublic();
       const { error } = await supabase.auth.exchangeCodeForSession(code);
       if (error) {
-        res.status(400).json({ error: error.message });
+        // Do not expose provider-specific auth details to unauthenticated clients.
+        console.error("[Supabase Auth] OAuth exchange rejected:", error.message);
+        res.status(400).json({ error: "OAuth callback rejected" });
         return;
       }
       res.redirect(302, "/");
