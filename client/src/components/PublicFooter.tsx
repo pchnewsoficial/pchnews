@@ -32,17 +32,17 @@ export default function PublicFooter() {
         .site-footer .footer-news-banner{
           width:min(100%,var(--pch-content-max));
           margin:0 auto;
-          padding:14px 30px 0;
+          padding:10px 30px 0;
         }
         .site-footer .footer-news-banner-inner{
           display:grid;
-          grid-template-columns:minmax(0,1fr) auto;
+          grid-template-columns:minmax(0,1fr) 88px auto;
           align-items:center;
-          gap:18px;
-          min-height:82px;
-          padding:0 18px;
-          border:1px solid rgba(209,169,75,.22);
-          border-radius:10px;
+          gap:12px;
+          min-height:58px;
+          padding:6px 12px;
+          border:1px solid rgba(209,169,75,.18);
+          border-radius:8px;
           overflow:hidden;
           background:linear-gradient(100deg,#121b29,#0d1521);
         }
@@ -50,29 +50,29 @@ export default function PublicFooter() {
           min-width:0;
           display:flex;
           align-items:center;
-          gap:12px;
+          gap:10px;
         }
         .site-footer .footer-news-banner-kicker{
           flex:0 0 auto;
           color:#d8b45c;
-          font:800 9px/1 'DM Sans',sans-serif;
-          letter-spacing:.14em;
+          font:800 8px/1 'DM Sans',sans-serif;
+          letter-spacing:.12em;
           text-transform:uppercase;
         }
         .site-footer .footer-news-banner-title{
           min-width:0;
           color:#fff;
-          font:700 15px/1.25 'DM Sans',sans-serif;
+          font:700 13px/1.2 'DM Sans',sans-serif;
           overflow:hidden;
           text-overflow:ellipsis;
           white-space:nowrap;
         }
         .site-footer .footer-news-banner-image{
-          width:128px;
-          height:64px;
+          width:88px;
+          height:46px;
           object-fit:cover;
-          border-radius:7px;
-          opacity:.88;
+          border-radius:6px;
+          opacity:.84;
         }
         .site-footer .footer-news-banner-link{
           display:inline-flex;
@@ -272,10 +272,10 @@ export default function PublicFooter() {
         }
 
         @media(max-width:760px){
-          .site-footer .footer-news-banner{padding:12px 16px 0;}
-          .site-footer .footer-news-banner-inner{grid-template-columns:minmax(0,1fr) auto;gap:10px;min-height:70px;padding:0 12px;}
-          .site-footer .footer-news-banner-title{font-size:12px;}
-          .site-footer .footer-news-banner-image{width:92px;height:52px;}
+          .site-footer .footer-news-banner{padding:9px 16px 0;}
+          .site-footer .footer-news-banner-inner{grid-template-columns:minmax(0,1fr) 76px;gap:9px;min-height:52px;padding:5px 10px;}
+          .site-footer .footer-news-banner-title{font-size:11px;}
+          .site-footer .footer-news-banner-image{width:76px;height:42px;}
           .site-footer .footer-news-banner-link{display:none;}
           .site-footer .footer-columnists{padding:16px 16px 14px;}
           .site-footer .footer-columnists-heading{align-items:flex-start;}
@@ -283,12 +283,12 @@ export default function PublicFooter() {
           .site-footer .footer-columnist-pill{min-width:190px;}
         }
         @media(max-width:480px){
-          .site-footer .footer-news-banner{padding:10px 14px 0;}
-          .site-footer .footer-news-banner-inner{grid-template-columns:minmax(0,1fr) 76px;min-height:64px;}
-          .site-footer .footer-news-banner-copy{gap:8px;}
-          .site-footer .footer-news-banner-kicker{font-size:8px;}
-          .site-footer .footer-news-banner-title{font-size:11px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
-          .site-footer .footer-news-banner-image{width:76px;height:48px;}
+          .site-footer .footer-news-banner{padding:8px 14px 0;}
+          .site-footer .footer-news-banner-inner{grid-template-columns:minmax(0,1fr) 68px;min-height:48px;padding:4px 8px;}
+          .site-footer .footer-news-banner-copy{gap:7px;}
+          .site-footer .footer-news-banner-kicker{font-size:7px;}
+          .site-footer .footer-news-banner-title{font-size:10px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+          .site-footer .footer-news-banner-image{width:68px;height:40px;}
           .site-footer .footer-columnists{padding-left:14px;padding-right:14px;}
           .site-footer .footer-columnists-heading{flex-direction:column;gap:7px;}
           .site-footer .footer-columnist-pill{min-width:180px;}
@@ -299,7 +299,7 @@ export default function PublicFooter() {
         <section className="footer-news-banner" aria-label="Notícia em destaque">
           <Link className="footer-news-banner-inner" href={`/materia/${latestArticle.slug || latestArticle.id}`}>
             <div className="footer-news-banner-copy">
-              <span className="footer-news-banner-kicker">PCH NEWS · EM DESTAQUE</span>
+              <span className="footer-news-banner-kicker">LEIA A NOTÍCIA</span>
               <strong className="footer-news-banner-title">{latestArticle.title}</strong>
             </div>
             {latestArticle.image ? <img className="footer-news-banner-image" src={latestArticle.image} alt="" loading="lazy" /> : null}
