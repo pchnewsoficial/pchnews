@@ -138,8 +138,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0
       dotenv:
-        specifier: ^17.2.2
-        version: 17.4.2
+        specifier: ^18.0.4
+        version: 18.0.4
       drizzle-orm:
         specifier: ^0.44.5
         version: 0.44.7(mysql2@3.24.4(@types/node@24.7.0))
@@ -3069,9 +3069,10 @@ packages:
   dompurify@3.3.0:
     resolution: {integrity: sha512-r+f6MYR1gGN1eJv0TVQbhA7if/U7P87cdPl3HN5rikqaBSBxLiCb/b9O+2eG0cxz0ghyU+mU1QkbsOwERMYlWQ==}
 
-  dotenv@17.4.2:
-    resolution: {integrity: sha512-nI4U3TottKAcAD9LLud4Cb7b2QztQMUEfHbvhTH09bqXTxnSie8WnjPALV/WMCrJZ6UV/qHJ6L03OqO3LcdYZw==}
+  dotenv@18.0.4:
+    resolution: {integrity: sha512-jGt9uI5BIxpVO15kvy+iEFqNAwxYClKWnkptLjSNPnFLC003Imd0ofr3aEVsbpHdSBdSsbcApNIlz4nbyGMwdA==}
     engines: {node: '>=12'}
+    hasBin: true
 
   drizzle-kit@0.31.11:
     resolution: {integrity: sha512-YCYqxTLIB2OCqf6w9/Vef13baBVbwQIPcbT4Y56AfO6B9ajZhDhD8Jkveg/hJvT/iuMloKD/IYYkyMMNhr7Kqg==}
@@ -7246,7 +7247,7 @@ snapshots:
     optionalDependencies:
       '@types/trusted-types': 2.0.7
 
-  dotenv@17.4.2: {}
+  dotenv@18.0.4: {}
 
   drizzle-kit@0.31.11:
     dependencies:
