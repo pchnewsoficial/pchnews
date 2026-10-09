@@ -68,11 +68,12 @@ export default {
   async scheduled(_controller: any, _env: any, _ctx: any) {
     const db = getSupabaseAdmin();
     const nowMs = Date.now();
-    const { data: due, error } = await db.from("articles").select("id,scheduledAt,status").eq("status", "scheduled").lte("scheduledAt", nowMs).limit(100);
+    const { data: due, error } = await db.from("articles").select("id,scheduledAt,status,publishedAt").eq("status", "scheduled").lte("scheduledAt", nowMs).limit(100);
     if (error) throw error;
     for (const article of due || []) {
       const { error: updateError } = await db.from("articles").update({
         status: "published",
+        publishedAt: article.publishedAt || new Date(nowMs).toISOString(),
         updated: "publicado agora",
         updatedAt: new Date(nowMs).toISOString()
       }).eq("id", article.id).eq("status", "scheduled");
@@ -137,7 +138,7 @@ export default {
     }
 
     if (url.pathname === "/robots.txt") {
-      return new Response(`User-agent: *\\nAllow: /\\nDisallow: /admin\\nDisallow: /login\\nDisallow: /convite/\\n\\nSitemap: ${SITE_ORIGIN}/sitemap.xml\\nSitemap: ${SITE_ORIGIN}/news-sitemap.xml\\n`, { headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=3600" } });
+      return new Response(`User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /login\nDisallow: /convite/\n\nSitemap: ${SITE_ORIGIN}/sitemap.xml\nSitemap: ${SITE_ORIGIN}/news-sitemap.xml\n`, { headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=3600" } });
     }
     if (url.pathname === "/sitemap.xml") {
       const esc = (v: string) => v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -151,27 +152,27 @@ export default {
         }
       } catch { /* keep static public URLs available if database is temporarily unavailable */ }
       const uniqueUrls = Array.from(new Set(urls));
-      const xml = `<?xml version="1.0" encoding="UTF-8"?>\\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${uniqueUrls.map((u) => `<url><loc>${esc(u)}</loc></url>`).join("")}</urlset>`;
+      const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${uniqueUrls.map((u) => `<url><loc>${esc(u)}</loc></url>`).join("")}</urlset>`;
       return new Response(xml, { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=300", "x-content-type-options": "nosniff" } });
     }
     if (url.pathname === "/news-sitemap.xml") {
       const esc = (v: string) => v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
       const cutoff = Date.now() - 48 * 60 * 60 * 1000;
       try {
-        const { data, error } = await getSupabaseAdmin().from("articles").select("*").in("status", ["published", "updated"]).order("createdAt", { ascending: false }).limit(1000);
+        const { data, error } = await getSupabaseAdmin().from("articles").select("*").in("status", ["published", "updated"]).order("publishedAt", { ascending: false }).limit(1000);
         if (error) throw error;
         const rows = ((data || []) as Array<Record<string, any>>).filter((row) => {
           if (row.noindex === true) return false;
-          const created = row.createdAt ? Date.parse(String(row.createdAt)) : NaN;
-          return Number.isFinite(created) && created >= cutoff && created <= Date.now();
+          const published = row.publishedAt ? Date.parse(String(row.publishedAt)) : NaN;
+          return Number.isFinite(published) && published >= cutoff && published <= Date.now();
         });
         const entries = rows.map((row) => {
           const slug = typeof row.slug === "string" && row.slug.trim() ? row.slug.trim() : row.id;
-          const createdAt = new Date(String(row.createdAt)).toISOString();
+          const publishedAt = new Date(String(row.publishedAt)).toISOString();
           const title = String(row.title || "PCH News").slice(0, 200);
-          return `<url><loc>${esc(`${SITE_ORIGIN}/materia/${encodeURIComponent(slug)}`)}</loc><news:news><news:publication><news:name>PCH News</news:name><news:language>pt</news:language></news:publication><news:publication_date>${esc(createdAt)}</news:publication_date><news:title>${esc(title)}</news:title></news:news></url>`;
+          return `<url><loc>${esc(`${SITE_ORIGIN}/materia/${encodeURIComponent(slug)}`)}</loc><news:news><news:publication><news:name>PCH News</news:name><news:language>pt</news:language></news:publication><news:publication_date>${esc(publishedAt)}</news:publication_date><news:title>${esc(title)}</news:title></news:news></url>`;
         }).join("");
-        const xml = `<?xml version="1.0" encoding="UTF-8"?>\\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">${entries}</urlset>`;
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">${entries}</urlset>`;
         return new Response(xml, { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=300", "x-content-type-options": "nosniff" } });
       } catch {
         return new Response(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"></urlset>`, { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=60", "x-content-type-options": "nosniff" } });
