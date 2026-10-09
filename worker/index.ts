@@ -247,10 +247,10 @@ export default {
                 `<meta name="twitter:image" content="${esc(image)}">`,
                 `<script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, "\\u003c")}</script>`
               ].join("\\n    ");
-              let cleanHtml = html.replace(/<title[^>]*>[\\s\\S]*?<\\/title>/i, `<title>${esc(title)}</title>`);
-              cleanHtml = cleanHtml.replace(/<meta\\b[^>]*(?:name|property)=["'](?:description|robots|og:type|og:site_name|og:title|og:description|og:url|og:image|og:image:alt|twitter:card|twitter:title|twitter:description|twitter:image)["'][^>]*>/gi, "");
-              cleanHtml = cleanHtml.replace(/<link\\b[^>]*rel=["']canonical["'][^>]*>/gi, "");
-              const head = cleanHtml.includes("</head>") ? cleanHtml.replace("</head>", `    ${meta}\\n  </head>`) : cleanHtml;
+              let cleanHtml = html.replace(/<title[^>]*>[\s\S]*?<\/title>/i, `<title>${esc(title)}</title>`);
+              cleanHtml = cleanHtml.replace(/<meta\b[^>]*(?:name|property)="(?:description|robots|og:type|og:site_name|og:title|og:description|og:url|og:image|og:image:alt|twitter:card|twitter:title|twitter:description|twitter:image)"[^>]*>/gi, "");
+              cleanHtml = cleanHtml.replace(/<link\b[^>]*rel="canonical"[^>]*>/gi, "");
+              const head = cleanHtml.includes("</head>") ? cleanHtml.replace("</head>", `    ${meta}\n  </head>`) : cleanHtml;
               const responseHeaders = new Headers(shell.headers);
               responseHeaders.set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
               responseHeaders.set("X-PCH-SEO", "edge-article-metadata");
