@@ -205,6 +205,13 @@ export default {
             const byId = await db.from("articles").select("*").eq("id", articleKey).maybeSingle();
             article = byId.data;
           }
+          if (!article) {
+            // Older articles may not have a persisted slug; the client historically
+            // resolves those routes from the normalized title.
+            const { data: candidates } = await db.from("articles").select("*").in("status", ["published", "updated"]).limit(1000);
+            const normalizeSlug = (value: unknown) => String(value || "").toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+            article = (candidates || []).find((row: Record<string, any>) => normalizeSlug(row.title) === articleKey) || null;
+          }
           if (article && ["published", "updated"].includes(String(article.status))) {
             const shell = await env.ASSETS.fetch(new Request(new URL("/", request.url), request));
             if (shell.ok) {
