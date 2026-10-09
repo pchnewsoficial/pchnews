@@ -246,7 +246,7 @@ export default {
                 `<meta name="twitter:description" content="${esc(article.ogDescription || description)}">`,
                 `<meta name="twitter:image" content="${esc(image)}">`,
                 `<script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, "\\u003c")}</script>`
-              ].join("\\n    ");
+              ].join("\n    ");
               let cleanHtml = html.replace(/<title[^>]*>[\s\S]*?<\/title>/i, `<title>${esc(title)}</title>`);
               cleanHtml = cleanHtml.replace(/<meta\b[^>]*(?:name|property)="(?:description|robots|og:type|og:site_name|og:title|og:description|og:url|og:image|og:image:alt|twitter:card|twitter:title|twitter:description|twitter:image)"[^>]*>/gi, "");
               cleanHtml = cleanHtml.replace(/<link\b[^>]*rel="canonical"[^>]*>/gi, "");
