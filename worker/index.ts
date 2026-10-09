@@ -137,17 +137,45 @@ export default {
     }
 
     if (url.pathname === "/robots.txt") {
-      return new Response(`User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /login\n\nSitemap: ${SITE_ORIGIN}/sitemap.xml\n`, { headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=3600" } });
+      return new Response(`User-agent: *\\nAllow: /\\nDisallow: /admin\\nDisallow: /login\\nDisallow: /convite/\\n\\nSitemap: ${SITE_ORIGIN}/sitemap.xml\\nSitemap: ${SITE_ORIGIN}/news-sitemap.xml\\n`, { headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=3600" } });
     }
     if (url.pathname === "/sitemap.xml") {
-      const esc = (v: string) => v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
-      const urls = ["/", "/institucional", "/anuncie", "/lei", "/eventos", "/colunista/evaldo-poeta"].map((p) => `${SITE_ORIGIN}${p}`);
+      const esc = (v: string) => v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      const urls = ["/", "/institucional", "/anuncie", "/lei", "/eventos", "/agenda", "/parceiros", "/conhecimento-pch", "/privacidade", "/termos", "/cookies", "/correcoes", "/principios-editoriais", "/colunista/evaldo-poeta"].map((p) => `${SITE_ORIGIN}${p}`);
       try {
-        const { data } = await getSupabaseAdmin().from("articles").select("id,slug").eq("status", "published").limit(5000);
-        for (const row of (data || []) as Array<{ id: string; slug?: string | null }>) urls.push(`${SITE_ORIGIN}/materia/${row.slug || row.id}`);
-      } catch { /* serve static routes only */ }
-      const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map((u) => `<url><loc>${esc(u)}</loc></url>`).join("")}</urlset>`;
-      return new Response(xml, { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=900" } });
+        const { data, error } = await getSupabaseAdmin().from("articles").select("*").in("status", ["published", "updated"]).limit(10000);
+        if (!error) for (const row of (data || []) as Array<Record<string, any>>) {
+          if (row.noindex === true) continue;
+          const slug = typeof row.slug === "string" && row.slug.trim() ? row.slug.trim() : row.id;
+          urls.push(`${SITE_ORIGIN}/materia/${encodeURIComponent(slug)}`);
+        }
+      } catch { /* keep static public URLs available if database is temporarily unavailable */ }
+      const uniqueUrls = Array.from(new Set(urls));
+      const xml = `<?xml version="1.0" encoding="UTF-8"?>\\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${uniqueUrls.map((u) => `<url><loc>${esc(u)}</loc></url>`).join("")}</urlset>`;
+      return new Response(xml, { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=300", "x-content-type-options": "nosniff" } });
+    }
+    if (url.pathname === "/news-sitemap.xml") {
+      const esc = (v: string) => v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      const cutoff = Date.now() - 48 * 60 * 60 * 1000;
+      try {
+        const { data, error } = await getSupabaseAdmin().from("articles").select("*").in("status", ["published", "updated"]).order("createdAt", { ascending: false }).limit(1000);
+        if (error) throw error;
+        const rows = ((data || []) as Array<Record<string, any>>).filter((row) => {
+          if (row.noindex === true) return false;
+          const created = row.createdAt ? Date.parse(String(row.createdAt)) : NaN;
+          return Number.isFinite(created) && created >= cutoff && created <= Date.now();
+        });
+        const entries = rows.map((row) => {
+          const slug = typeof row.slug === "string" && row.slug.trim() ? row.slug.trim() : row.id;
+          const createdAt = new Date(String(row.createdAt)).toISOString();
+          const title = String(row.title || "PCH News").slice(0, 200);
+          return `<url><loc>${esc(`${SITE_ORIGIN}/materia/${encodeURIComponent(slug)}`)}</loc><news:news><news:publication><news:name>PCH News</news:name><news:language>pt</news:language></news:publication><news:publication_date>${esc(createdAt)}</news:publication_date><news:title>${esc(title)}</news:title></news:news></url>`;
+        }).join("");
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>\\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">${entries}</urlset>`;
+        return new Response(xml, { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=300", "x-content-type-options": "nosniff" } });
+      } catch {
+        return new Response(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"></urlset>`, { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=60", "x-content-type-options": "nosniff" } });
+      }
     }
 
     if (
