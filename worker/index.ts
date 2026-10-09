@@ -192,6 +192,75 @@ export default {
       return handleAsNodeRequest(3000, new Request(request, { headers }));
     }
 
+    // Render article-specific metadata at the edge so search engines and social crawlers
+    // receive title, description, canonical URL and NewsArticle JSON-LD in the initial HTML.
+    if (url.pathname.startsWith("/materia/")) {
+      let articleKey = "";
+      try { articleKey = decodeURIComponent(url.pathname.slice("/materia/".length)).trim(); } catch { articleKey = ""; }
+      if (articleKey) {
+        try {
+          const db = getSupabaseAdmin();
+          let { data: article } = await db.from("articles").select("*").eq("slug", articleKey).maybeSingle();
+          if (!article) {
+            const byId = await db.from("articles").select("*").eq("id", articleKey).maybeSingle();
+            article = byId.data;
+          }
+          if (article && ["published", "updated"].includes(String(article.status))) {
+            const shell = await env.ASSETS.fetch(new Request(new URL("/", request.url), request));
+            if (shell.ok) {
+              const html = await shell.text();
+              const esc = (value: unknown) => String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+              const title = String(article.seoTitle || article.title || "PCH News").trim();
+              const description = String(article.metaDescription || article.summary || String(article.bodyHtml || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160) || title).trim().slice(0, 300);
+              const canonical = /^https:\/\//i.test(String(article.canonicalUrl || "")) ? String(article.canonicalUrl) : `${SITE_ORIGIN}/materia/${encodeURIComponent(String(article.slug || article.id))}`;
+              const rawImage = String(article.image || "");
+              const image = rawImage ? new URL(rawImage, SITE_ORIGIN).toString() : `${SITE_ORIGIN}/brand/logo.jpg`;
+              const publishedAt = article.publishedAt ? new Date(String(article.publishedAt)).toISOString() : undefined;
+              const modifiedAt = article.updatedAt ? new Date(String(article.updatedAt)).toISOString() : publishedAt;
+              const robots = article.noindex === true ? "noindex,follow" : "index,follow";
+              const jsonLd: Record<string, unknown> = {
+                "@context": "https://schema.org", "@type": "NewsArticle",
+                "mainEntityOfPage": { "@type": "WebPage", "@id": canonical },
+                "headline": String(article.title || title).slice(0, 110),
+                "description": description,
+                "image": [image],
+                "author": { "@type": "Person", "name": String(article.author || "Redação PCH News") },
+                "publisher": { "@type": "Organization", "name": "PCH News", "url": SITE_ORIGIN, "logo": { "@type": "ImageObject", "url": `${SITE_ORIGIN}/brand/logo.jpg` } },
+                "inLanguage": "pt-BR"
+              };
+              if (publishedAt) jsonLd.datePublished = publishedAt;
+              if (modifiedAt) jsonLd.dateModified = modifiedAt;
+              const meta = [
+                `<title>${esc(title)}</title>`,
+                `<meta name="description" content="${esc(description)}">`,
+                `<meta name="robots" content="${robots}">`,
+                `<link rel="canonical" href="${esc(canonical)}">`,
+                `<meta property="og:type" content="article">`,
+                `<meta property="og:site_name" content="PCH News">`,
+                `<meta property="og:title" content="${esc(article.ogTitle || title)}">`,
+                `<meta property="og:description" content="${esc(article.ogDescription || description)}">`,
+                `<meta property="og:url" content="${esc(canonical)}">`,
+                `<meta property="og:image" content="${esc(image)}">`,
+                `<meta property="og:image:alt" content="${esc(article.imageAlt || article.title || title)}">`,
+                `<meta name="twitter:card" content="summary_large_image">`,
+                `<meta name="twitter:title" content="${esc(article.ogTitle || title)}">`,
+                `<meta name="twitter:description" content="${esc(article.ogDescription || description)}">`,
+                `<meta name="twitter:image" content="${esc(image)}">`,
+                `<script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, "\\u003c")}</script>`
+              ].join("\\n    ");
+              const head = html.includes("</head>") ? html.replace("</head>", `    ${meta}\\n  </head>`) : html;
+              const responseHeaders = new Headers(shell.headers);
+              responseHeaders.set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+              responseHeaders.set("X-PCH-SEO", "edge-article-metadata");
+              return new Response(head, { status: shell.status, statusText: shell.statusText, headers: responseHeaders });
+            }
+          }
+        } catch {
+          // If the editorial database is temporarily unavailable, retain the normal SPA fallback.
+        }
+      }
+    }
+
     const spaPath = url.pathname.replace(/\/+$/, "") || "/";
     const isSpaRoute =
       spaPath === "/admin" ||
