@@ -113,7 +113,9 @@ export async function recordArticleView(articleId:string,visitorId:string,_acces
   return data as { counted: boolean; views: number };
 }
 export async function getViewAnalytics(author?:string,authorOpenId?:string,fromMs?:number,toMs?:number,accessToken?:string|null){
-  // Analytics are already behind a protected tRPC procedure; use the server-side\n  // Supabase client here so the dashboard always reads the current database state.\n  const db = getSupabaseAdmin();
+  // Analytics are already behind a protected tRPC procedure; use the server-side
+  // Supabase client here so the dashboard always reads the current database state.
+  const db = getSupabaseAdmin();
   let q=db.from("articles").select("id,views,author,authorOpenId"); if(author)q=q.eq("author",author);if(authorOpenId)q=q.eq("authorOpenId",authorOpenId);
   const {data:arts,error:ae}=await q;if(ae)throw ae;const ids=(arts??[]).map((a:any)=>a.id);if(!ids.length)return {events:[],totals:[]};
   let eq=db.from("viewEvents").select("articleId,viewedAtMs").in("articleId",ids).order("viewedAtMs",{ascending:false});
