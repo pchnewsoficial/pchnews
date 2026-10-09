@@ -101,7 +101,9 @@ export async function saveArticle(article:any, accessToken?: string | null){
   // Status-only mutations may intentionally omit editorial fields. Merge with the
   // persisted row so a workflow transition can never erase SEO, checklist, scope,
   // media or other editorial metadata just because the client sent a partial payload.
-  const payload={...existing,...article,id:article.id,createdAt:article.createdAt??existing?.createdAt??now(),updatedAt:now(),youtubeUrl:article.youtubeUrl??existing?.youtubeUrl??null,socialLinks:article.socialLinks??existing?.socialLinks??null,slug:article.slug??existing?.slug??null,seoTitle:article.seoTitle??existing?.seoTitle??null,metaDescription:article.metaDescription??existing?.metaDescription??null,canonicalUrl:article.canonicalUrl??existing?.canonicalUrl??null,focusKeyword:article.focusKeyword??existing?.focusKeyword??null,ogTitle:article.ogTitle??existing?.ogTitle??null,ogDescription:article.ogDescription??existing?.ogDescription??null,imageAlt:article.imageAlt??existing?.imageAlt??null,noindex:article.noindex??existing?.noindex??false,contentType:article.contentType??existing?.contentType??"noticia",editorialChecklist:article.editorialChecklist??existing?.editorialChecklist??{},editorialNotes:article.editorialNotes??existing?.editorialNotes??null,contraponto:article.contraponto??existing?.contraponto??null,keyTakeaway:article.keyTakeaway??existing?.keyTakeaway??null};
+  const isPublicStatus = article.status === "published" || article.status === "updated";
+  const firstPublishedAt = existing?.publishedAt ?? (isPublicStatus ? now().toISOString() : null);
+  const payload={...existing,...article,id:article.id,createdAt:article.createdAt??existing?.createdAt??now(),updatedAt:now(),publishedAt:firstPublishedAt,youtubeUrl:article.youtubeUrl??existing?.youtubeUrl??null,socialLinks:article.socialLinks??existing?.socialLinks??null,slug:article.slug??existing?.slug??null,seoTitle:article.seoTitle??existing?.seoTitle??null,metaDescription:article.metaDescription??existing?.metaDescription??null,canonicalUrl:article.canonicalUrl??existing?.canonicalUrl??null,focusKeyword:article.focusKeyword??existing?.focusKeyword??null,ogTitle:article.ogTitle??existing?.ogTitle??null,ogDescription:article.ogDescription??existing?.ogDescription??null,imageAlt:article.imageAlt??existing?.imageAlt??null,noindex:article.noindex??existing?.noindex??false,contentType:article.contentType??existing?.contentType??"noticia",editorialChecklist:article.editorialChecklist??existing?.editorialChecklist??{},editorialNotes:article.editorialNotes??existing?.editorialNotes??null,contraponto:article.contraponto??existing?.contraponto??null,keyTakeaway:article.keyTakeaway??existing?.keyTakeaway??null};
   const {data,error}=await db.from("articles").upsert(payload,{onConflict:"id"}).select().single();if(error)throw error;return data;
 }
 export async function recordArticleView(articleId:string,visitorId:string,_accessToken?:string|null){
@@ -111,7 +113,9 @@ export async function recordArticleView(articleId:string,visitorId:string,_acces
   return data as { counted: boolean; views: number };
 }
 export async function getViewAnalytics(author?:string,authorOpenId?:string,fromMs?:number,toMs?:number,accessToken?:string|null){
-  // Analytics are already behind a protected tRPC procedure; use the server-side\n  // Supabase client here so the dashboard always reads the current database state.\n  const db = getSupabaseAdmin();
+  // Analytics are already behind a protected tRPC procedure; use the server-side
+  // Supabase client here so the dashboard always reads the current database state.
+  const db = getSupabaseAdmin();
   let q=db.from("articles").select("id,views,author,authorOpenId"); if(author)q=q.eq("author",author);if(authorOpenId)q=q.eq("authorOpenId",authorOpenId);
   const {data:arts,error:ae}=await q;if(ae)throw ae;const ids=(arts??[]).map((a:any)=>a.id);if(!ids.length)return {events:[],totals:[]};
   let eq=db.from("viewEvents").select("articleId,viewedAtMs").in("articleId",ids).order("viewedAtMs",{ascending:false});

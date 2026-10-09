@@ -68,11 +68,12 @@ export default {
   async scheduled(_controller: any, _env: any, _ctx: any) {
     const db = getSupabaseAdmin();
     const nowMs = Date.now();
-    const { data: due, error } = await db.from("articles").select("id,scheduledAt,status").eq("status", "scheduled").lte("scheduledAt", nowMs).limit(100);
+    const { data: due, error } = await db.from("articles").select("id,scheduledAt,status,publishedAt").eq("status", "scheduled").lte("scheduledAt", nowMs).limit(100);
     if (error) throw error;
     for (const article of due || []) {
       const { error: updateError } = await db.from("articles").update({
         status: "published",
+        publishedAt: article.publishedAt || new Date(nowMs).toISOString(),
         updated: "publicado agora",
         updatedAt: new Date(nowMs).toISOString()
       }).eq("id", article.id).eq("status", "scheduled");
@@ -137,17 +138,45 @@ export default {
     }
 
     if (url.pathname === "/robots.txt") {
-      return new Response(`User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /login\n\nSitemap: ${SITE_ORIGIN}/sitemap.xml\n`, { headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=3600" } });
+      return new Response(`User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /login\nDisallow: /convite/\n\nSitemap: ${SITE_ORIGIN}/sitemap.xml\nSitemap: ${SITE_ORIGIN}/news-sitemap.xml\n`, { headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=3600" } });
     }
     if (url.pathname === "/sitemap.xml") {
-      const esc = (v: string) => v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
-      const urls = ["/", "/institucional", "/anuncie", "/lei", "/eventos", "/colunista/evaldo-poeta"].map((p) => `${SITE_ORIGIN}${p}`);
+      const esc = (v: string) => v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      const urls = ["/", "/institucional", "/anuncie", "/lei", "/eventos", "/agenda", "/parceiros", "/conhecimento-pch", "/privacidade", "/termos", "/cookies", "/correcoes", "/principios-editoriais", "/colunista/evaldo-poeta"].map((p) => `${SITE_ORIGIN}${p}`);
       try {
-        const { data } = await getSupabaseAdmin().from("articles").select("id,slug").eq("status", "published").limit(5000);
-        for (const row of (data || []) as Array<{ id: string; slug?: string | null }>) urls.push(`${SITE_ORIGIN}/materia/${row.slug || row.id}`);
-      } catch { /* serve static routes only */ }
-      const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map((u) => `<url><loc>${esc(u)}</loc></url>`).join("")}</urlset>`;
-      return new Response(xml, { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=900" } });
+        const { data, error } = await getSupabaseAdmin().from("articles").select("*").in("status", ["published", "updated"]).limit(10000);
+        if (!error) for (const row of (data || []) as Array<Record<string, any>>) {
+          if (row.noindex === true) continue;
+          const slug = typeof row.slug === "string" && row.slug.trim() ? row.slug.trim() : row.id;
+          urls.push(`${SITE_ORIGIN}/materia/${encodeURIComponent(slug)}`);
+        }
+      } catch { /* keep static public URLs available if database is temporarily unavailable */ }
+      const uniqueUrls = Array.from(new Set(urls));
+      const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${uniqueUrls.map((u) => `<url><loc>${esc(u)}</loc></url>`).join("")}</urlset>`;
+      return new Response(xml, { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=300", "x-content-type-options": "nosniff" } });
+    }
+    if (url.pathname === "/news-sitemap.xml") {
+      const esc = (v: string) => v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      const cutoff = Date.now() - 48 * 60 * 60 * 1000;
+      try {
+        const { data, error } = await getSupabaseAdmin().from("articles").select("*").in("status", ["published", "updated"]).order("publishedAt", { ascending: false }).limit(1000);
+        if (error) throw error;
+        const rows = ((data || []) as Array<Record<string, any>>).filter((row) => {
+          if (row.noindex === true) return false;
+          const published = row.publishedAt ? Date.parse(String(row.publishedAt)) : NaN;
+          return Number.isFinite(published) && published >= cutoff && published <= Date.now();
+        });
+        const entries = rows.map((row) => {
+          const slug = typeof row.slug === "string" && row.slug.trim() ? row.slug.trim() : row.id;
+          const publishedAt = new Date(String(row.publishedAt)).toISOString();
+          const title = String(row.title || "PCH News").slice(0, 200);
+          return `<url><loc>${esc(`${SITE_ORIGIN}/materia/${encodeURIComponent(slug)}`)}</loc><news:news><news:publication><news:name>PCH News</news:name><news:language>pt</news:language></news:publication><news:publication_date>${esc(publishedAt)}</news:publication_date><news:title>${esc(title)}</news:title></news:news></url>`;
+        }).join("");
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">${entries}</urlset>`;
+        return new Response(xml, { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=300", "x-content-type-options": "nosniff" } });
+      } catch {
+        return new Response(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"></urlset>`, { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=60", "x-content-type-options": "nosniff" } });
+      }
     }
 
     if (
@@ -161,6 +190,84 @@ export default {
       if (cf.regionCode || cf.region) headers.set("x-pch-geo-state", String(cf.regionCode || cf.region));
       if (cf.city) headers.set("x-pch-geo-city", String(cf.city));
       return handleAsNodeRequest(3000, new Request(request, { headers }));
+    }
+
+    // Render article-specific metadata at the edge so search engines and social crawlers
+    // receive title, description, canonical URL and NewsArticle JSON-LD in the initial HTML.
+    if (url.pathname.startsWith("/materia/")) {
+      let articleKey = "";
+      try { articleKey = decodeURIComponent(url.pathname.slice("/materia/".length)).trim(); } catch { articleKey = ""; }
+      if (articleKey) {
+        try {
+          const db = getSupabaseAdmin();
+          let { data: article } = await db.from("articles").select("*").eq("slug", articleKey).maybeSingle();
+          if (!article) {
+            const byId = await db.from("articles").select("*").eq("id", articleKey).maybeSingle();
+            article = byId.data;
+          }
+          if (!article) {
+            // Older articles may not have a persisted slug; the client historically
+            // resolves those routes from the normalized title.
+            const { data: candidates } = await db.from("articles").select("*").in("status", ["published", "updated"]).limit(1000);
+            const normalizeSlug = (value: unknown) => String(value || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+            article = (candidates || []).find((row: Record<string, any>) => normalizeSlug(row.title) === articleKey) || null;
+          }
+          if (article && ["published", "updated"].includes(String(article.status))) {
+            const shell = await env.ASSETS.fetch(new Request(new URL("/", request.url), request));
+            if (shell.ok) {
+              const html = await shell.text();
+              const esc = (value: unknown) => String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+              const title = String(article.seoTitle || article.title || "PCH News").trim();
+              const description = String(article.metaDescription || article.summary || String(article.bodyHtml || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160) || title).trim().slice(0, 300);
+              const canonical = /^https:\/\//i.test(String(article.canonicalUrl || "")) ? String(article.canonicalUrl) : `${SITE_ORIGIN}/materia/${encodeURIComponent(String(article.slug || article.id))}`;
+              const rawImage = String(article.image || "");
+              const image = rawImage ? new URL(rawImage, SITE_ORIGIN).toString() : `${SITE_ORIGIN}/brand/logo.jpg`;
+              const publishedAt = article.publishedAt ? new Date(String(article.publishedAt)).toISOString() : undefined;
+              const modifiedAt = article.updatedAt ? new Date(String(article.updatedAt)).toISOString() : publishedAt;
+              const robots = article.noindex === true ? "noindex,follow" : "index,follow";
+              const jsonLd: Record<string, unknown> = {
+                "@context": "https://schema.org", "@type": "NewsArticle",
+                "mainEntityOfPage": { "@type": "WebPage", "@id": canonical },
+                "headline": String(article.title || title).slice(0, 110),
+                "description": description,
+                "image": [image],
+                "author": { "@type": "Person", "name": String(article.author || "Redação PCH News") },
+                "publisher": { "@type": "Organization", "name": "PCH News", "url": SITE_ORIGIN, "logo": { "@type": "ImageObject", "url": `${SITE_ORIGIN}/brand/logo.jpg` } },
+                "inLanguage": "pt-BR"
+              };
+              if (publishedAt) jsonLd.datePublished = publishedAt;
+              if (modifiedAt) jsonLd.dateModified = modifiedAt;
+              const meta = [
+                `<meta name="description" content="${esc(description)}">`,
+                `<meta name="robots" content="${robots}">`,
+                `<link rel="canonical" href="${esc(canonical)}">`,
+                `<meta property="og:type" content="article">`,
+                `<meta property="og:site_name" content="PCH News">`,
+                `<meta property="og:title" content="${esc(article.ogTitle || title)}">`,
+                `<meta property="og:description" content="${esc(article.ogDescription || description)}">`,
+                `<meta property="og:url" content="${esc(canonical)}">`,
+                `<meta property="og:image" content="${esc(image)}">`,
+                `<meta property="og:image:alt" content="${esc(article.imageAlt || article.title || title)}">`,
+                `<meta name="twitter:card" content="summary_large_image">`,
+                `<meta name="twitter:title" content="${esc(article.ogTitle || title)}">`,
+                `<meta name="twitter:description" content="${esc(article.ogDescription || description)}">`,
+                `<meta name="twitter:image" content="${esc(image)}">`,
+                `<script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, "\\u003c")}</script>`
+              ].join("\n    ");
+              let cleanHtml = html.replace(/<title[^>]*>[\s\S]*?<\/title>/i, `<title>${esc(title)}</title>`);
+              cleanHtml = cleanHtml.replace(/<meta\b[^>]*(?:name|property)="(?:description|robots|og:type|og:site_name|og:title|og:description|og:url|og:image|og:image:alt|twitter:card|twitter:title|twitter:description|twitter:image)"[^>]*>/gi, "");
+              cleanHtml = cleanHtml.replace(/<link\b[^>]*rel="canonical"[^>]*>/gi, "");
+              const head = cleanHtml.includes("</head>") ? cleanHtml.replace("</head>", `    ${meta}\n  </head>`) : cleanHtml;
+              const responseHeaders = new Headers(shell.headers);
+              responseHeaders.set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+              responseHeaders.set("X-PCH-SEO", "edge-article-metadata");
+              return new Response(head, { status: shell.status, statusText: shell.statusText, headers: responseHeaders });
+            }
+          }
+        } catch {
+          // If the editorial database is temporarily unavailable, retain the normal SPA fallback.
+        }
+      }
     }
 
     const spaPath = url.pathname.replace(/\/+$/, "") || "/";
