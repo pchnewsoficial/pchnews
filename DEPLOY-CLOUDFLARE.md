@@ -67,6 +67,16 @@ O workflow usa:
 
 O token nunca deve ser colocado no Git.
 
+## Importação RSS HostingPRESS
+
+O Worker mantém o Cron Trigger existente (`*/5 * * * *`) para publicações agendadas. O importador RSS usa esse mesmo evento e permanece desligado por padrão. Ele só executa quando a variável de ambiente `HOSTINGPRESS_RSS_IMPORT_ENABLED` do Worker for definida como `true` **depois** de a validação normal do certificado HTTPS de `pchnews.hostingpress.com.br` passar. Não use HTTP nem desative a validação TLS.
+
+Quando habilitado, o importador lê os até 50 itens do feed, limita a 10 matérias novas por execução, usa a URL de origem como chave de deduplicação, copia imagens permitidas para o Storage do PCH News e registra o canonical para a matéria original. A primeira execução pode importar matérias existentes no feed que ainda não constem no PCH News; por isso, confira o conteúdo/alcance inicial antes de habilitar em produção. Matérias anteriores ao limite de 50 itens não são descobertas por este feed.
+
+No painel Cloudflare: **Workers & Pages → pchnews → Settings → Variables and Secrets**; adicione `HOSTINGPRESS_RSS_IMPORT_ENABLED` como variável de texto com valor `true`. Confirme primeiro que o endpoint retorna HTTP 200 sem erro de certificado e que o corpo é RSS/XML. Para suspender imediatamente novas importações, altere o valor para `false` ou remova a variável; isso não afeta o processamento atual de matérias agendadas pelo mesmo cron.
+
+Para acompanhar a execução, abra **Workers & Pages → pchnews → Logs → Live** e procure por `[PCH][HostingPRESS RSS]`. Uma execução bem-sucedida registra a contagem de itens, importações, duplicatas e imagens com falha; erros são registrados em `[PCH][HostingPRESS RSS] Sync failed` e não desabilitam a publicação agendada. A opção CLI `wrangler tail pchnews` transmite logs em tempo real, desde que o Wrangler esteja autenticado na conta correta.
+
 ## Critério de conclusão
 
 O PCH News só deve ser considerado operacional quando:
