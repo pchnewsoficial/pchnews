@@ -7,6 +7,7 @@ import { appRouter } from "../server/routers";
 import { createContext } from "../server/_core/context";
 import { getApiHealth } from "../server/apiHub";
 import { getSupabaseAdmin } from "../server/_core/supabase";
+import { syncHostingPressRss } from "../server/hostingPressRssSync";
 const SITE_ORIGIN = "https://pchnews.com.br";
 
 const app = express();
@@ -65,7 +66,7 @@ app.use(
 app.listen(3000);
 
 export default {
-  async scheduled(_controller: any, _env: any, _ctx: any) {
+  async scheduled(_controller: any, env: { HOSTINGPRESS_RSS_IMPORT_ENABLED?: string }, _ctx: any) {
     const db = getSupabaseAdmin();
     const nowMs = Date.now();
     const { data: due, error } = await db.from("articles").select("id,scheduledAt,status").eq("status", "scheduled").lte("scheduledAt", nowMs).limit(100);
@@ -93,6 +94,22 @@ export default {
         note: "Publicação automática pelo agendador do Worker.",
         createdAtMs: nowMs
       });
+    }
+    if (due?.length) {
+      console.info("[PCH][Scheduled Publishing] Due articles processed", { count: due.length });
+    }
+
+    // The public HostingPRESS feed is imported only after its HTTPS certificate
+    // is valid and an administrator explicitly enables the Worker variable.
+    if (env?.HOSTINGPRESS_RSS_IMPORT_ENABLED === "true") {
+      try {
+        const result = await syncHostingPressRss();
+        console.info("[PCH][HostingPRESS RSS] Sync completed", result);
+      } catch (error) {
+        console.error("[PCH][HostingPRESS RSS] Sync failed; automatic TLS validation remains enabled", {
+          message: error instanceof Error ? error.message : String(error),
+        });
+      }
     }
   },
 
